@@ -30,16 +30,20 @@ namespace Alkuul.Systems
                 sum = VectorOps.AddWeighted(sum, p.ingredient.emotions, p.ml);
             }
 
-            if (useIce20ml) total += 20f; // 물(감정0/도수0)
+            if (useIce20ml)
+            {
+                total += 20f; // 얼음 = 물 20ml (감정0/도수0)
+            }
+
             float finalABV = (total > 0f) ? abvSum / total : 0f;
 
             return new Drink
             {
                 portions = new List<Portion>(_parts),
                 emotions = VectorOps.Normalize(sum),
-                finalABV = finalABV
+                finalABV = finalABV,
+                totalMl = total
             };
         }
     }
 }
-

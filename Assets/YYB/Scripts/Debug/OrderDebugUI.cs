@@ -17,7 +17,12 @@ namespace Alkuul.UI
         [SerializeField] private List<SecondaryEmotionSO> keywords = new(); // 안도/후회 등
         [SerializeField] private Vector2 abvRange = new Vector2(0, 100);
         [SerializeField] private float timeLimit = 45f;
-        [SerializeField] private string majorEmotionTag = "joy"; // 잔/기법/가니쉬 매칭용
+
+        [Header("Customer (Debug)")]
+        [SerializeField] private string customerId = "debug_customer";
+        [SerializeField] private string customerName = "테스트 손님";
+        [SerializeField] private Tolerance tolerance = Tolerance.Normal;
+        [SerializeField] private IcePreference icePreference = IcePreference.Neutral;
 
         public void OnMakeAndSubmit()
         {
@@ -26,8 +31,18 @@ namespace Alkuul.UI
                 Debug.LogWarning("OrderDebugUI: refs missing.");
                 return;
             }
+
             var order = orderSystem.CreateOrder(keywords, abvRange, timeLimit);
-            brewingUI.OnSubmit(order, majorEmotionTag);
+
+            var customer = new CustomerProfile
+            {
+                id = customerId,
+                displayName = customerName,
+                tolerance = tolerance,
+                icePreference = icePreference
+            };
+
+            brewingUI.OnSubmit(order, customer);
         }
     }
 }
