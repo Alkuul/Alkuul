@@ -15,6 +15,6 @@ MonoBehaviour:
   id: "\uC7941"
   displayName: "\uC7941"
   tags:
-  - 
+  - joy
   capacityMl: 120
   icon: {fileID: 0}

@@ -9,17 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e01ea819008c44a99f85a7868a1f02, type: 3}
-  m_Name: 3
+  m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
+  m_Name: New Garnish SO
   m_EditorClassIdentifier: 
-  id: 3
-  displayName: "\uC2203"
-  abv: 10
-  emotions:
-    joy: 0
-    sadness: 0
-    anger: 0.5
-    fear: 0.5
-    disgust: 0
-    surprise: 0
+  id: 
+  displayName: 
+  tags: []
   icon: {fileID: 0}

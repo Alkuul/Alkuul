@@ -25,11 +25,19 @@ namespace Alkuul.UI
 
         public void OnToggleIce(bool v) => useIce = v;
 
-        public void OnSubmit(Order order, string majorEmotionTag)
+        /// <summary>한 잔 완성 → 평가까지</summary>
+        public void OnSubmit(Order order, CustomerProfile customer)
         {
+            if (brewing == null || serve == null)
+            {
+                Debug.LogWarning("BrewingUI: 시스템 참조 없음");
+                return;
+            }
+
             Drink d = brewing.Compute(useIce);
-            var meta = ServeSystem.Meta.From(technique, glass, garnishes, useIce, majorEmotionTag);
-            var r = serve.ServeOne(order, d, meta);
+            var meta = ServeSystem.Meta.From(technique, glass, garnishes, useIce);
+            var r = serve.ServeOne(order, d, meta, customer);
+
             Debug.Log($"만족도: {r.satisfaction:F1}% | 팁: {r.tip} | 떠남: {r.customerLeft}");
         }
 
@@ -39,6 +47,11 @@ namespace Alkuul.UI
             garnishes.Clear();
             brewing.ResetMix();
         }
+
+        public TechniqueSO SelectedTechnique => technique;
+        public GlassSO SelectedGlass => glass;
+        public IReadOnlyList<GarnishSO> SelectedGarnishes => garnishes;
+        public bool UseIce => useIce;
     }
 }
 
