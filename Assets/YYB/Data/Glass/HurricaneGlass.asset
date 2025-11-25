@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66da0e0534064554fa0b88fde19ee2de, type: 3}
-  m_Name: Shaking
+  m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
+  m_Name: HurricaneGlass
   m_EditorClassIdentifier: 
-  id: "\uC250\uC774\uD0B9"
-  displayName: "\uC250\uC774\uD0B9"
+  id: "\uD5C8\uB9AC\uCF00\uC778 \uAE00\uB77C\uC2A4"
+  displayName: "\uD5C8\uB9AC\uCF00\uC778 \uAE00\uB77C\uC2A4"
   tags:
-  - Anger
+  - Fear
+  capacityMl: 240
+  icon: {fileID: 0}

@@ -9,10 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66da0e0534064554fa0b88fde19ee2de, type: 3}
-  m_Name: Shaking
+  m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
+  m_Name: Indignation 2
   m_EditorClassIdentifier: 
-  id: "\uC250\uC774\uD0B9"
-  displayName: "\uC250\uC774\uD0B9"
-  tags:
-  - Anger
+  id: "\uAD18\uC538\uD568"
+  displayName: "\uAD18\uC538\uD568"
+  composition:
+    joy: 0
+    sadness: 0
+    anger: 0.6
+    fear: 0
+    disgust: 0.4
+    surprise: 0
+    neutral: 0
