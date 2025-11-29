@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66da0e0534064554fa0b88fde19ee2de, type: 3}
-  m_Name: Shaking
+  m_Name: Stirring
   m_EditorClassIdentifier: 
-  id: "\uC250\uC774\uD0B9"
-  displayName: "\uC250\uC774\uD0B9"
+  id: "\uC2A4\uD130\uB9C1"
+  displayName: "\uC2A4\uD130\uB9C1"
   tags:
-  - Anger
+  - Sadness
