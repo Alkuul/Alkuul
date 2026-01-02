@@ -11,6 +11,7 @@ namespace Alkuul.Systems
         private readonly List<Portion> _parts = new();
 
         public void ResetMix() => _parts.Clear();
+        public int PortionCount => _parts.Count;
 
         public void Add(IngredientSO ing, float ml)
         {

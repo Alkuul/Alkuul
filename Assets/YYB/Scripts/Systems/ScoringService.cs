@@ -99,7 +99,7 @@ namespace Alkuul.Systems
             float rawScore = Mathf.Max(match + bonus, 0f);
 
             // UI에 보여줄 만족도는 0~100 클램프
-            float displayScore = Mathf.Clamp(rawScore, 0f, 100f);
+            float displayScore = Mathf.Clamp(rawScore, 0f, 135f);
 
             // 팁: 100점일 때 baseTipPerDrink, 150점이면 1.5배, 이런 느낌
             int tip = Mathf.FloorToInt(baseTipPerDrink * (rawScore / 100f));
