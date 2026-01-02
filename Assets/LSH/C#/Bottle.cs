@@ -1,8 +1,10 @@
 using UnityEngine;
+using Alkuul.Domain;
 
 public class Bottle : MonoBehaviour
 {
-    public AlcoholData alcoholData; // 술 데이터
+    [Header("Data")]
+    public IngredientSO ingredient; // 교체: AlcoholData -> IngredientSO
 
     private Vector3 originalPosition;
     private bool isHeld = false;
@@ -20,35 +22,27 @@ public class Bottle : MonoBehaviour
 
     void Update()
     {
-        // 좌클릭
         if (Input.GetMouseButtonDown(0))
         {
             if (isHeld)
             {
-                // 2. 이미 들고 있다면 -> 상호작용 시도 (따르기 or 내려놓기)
                 HandleInteraction();
             }
             else
             {
-                // 1. 들고 있지 않다면 -> 마우스가 술병 위에 있는지 확인 후 집기
                 if (IsMouseOver())
-                {
                     PickUp();
-                }
             }
         }
 
-        // 들고 있는 상태라면 위치 갱신
         if (isHeld)
-        {
             MoveWithMouse();
-        }
     }
 
     void PickUp()
     {
         isHeld = true;
-        spriteRenderer.sortingOrder = 100; // 맨 앞으로 가져오기
+        spriteRenderer.sortingOrder = 100;
     }
 
     void MoveWithMouse()
@@ -60,31 +54,32 @@ public class Bottle : MonoBehaviour
 
     void HandleInteraction()
     {
-        // 마우스 위치에 무엇이 있는지 확인
+        if (ingredient == null)
+        {
+            Debug.LogWarning("Bottle: ingredient가 비어있습니다(IngredientSO를 할당하세요).");
+            ReturnToOriginalPosition();
+            return;
+        }
+
         Vector2 mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero);
 
         foreach (var hit in hits)
         {
-            // 자기 자신은 무시
             if (hit.collider.gameObject == this.gameObject) continue;
 
-            // 지거를 클릭했다면? -> 술 따르기
             if (hit.collider.TryGetComponent(out Jigger jigger))
             {
-                // 지거에 술을 채우는 시도
-                bool success = jigger.FillFromBottle(alcoholData);
-
+                bool success = jigger.FillFromBottle(ingredient);
                 if (success)
                 {
-                    Debug.Log($"{alcoholData.alcoholName}을(를) 지거에 따랐습니다.");
-                    ReturnToOriginalPosition(); // 성공하면 술병은 제자리로
+                    Debug.Log($"{ingredient.displayName}을(를) 지거에 따랐습니다.");
+                    ReturnToOriginalPosition();
                     return;
                 }
             }
         }
 
-        // 아무것도 클릭하지 않았거나 유효하지 않은 클릭이면 -> 술병 제자리로
         ReturnToOriginalPosition();
     }
 

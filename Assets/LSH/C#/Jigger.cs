@@ -1,4 +1,6 @@
 using UnityEngine;
+using Alkuul.Domain;
+using Alkuul.UI;
 
 public class Jigger : MonoBehaviour
 {
@@ -6,12 +8,14 @@ public class Jigger : MonoBehaviour
     public float smallCapacity = 30f;
     public float largeCapacity = 45f;
 
+    [SerializeField] private BrewingPanelBridge bridge;
+
     private Vector3 originalPosition;
     private bool isHeld = false;
     private bool isFlipped = false;   // false: 30ml, true: 45ml
 
-    private AlcoholData currentContent = null; // 현재 내용물
-    private bool isFilled = false;             // 내용물이 찼는지 여부
+    private IngredientSO currentContent = null; // 교체: AlcoholData -> IngredientSO
+    private bool isFilled = false;
 
     private Camera mainCam;
     private SpriteRenderer spriteRenderer;
@@ -27,7 +31,6 @@ public class Jigger : MonoBehaviour
 
     void Update()
     {
-        // 들고 있으면 따라다니기
         if (isHeld)
         {
             Vector3 mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
@@ -40,27 +43,24 @@ public class Jigger : MonoBehaviour
 
     void HandleInput()
     {
-        // 1. 우클릭: 지거 회전 (용량 전환) - 들고 있지 않을 때만 가능하게 설정
+        // 우클릭: 용량 전환(들고 있지 않을 때)
         if (Input.GetMouseButtonDown(1) && !isHeld)
         {
             if (IsMouseOver())
-            {
                 FlipJigger();
-            }
         }
 
-        // 2. 좌클릭: 지거 집기 or 믹싱글라스에 붓기
+        // 좌클릭: 집기 / 붓기
         if (Input.GetMouseButtonDown(0))
         {
             if (!isHeld)
             {
-                // 바닥에 있을 때: 내용물이 차 있어야만 들 수 있음!
                 if (IsMouseOver())
                 {
                     if (isFilled)
                     {
                         isHeld = true;
-                        spriteRenderer.sortingOrder = 100; // 맨 앞으로
+                        spriteRenderer.sortingOrder = 100;
                     }
                     else
                     {
@@ -70,28 +70,33 @@ public class Jigger : MonoBehaviour
             }
             else
             {
-                // 들고 있을 때: 믹싱글라스 찾기
                 HandleInteractionWhileHeld();
             }
         }
     }
 
-    // 술병(Bottle) 스크립트에서 호출하는 함수
-    public bool FillFromBottle(AlcoholData data)
+    // Bottle에서 호출
+    public bool FillFromBottle(IngredientSO ing)
     {
+        if (ing == null)
+        {
+            Debug.LogWarning("Jigger: FillFromBottle에 null IngredientSO가 들어왔습니다.");
+            return false;
+        }
+
         if (isFilled)
         {
             Debug.Log("지거가 이미 차 있습니다! 버리거나 믹싱글라스에 넣으세요.");
-            return false; // 이미 차있으면 실패 반환
+            return false;
         }
 
-        currentContent = data;
+        currentContent = ing;
         isFilled = true;
 
         float currentCap = isFlipped ? largeCapacity : smallCapacity;
-        Debug.Log($"지거({currentCap}ml)에 {data.alcoholName} 채워짐!");
+        Debug.Log($"지거({currentCap}ml)에 {ing.displayName} 채워짐!");
 
-        // 시각적 피드백 (노란색으로 변경)
+        // 시각적 피드백
         spriteRenderer.color = Color.yellow;
         return true;
     }
@@ -105,7 +110,6 @@ public class Jigger : MonoBehaviour
         {
             if (hit.collider.gameObject == this.gameObject) continue;
 
-            // 믹싱글라스를 클릭했다면? -> 붓기
             if (hit.collider.TryGetComponent(out MixingGlass glass))
             {
                 PourIntoGlass(glass);
@@ -113,21 +117,32 @@ public class Jigger : MonoBehaviour
             }
         }
 
-        // 아무것도 클릭 안 했으면 제자리로
         ReturnToOriginalPosition();
     }
 
     void PourIntoGlass(MixingGlass glass)
     {
-        float capacity = isFlipped ? largeCapacity : smallCapacity;
-        glass.AddLiquid(currentContent, capacity);
+        if (!isFilled || currentContent == null)
+        {
+            Debug.LogWarning("지거가 비어있습니다.");
+            ReturnToOriginalPosition();
+            return;
+        }
 
-        // 비우기 및 초기화
+        float capacity = isFlipped ? largeCapacity : smallCapacity;
+
+        var poured = currentContent;
+        glass.AddLiquid(poured, capacity);
+
+        if (bridge != null)
+            bridge.OnPortionAdded(poured, capacity);
+
+        // 비우기
         currentContent = null;
         isFilled = false;
-        spriteRenderer.color = Color.white; // 색상 복구
+        spriteRenderer.color = Color.white;
 
-        ReturnToOriginalPosition(); // 붓고 나면 자동으로 제자리로
+        ReturnToOriginalPosition();
     }
 
     void FlipJigger()
@@ -139,7 +154,7 @@ public class Jigger : MonoBehaviour
         }
 
         isFlipped = !isFlipped;
-        transform.Rotate(0, 0, 180); // 시각적 회전
+        transform.Rotate(0, 0, 180);
         float cap = isFlipped ? largeCapacity : smallCapacity;
         Debug.Log($"지거 용량 변경 -> {cap}ml");
     }
