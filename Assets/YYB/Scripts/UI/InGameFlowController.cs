@@ -26,6 +26,8 @@ namespace Alkuul.UI
         [Header("Order Panel UI (optional)")]
         [SerializeField] private Text orderText;  // TMP 쓰면 TextMeshProUGUI로 바꿔도 됨
 
+        [SerializeField] private bool verboseLog = true;
+
         private int _servedCustomersToday;
         private CustomerOrdersAuthoring _activeCustomer;
         private List<OrderSlotRuntime> _slots;
@@ -33,6 +35,8 @@ namespace Alkuul.UI
 
         public void StartDay()
         {
+            if (verboseLog) Debug.Log($"[Flow] StartDay day={dayCycle?.currentDay} customersPerDay={customersPerDay}");
+
             _servedCustomersToday = 0;
 
             // DayCycleController가 1초 뒤 자동 종료하는 상태면, 아래 StartDay 호출을 쓰지 말고
@@ -44,6 +48,11 @@ namespace Alkuul.UI
 
         private void StartNextCustomer()
         {
+            string GetCustomerLabel(CustomerProfile p)
+            => string.IsNullOrWhiteSpace(p.displayName) ? p.id : p.displayName;
+            var p = _activeCustomer.profile;
+            if (verboseLog) Debug.Log($"[Flow] NextCustomer={GetCustomerLabel(p)} slots={_slots.Count}");
+
             _activeCustomer = PickCustomer();
             if (_activeCustomer == null)
             {
@@ -68,6 +77,8 @@ namespace Alkuul.UI
 
         public void OnClickStartBrewing()
         {
+            if (verboseLog) Debug.Log($"[Flow] Brew slot={_slotIndex + 1}/{_slots.Count}");
+
             if (_slots == null || _slotIndex >= _slots.Count)
             {
                 Debug.LogWarning("[Flow] No slot to brew.");
@@ -82,6 +93,8 @@ namespace Alkuul.UI
         {
             // 1) 현재 주문 슬롯의 1잔 제출
             var r = bridge.ServeOnce();
+
+            if (verboseLog) Debug.Log($"[Flow] Serve result sat={r.satisfaction} left={r.customerLeft}");
 
             // 2) 떠났으면 즉시 손님 종료
             if (r.customerLeft)
@@ -106,7 +119,6 @@ namespace Alkuul.UI
         private void FinishCustomerAndContinue()
         {
             bridge.FinishCustomer();
-
             _servedCustomersToday++;
             if (_servedCustomersToday >= customersPerDay)
             {
