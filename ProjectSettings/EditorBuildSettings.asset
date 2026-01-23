@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/YYB/Scenes/BrewingScene.unity
+    guid: ab180170581ab70408a626beeba16db6
+  - enabled: 1
+    path: Assets/YYB/Scenes/CoreScene.unity
+    guid: 950af890931d4d24d8b71ab26c65f77e
+  - enabled: 1
+    path: Assets/YYB/Scenes/OrderScene.unity
+    guid: 1fb8bd4c6af5c134fa9a8a9eb9c878e9
   m_configObjects: {}
