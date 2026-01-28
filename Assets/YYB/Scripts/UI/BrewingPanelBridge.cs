@@ -44,6 +44,15 @@ public class BrewingPanelBridge : MonoBehaviour
     // --------------------
     // Session API
     // --------------------
+
+    private void Awake()
+    {
+        if (brewing == null) brewing = FindObjectOfType<BrewingSystem>();
+        if (serve == null) serve = FindObjectOfType<ServeSystem>();
+        if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>();
+        if (resultUI == null) resultUI = FindObjectOfType<ResultUI>();
+    }
+
     public void BeginCustomer(CustomerProfile c)
     {
         customer = c;
