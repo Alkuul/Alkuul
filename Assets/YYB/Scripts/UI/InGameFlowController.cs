@@ -1,9 +1,11 @@
+using Alkuul.Domain;
+using Alkuul.Systems;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Alkuul.Domain;
-using Alkuul.Systems;
 
 namespace Alkuul.UI
 {
@@ -27,6 +29,7 @@ namespace Alkuul.UI
         [SerializeField] private Text orderText;  // TMP 쓰면 TextMeshProUGUI로 바꿔도 됨
 
         [SerializeField] private bool verboseLog = true;
+        [SerializeField] private string brewingSceneName = "BrewingScene";
 
         private int _servedCustomersToday;
         private CustomerOrdersAuthoring _activeCustomer;
@@ -48,11 +51,6 @@ namespace Alkuul.UI
 
         private void StartNextCustomer()
         {
-            string GetCustomerLabel(CustomerProfile p)
-            => string.IsNullOrWhiteSpace(p.displayName) ? p.id : p.displayName;
-            var p = _activeCustomer.profile;
-            if (verboseLog) Debug.Log($"[Flow] NextCustomer={GetCustomerLabel(p)} slots={_slots.Count}");
-
             _activeCustomer = PickCustomer();
             if (_activeCustomer == null)
             {
@@ -63,10 +61,13 @@ namespace Alkuul.UI
             _slots = _activeCustomer.BuildRuntime(orderSystem);
             _slotIndex = 0;
 
-            bridge.BeginCustomer(_activeCustomer.profile);
-            RefreshOrderPanelText();
+            Debug.Log($"[Flow] PickCustomer={_activeCustomer.profile.displayName} slotsBuilt={_slots.Count} orderSystemNull={(orderSystem == null)}");
 
-            Show(orderPanel);
+            if (_slots == null || _slots.Count == 0)
+            {
+                Debug.LogWarning("[Flow] Customer has 0 slots. Check CustomerOrdersAuthoring slots / OrderSystem ref.");
+                return;
+            }
         }
 
         private CustomerOrdersAuthoring PickCustomer()
@@ -77,16 +78,41 @@ namespace Alkuul.UI
 
         public void OnClickStartBrewing()
         {
-            if (verboseLog) Debug.Log($"[Flow] Brew slot={_slotIndex + 1}/{_slots.Count}");
-
-            if (_slots == null || _slotIndex >= _slots.Count)
+            if (_slots == null || _slots.Count == 0)
             {
                 Debug.LogWarning("[Flow] No slot to brew.");
                 return;
             }
 
-            bridge.SetCurrentOrder(_slots[_slotIndex].order);
-            Show(brewingPanel);
+            if (_slotIndex < 0 || _slotIndex >= _slots.Count)
+            {
+                Debug.LogWarning("[Flow] Slot index out of range.");
+                return;
+            }
+
+            // 1) 조주 씬 로드
+            StartCoroutine(LoadBrewingAndBindBridge());
+        }
+
+        private IEnumerator LoadBrewingAndBindBridge()
+        {
+            // 씬 로드
+            yield return SceneManager.LoadSceneAsync(brewingSceneName);
+
+            // 브릿지 찾기(조주 씬에 있어야 함)
+            bridge = FindObjectOfType<BrewingPanelBridge>();
+            if (bridge == null)
+            {
+                Debug.LogError("[Flow] BrewingPanelBridge not found in BrewingScene.");
+                yield break;
+            }
+
+            // 2) 현재 손님/현재 주문을 브릿지에 주입
+            bridge.BeginCustomer(_activeCustomer.profile);              // 네 브릿지 메서드명에 맞게
+            bridge.SetCurrentOrder(_slots[_slotIndex].order);           // 네 브릿지 메서드명에 맞게
+
+            if (verboseLog)
+                Debug.Log($"[Flow] Enter BrewingScene slot={_slotIndex + 1}/{_slots.Count}");
         }
 
         public void OnClickServe()
