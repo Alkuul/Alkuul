@@ -13,7 +13,7 @@ namespace Alkuul.Systems
         [Header("Bonuses")]
         public float techniqueMatch = 5f;
         public float glassMatch = 5f;
-        public float garnish1 = 5f, garnish2 = 3f, garnish3 = 2f;
+        public float garnish1 = 5f, garnish2 = 2f, garnish3 = 3f;
         public float iceLike = 15f, iceDislike = -10f;
 
         [Header("Tip")]

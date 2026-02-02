@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 namespace Alkuul.UI
 {
@@ -26,13 +27,13 @@ namespace Alkuul.UI
         [SerializeField] private GameObject endDayPanel;
 
         [Header("Order Panel UI (optional)")]
-        [SerializeField] private Text orderText;  // TMP 쓰면 TextMeshProUGUI로 바꿔도 됨
-
+        [SerializeField] private OrderDialogueUI orderUI;
         [Header("Day Plans (optional)")]
         [SerializeField] private List<DayOrdersSO> dayPlans = new();
 
         [SerializeField] private bool verboseLog = true;
         [SerializeField] private string brewingSceneName = "BrewingScene";
+        
 
         private int _servedCustomersToday;
         private CustomerOrdersAuthoring _activeCustomer;
@@ -210,16 +211,17 @@ namespace Alkuul.UI
 
         private void RefreshOrderPanelText()
         {
-            if (orderText == null) return;
-            if (_slots == null || _slotIndex >= _slots.Count) { orderText.text = ""; return; }
+            if (_slots == null || _slots.Count == 0) return;
+            if (_slotIndex < 0 || _slotIndex >= _slots.Count) return;
 
-            var s = _slots[_slotIndex];
+            var slot = _slots[_slotIndex];
 
-            string line = string.IsNullOrWhiteSpace(s.dialogueLine)
-                ? BuildAutoLine(s.keywords)
-                : s.dialogueLine;
+            string line = string.IsNullOrWhiteSpace(slot.dialogueLine)
+                ? BuildAutoLine(slot.keywords)
+                : slot.dialogueLine;
 
-            orderText.text = $"주문 {_slotIndex + 1}/{_slots.Count}\n{line}";
+            if (orderUI != null)
+                orderUI.Set(_activeProfile, _slotIndex + 1, _slots.Count, line, slot.order);
         }
 
         private string BuildAutoLine(List<SecondaryEmotionSO> keywords)
@@ -260,6 +262,12 @@ namespace Alkuul.UI
             foreach (var d in plan.customers)
                 if (d != null) c++;
             return Mathf.Min(c, 3);
+        }
+
+        public void BindOrderUI(OrderDialogueUI ui)
+        {
+            orderUI = ui;
+            RefreshOrderPanelText(); // 이미 진행 중인 주문이 있으면 즉시 갱신
         }
     }
 }

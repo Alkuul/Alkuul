@@ -16,20 +16,18 @@ MonoBehaviour:
   customers:
   - profile:
       id: Owner
-      displayName: Owner
+      displayName: "\uC0AC\uC7A5\uB2D8"
       tolerance: 1
-      icePreference: 0
+      icePreference: 1
     slots:
-    - dialogueLine: 
+    - dialogueLine: "\uD654\uAC00 \uB09C\uB2E4."
       keywords:
-      - {fileID: 0}
+      - {fileID: 11400000, guid: 94aad4c62ec0c444e9c4f156d19ce6f2, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0
-    - dialogueLine: 
-      keywords: []
-      abvRange: {x: 0, y: 0}
-      timeLimit: 0
-    - dialogueLine: 
-      keywords: []
+    - dialogueLine: "\uBC85\uCC28\uACE0 \uC5F0\uBBFC."
+      keywords:
+      - {fileID: 11400000, guid: f9a0e88cf60f1864fb845ca3ccfebf0c, type: 2}
+      - {fileID: 11400000, guid: 56ccc050ca32dad4e812f0e6a60e24a5, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0

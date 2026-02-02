@@ -41,6 +41,11 @@ public class BrewingPanelBridge : MonoBehaviour
     private Order currentOrder;
     private bool hasOrder;
 
+    public bool UsesIce => usesIce;
+    public int CurrentPortionCount => brewing != null ? brewing.PortionCount : 0;
+    public Alkuul.Domain.Drink PreviewDrink() => brewing != null ? brewing.Compute(usesIce) : default;
+
+
     // 결과 누적
     private readonly List<Drink> servedDrinks = new();
     private readonly List<DrinkResult> drinkResults = new();
@@ -56,6 +61,20 @@ public class BrewingPanelBridge : MonoBehaviour
         if (serve == null) serve = FindObjectOfType<ServeSystem>();
         if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>();
         if (resultUI == null) resultUI = FindObjectOfType<ResultUI>();
+    }
+    private bool EnsureSystems()
+    {
+        // includeInactive=true (Unity 2020+)
+        if (brewing == null) brewing = FindObjectOfType<Alkuul.Systems.BrewingSystem>(true);
+        if (serve == null) serve = FindObjectOfType<Alkuul.Systems.ServeSystem>(true);
+
+        if (brewing == null || serve == null)
+        {
+            Debug.LogError($"[BrewingPanelBridge] Missing refs. brewing={(brewing != null)} serve={(serve != null)} " +
+                           $"(코어 DontDestroy 안에 시스템이 실제로 존재하는지 확인!)");
+            return false;
+        }
+        return true;
     }
 
     public void BeginCustomer(CustomerProfile c)
@@ -164,10 +183,11 @@ public class BrewingPanelBridge : MonoBehaviour
     // Jigger 호환 엔트리포인트
     public void OnPortionAdded(IngredientSO ingredient, float ml)
     {
-        if (brewing == null) return;
+        if (!EnsureSystems()) return;
         if (ingredient == null || ml <= 0f) return;
         brewing.Add(ingredient, ml);
         Log($"[Bridge] AddPortion {ingredient.name} {ml}ml");
+        Log($"[Bridge] AddPortion {ingredient.name} {ml}ml | count={brewing.PortionCount} | brewingID={brewing.GetInstanceID()} | bridgeID={GetInstanceID()}");
     }
 
     // 별칭
