@@ -33,7 +33,12 @@ namespace Alkuul.Systems
 
             if (useIce20ml)
             {
-                total += 20f; // 얼음 = 물 20ml (감정0/도수0)
+                float iceMl = 20f;
+                total += iceMl;
+
+                // 물 = 무감정 100%
+                var water = new EmotionVector { neutral = 1f };
+                sum = VectorOps.AddWeighted(sum, water, iceMl);
             }
 
             float finalABV = (total > 0f) ? abvSum / total : 0f;

@@ -29,12 +29,22 @@ public class BrewingPanelBridge : MonoBehaviour
     [Tooltip("만족도 표시가 0~135일 때도, 평판 임계값(81/61/...)을 기존 0~100 기준으로 유지")]
     [SerializeField] private bool scaleSatisfaction135To100ForRep = true;
 
+    [SerializeField] private bool verboseLog = true;
+    private void Log(string msg)
+    {
+        if (verboseLog) Debug.Log(msg);
+    }
     // Session
     private CustomerProfile customer;
     private bool hasCustomer;
 
     private Order currentOrder;
     private bool hasOrder;
+
+    public bool UsesIce => usesIce;
+    public int CurrentPortionCount => brewing != null ? brewing.PortionCount : 0;
+    public Alkuul.Domain.Drink PreviewDrink() => brewing != null ? brewing.Compute(usesIce) : default;
+
 
     // 결과 누적
     private readonly List<Drink> servedDrinks = new();
@@ -51,6 +61,20 @@ public class BrewingPanelBridge : MonoBehaviour
         if (serve == null) serve = FindObjectOfType<ServeSystem>();
         if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>();
         if (resultUI == null) resultUI = FindObjectOfType<ResultUI>();
+    }
+    private bool EnsureSystems()
+    {
+        // includeInactive=true (Unity 2020+)
+        if (brewing == null) brewing = FindObjectOfType<Alkuul.Systems.BrewingSystem>(true);
+        if (serve == null) serve = FindObjectOfType<Alkuul.Systems.ServeSystem>(true);
+
+        if (brewing == null || serve == null)
+        {
+            Debug.LogError($"[BrewingPanelBridge] Missing refs. brewing={(brewing != null)} serve={(serve != null)} " +
+                           $"(코어 DontDestroy 안에 시스템이 실제로 존재하는지 확인!)");
+            return false;
+        }
+        return true;
     }
 
     public void BeginCustomer(CustomerProfile c)
@@ -85,33 +109,52 @@ public class BrewingPanelBridge : MonoBehaviour
     // --------------------
     // Inputs / UI bindings
     // --------------------
-    public void SetIce(bool on) => usesIce = on;
+    public void SetIce(bool on)
+    {
+        usesIce = on;
+        Log($"[Bridge] Ice={on}");
+    }
     public void SetUsesIce(bool on) => SetIce(on);
 
-    public void SelectTechnique(TechniqueSO t) => technique = t;
+    public void SelectTechnique(TechniqueSO t)
+    {
+        technique = t;
+        Log($"[Bridge] Technique={(t ? t.name : "NULL")}");
+    }
     public void SetTechnique(TechniqueSO t) => SelectTechnique(t);
-
-    public void SelectGlass(GlassSO g) => glass = g;
+    public void SelectGlass(GlassSO g)
+    {
+        glass = g;
+        Log($"[Bridge] Glass={(g ? g.name : "NULL")}");
+    }
     public void SetGlass(GlassSO g) => SelectGlass(g);
 
     // GarnishToggleBinder 호환 (GarnishSO, bool) -> bool
     public bool SetGarnishes(GarnishSO garnish, bool on)
     {
-        if (garnish == null) return false;
+        if (garnish == null) { Log("[Bridge] Garnish=NULL"); return false; }
 
         if (!on)
         {
             garnishes.Remove(garnish);
+            Log($"[Bridge] Garnish OFF: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
             return true;
         }
 
         if (garnishes.Contains(garnish))
+        {
+            Log($"[Bridge] Garnish already ON: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
             return true;
+        }
 
         if (garnishes.Count >= maxGarnishSlots)
+        {
+            Log($"[Bridge] Garnish ON blocked(slot full): {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
             return false;
+        }
 
         garnishes.Add(garnish);
+        Log($"[Bridge] Garnish ON: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
         return true;
     }
 
@@ -140,11 +183,11 @@ public class BrewingPanelBridge : MonoBehaviour
     // Jigger 호환 엔트리포인트
     public void OnPortionAdded(IngredientSO ingredient, float ml)
     {
-        if (brewing == null) return;
+        if (!EnsureSystems()) return;
         if (ingredient == null || ml <= 0f) return;
-
-        // 주문/손님 세팅 전이라도 재료는 누적될 수 있게(테스트 편의)
         brewing.Add(ingredient, ml);
+        Log($"[Bridge] AddPortion {ingredient.name} {ml}ml");
+        Log($"[Bridge] AddPortion {ingredient.name} {ml}ml | count={brewing.PortionCount} | brewingID={brewing.GetInstanceID()} | bridgeID={GetInstanceID()}");
     }
 
     // 별칭
@@ -153,6 +196,7 @@ public class BrewingPanelBridge : MonoBehaviour
     public void ResetMix()
     {
         brewing?.ResetMix();
+        Log("[Bridge] ResetMix");
     }
 
     // --------------------
@@ -167,6 +211,8 @@ public class BrewingPanelBridge : MonoBehaviour
             Debug.LogWarning($"[BrewingPanelBridge] Serve blocked: {reason}");
             return default;
         }
+
+        Log($"[Bridge] ServeOnce start (Ice={usesIce}, Tech={(technique ? technique.name : "NULL")}, Glass={(glass ? glass.name : "NULL")}, Garnish={garnishes.Count})");
 
         Drink d = brewing.Compute(usesIce);
         var meta = ServeSystem.Meta.From(technique, glass, garnishes, usesIce);
