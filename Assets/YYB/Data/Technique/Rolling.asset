@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66da0e0534064554fa0b88fde19ee2de, type: 3}
   m_Name: Rolling
   m_EditorClassIdentifier: 
-  id: "\uB864\uB9C1"
+  id: Rolling
   displayName: "\uB864\uB9C1"
   tags:
   - Joy

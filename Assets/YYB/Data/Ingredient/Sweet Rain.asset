@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sweet Rain
   m_EditorClassIdentifier: 
   id: Sweet Rain
-  displayName: Sweet Rain
+  displayName: "\uB2EC\uCF64\uD55C \uBE44"
   abv: 31
   emotions:
     joy: 0.5

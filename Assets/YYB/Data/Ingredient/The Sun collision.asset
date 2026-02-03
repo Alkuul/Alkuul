@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: The Sun collision
   m_EditorClassIdentifier: 
   id: The Sun collision
-  displayName: The Sun collision
+  displayName: "\uD0DC\uC591\uCDA9\uB3CC"
   abv: 44
   emotions:
     joy: 0

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Awe
   m_EditorClassIdentifier: 
-  id: "\uACBD\uC678"
+  id: Awe
   displayName: "\uACBD\uC678"
   composition:
     joy: 0.5

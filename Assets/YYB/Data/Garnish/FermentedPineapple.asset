@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
-  m_Name: HerbFloral
+  m_Name: FermentedPineapple
   m_EditorClassIdentifier: 
-  id: "\uD5C8\uBE0C/\uD50C\uB85C\uB7F4"
-  displayName: "\uD5C8\uBE0C/\uD50C\uB85C\uB7F4"
+  id: Fermented Pineapple
+  displayName: "\uBC1C\uD6A8 \uD30C\uC778\uC560\uD50C"
   tags:
-  - Sadness
+  - Disgust
   icon: {fileID: 0}

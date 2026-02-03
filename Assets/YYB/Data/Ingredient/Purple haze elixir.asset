@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Purple haze elixir
   m_EditorClassIdentifier: 
   id: Purple haze elixir
-  displayName: Purple haze elixir
+  displayName: "\uD37C\uD50C \uD5E4\uC774\uC988 \uC5D8\uB9AD\uC11C"
   abv: 31
   emotions:
     joy: 0

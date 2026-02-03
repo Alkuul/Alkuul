@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
-  m_Name: SmokeInfusing
+  m_Name: GrapefruitCitrus
   m_EditorClassIdentifier: 
-  id: "\uC2A4\uBAA8\uD06C \uC778\uD4E8\uC9D5"
-  displayName: "\uC2A4\uBAA8\uD06C \uC778\uD4E8\uC9D5"
+  id: Grapefruit Citrus
+  displayName: "\uC790\uBABD \uAECD\uC9C8"
   tags:
-  - Fear
+  - Joy
   icon: {fileID: 0}

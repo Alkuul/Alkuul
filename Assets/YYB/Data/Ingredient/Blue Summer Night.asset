@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Blue Summer Night
   m_EditorClassIdentifier: 
   id: Blue Summer Night
-  displayName: Blue Summer Night
+  displayName: "\uBE14\uB8E8 \uC11C\uBA38 \uB098\uC774\uD2B8"
   abv: 25
   emotions:
     joy: 0.6

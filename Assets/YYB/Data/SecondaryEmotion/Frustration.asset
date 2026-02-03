@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Frustration
   m_EditorClassIdentifier: 
-  id: "\uC88C\uC808"
+  id: Frustration
   displayName: "\uC88C\uC808"
   composition:
     joy: 0

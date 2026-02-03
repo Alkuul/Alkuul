@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Blooming Whispher
   m_EditorClassIdentifier: 
   id: Blooming Whispher
-  displayName: Blooming Whispher
+  displayName: "\uBE14\uB8E8\uBC0D \uC704\uC2A4\uD37C"
   abv: 18
   emotions:
     joy: 0.5

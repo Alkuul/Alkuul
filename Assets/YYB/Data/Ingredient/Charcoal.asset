@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Charcoal
   m_EditorClassIdentifier: 
   id: Charcoal
-  displayName: Charcoal
+  displayName: "\uCC28\uCF5C"
   abv: 28
   emotions:
     joy: 0

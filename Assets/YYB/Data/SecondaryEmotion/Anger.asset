@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Anger
   m_EditorClassIdentifier: 
-  id: "\uD654\uB0A8"
+  id: Anger
   displayName: "\uD654\uB0A8"
   composition:
     joy: 0

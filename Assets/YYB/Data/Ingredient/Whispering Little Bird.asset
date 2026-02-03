@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Whispering Little Bird
   m_EditorClassIdentifier: 
   id: Whispering Little Bird
-  displayName: Whispering Little Bird
+  displayName: "\uC18D\uC0AD\uC774\uB294 \uC791\uC740 \uC0C8"
   abv: 15
   emotions:
     joy: 0.8

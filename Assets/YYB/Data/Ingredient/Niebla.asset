@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Niebla
   m_EditorClassIdentifier: 
   id: Niebla
-  displayName: Niebla
+  displayName: "\uB124\uBE14\uB77C"
   abv: 66
   emotions:
     joy: 0

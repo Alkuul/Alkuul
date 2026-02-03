@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
   m_Name: OldFashioned
   m_EditorClassIdentifier: 
-  id: "\uC62C\uB4DC\uD328\uC158\uB4DC \uC794"
+  id: OldFashionedGlass
   displayName: "\uC62C\uB4DC\uD328\uC158\uB4DC \uC794"
   tags:
   - Anger

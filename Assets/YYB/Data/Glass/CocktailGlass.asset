@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
   m_Name: CocktailGlass
   m_EditorClassIdentifier: 
-  id: "\uCE75\uD14C\uC77C \uAE00\uB77C\uC2A4"
-  displayName: "\uCE75\uD14C\uC77C \uAE00\uB77C"
+  id: CocktailGlass
+  displayName: "\uCE75\uD14C\uC77C \uAE00\uB77C\uC2A4"
   tags:
   - Joy
   capacityMl: 120

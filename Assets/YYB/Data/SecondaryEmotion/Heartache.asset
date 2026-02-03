@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Heartache
   m_EditorClassIdentifier: 
-  id: "\uC560\uB2EC\uD514"
+  id: Heartache
   displayName: "\uC560\uB2EC\uD514"
   composition:
     joy: 0

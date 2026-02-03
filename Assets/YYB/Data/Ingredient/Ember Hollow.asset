@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Ember Hollow
   m_EditorClassIdentifier: 
   id: Ember Hollow
-  displayName: Ember Hollow
+  displayName: "\uC5E0\uBC84\uC758 \uBE48 \uC18D"
   abv: 30
   emotions:
     joy: 0.7

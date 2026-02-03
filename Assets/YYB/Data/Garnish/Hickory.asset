@@ -9,16 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
-  m_Name: Indignation 2
+  m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
+  m_Name: Hickory
   m_EditorClassIdentifier: 
-  id: "\uAD18\uC538\uD568"
-  displayName: "\uAD18\uC538\uD568"
-  composition:
-    joy: 0
-    sadness: 0
-    anger: 0.6
-    fear: 0
-    disgust: 0.4
-    surprise: 0
-    neutral: 0
+  id: Hickory
+  displayName: "\uD788\uCF54\uB9AC"
+  tags:
+  - Fear
+  icon: {fileID: 0}
