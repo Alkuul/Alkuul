@@ -6,6 +6,7 @@ using Alkuul.UI;
 
 public class TabletController : MonoBehaviour
 {
+    /*
     [Header("Core Systems")]
     [SerializeField] private DayCycleController day;
     [SerializeField] private EconomySystem economy;
@@ -179,5 +180,5 @@ public class TabletController : MonoBehaviour
     {
         if (innDecision == null) return;
         innDecision.EvictOne();
-    }
+    }*/
 }
