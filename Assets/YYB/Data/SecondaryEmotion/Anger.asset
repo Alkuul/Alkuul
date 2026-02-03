@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: "\uD654\uB0A8"
   composition:
     joy: 0
-    sadness: 1
-    anger: 0
+    sadness: 0
+    anger: 1
     fear: 0
     disgust: 0
     surprise: 0

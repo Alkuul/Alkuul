@@ -13,7 +13,7 @@ namespace Alkuul.Systems
         [Header("Bonuses")]
         public float techniqueMatch = 5f;
         public float glassMatch = 5f;
-        public float garnish1 = 5f, garnish2 = 3f, garnish3 = 2f;
+        public float garnish1 = 5f, garnish2 = 2f, garnish3 = 3f;
         public float iceLike = 15f, iceDislike = -10f;
 
         [Header("Tip")]
@@ -99,7 +99,7 @@ namespace Alkuul.Systems
             float rawScore = Mathf.Max(match + bonus, 0f);
 
             // UI에 보여줄 만족도는 0~100 클램프
-            float displayScore = Mathf.Clamp(rawScore, 0f, 100f);
+            float displayScore = Mathf.Clamp(rawScore, 0f, 135f);
 
             // 팁: 100점일 때 baseTipPerDrink, 150점이면 1.5배, 이런 느낌
             int tip = Mathf.FloorToInt(baseTipPerDrink * (rawScore / 100f));

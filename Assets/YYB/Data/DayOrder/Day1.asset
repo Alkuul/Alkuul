@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72ca2f850192ca4eb890f26c8a52108, type: 3}
+  m_Name: Day1
+  m_EditorClassIdentifier: 
+  dayNumber: 1
+  customers:
+  - profile:
+      id: Owner
+      displayName: "\uC0AC\uC7A5\uB2D8"
+      tolerance: 1
+      icePreference: 1
+    slots:
+    - dialogueLine: "\uD654\uAC00 \uB09C\uB2E4."
+      keywords:
+      - {fileID: 11400000, guid: 94aad4c62ec0c444e9c4f156d19ce6f2, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+    - dialogueLine: "\uBC85\uCC28\uACE0 \uC5F0\uBBFC."
+      keywords:
+      - {fileID: 11400000, guid: f9a0e88cf60f1864fb845ca3ccfebf0c, type: 2}
+      - {fileID: 11400000, guid: 56ccc050ca32dad4e812f0e6a60e24a5, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
