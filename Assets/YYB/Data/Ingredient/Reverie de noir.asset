@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Reverie de noir
   m_EditorClassIdentifier: 
   id: Reverie de noir
-  displayName: Reverie de noir
+  displayName: "\uB9AC\uBCA0\uB9AC\uC5D0 \uB4DC \uB290\uC640\uB974"
   abv: 66
   emotions:
     joy: 0

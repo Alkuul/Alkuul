@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Flavor Quake
   m_EditorClassIdentifier: 
   id: Flavor Quake
-  displayName: Flavor Quake
+  displayName: "\uB9DB\uC758 \uC9C0\uC9C4"
   abv: 33
   emotions:
     joy: 0.33

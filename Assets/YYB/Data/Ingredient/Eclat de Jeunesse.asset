@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Eclat de Jeunesse
   m_EditorClassIdentifier: 
   id: Eclat de Jeunesse
-  displayName: Eclat de Jeunesse
+  displayName: "\uC5D0\uD074\uB78F \uB370 \uC96C\uB124\uC2A4"
   abv: 25
   emotions:
     joy: 0.6

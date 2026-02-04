@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
-  m_Name: Citrus
+  m_Name: Chamomile
   m_EditorClassIdentifier: 
-  id: "\uC2DC\uD2B8\uB7EC\uC2A4"
-  displayName: "\uC2DC\uD2B8\uB7EC\uC2A4"
+  id: Chamomile
+  displayName: "\uCE74\uBAA8\uB9C8\uC77C"
   tags:
-  - Joy
+  - Sadness
   icon: {fileID: 0}

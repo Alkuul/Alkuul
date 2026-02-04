@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Melancholy
   m_EditorClassIdentifier: 
-  id: "2\uCC28\uAC10\uC8151"
-  displayName: "2\uCC28\uAC10\uC8151"
+  id: Melancholy
+  displayName: "\uBA5C\uB791\uAF34\uB9AC"
   composition:
     joy: 0
     sadness: 0.5

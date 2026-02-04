@@ -9,16 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
-  m_Name: Relief 2
+  m_Script: {fileID: 11500000, guid: 92e01ea819008c44a99f85a7868a1f02, type: 3}
+  m_Name: Glenfion
   m_EditorClassIdentifier: 
-  id: "\uC548\uB3C4"
-  displayName: "\uC548\uB3C4"
-  composition:
-    joy: 0.6
-    sadness: 0.4
+  id: Glenfion
+  displayName: "\uAE00\uB80C\uD53C\uC628"
+  abv: 20
+  emotions:
+    joy: 0.7
+    sadness: 0
     anger: 0
-    fear: 0
+    fear: 0.3
     disgust: 0
     surprise: 0
     neutral: 0
+  icon: {fileID: 0}

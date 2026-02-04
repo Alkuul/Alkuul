@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: B dong
   m_EditorClassIdentifier: 
   id: B dong
-  displayName: B dong
+  displayName: "\uBE44\uB3D9"
   abv: 40
   emotions:
     joy: 1

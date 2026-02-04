@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Wrath
   m_EditorClassIdentifier: 
-  id: "\uB178\uC5EC\uC6C0"
+  id: Wrath
   displayName: "\uB178\uC5EC\uC6C0"
   composition:
     joy: 0

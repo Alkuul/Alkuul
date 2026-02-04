@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lunar Garden
   m_EditorClassIdentifier: 
   id: Lunar Garden
-  displayName: Lunar Garden
+  displayName: "\uB8E8\uB098 \uAC00\uB4E0"
   abv: 34
   emotions:
     joy: 0

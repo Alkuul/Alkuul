@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Floral Whisper
   m_EditorClassIdentifier: 
   id: Floral Whisper
-  displayName: Floral Whisper
+  displayName: "\uAF43\uC758 \uC18D\uC0AD\uC784"
   abv: 13
   emotions:
     joy: 0.7

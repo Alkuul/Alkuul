@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Moka Dust
   m_EditorClassIdentifier: 
   id: Moka Dust
-  displayName: Moka Dust
+  displayName: "\uBAA8\uCE74 \uB354\uC2A4\uD2B8"
   abv: 34
   emotions:
     joy: 0

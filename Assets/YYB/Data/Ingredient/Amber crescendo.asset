@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Amber crescendo
   m_EditorClassIdentifier: 
   id: Amber crescendo
-  displayName: Amber crescendo
+  displayName: "\uC570\uBC84 \uD06C\uB808\uC13C\uB3C4"
   abv: 70
   emotions:
     joy: 0

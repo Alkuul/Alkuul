@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
   m_Name: Metal
   m_EditorClassIdentifier: 
-  id: "\uAE08\uC18D \uC794"
+  id: Metal
   displayName: "\uAE08\uC18D \uC794"
   tags:
   - Disgust

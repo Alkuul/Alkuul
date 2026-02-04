@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Verdad
   m_EditorClassIdentifier: 
   id: Verdad
-  displayName: Verdad
+  displayName: "\uBCA0\uB974\uB2E4\uB4DC"
   abv: 52
   emotions:
     joy: 0

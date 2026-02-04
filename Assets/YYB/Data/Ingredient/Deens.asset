@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Deens
   m_EditorClassIdentifier: 
   id: Deens
-  displayName: Deens
+  displayName: "\uB518\uC2A4"
   abv: 21
   emotions:
     joy: 0.5

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Hope
   m_EditorClassIdentifier: 
-  id: "\uD76C\uB9DD"
+  id: Hope
   displayName: "\uD76C\uB9DD"
   composition:
     joy: 0.9

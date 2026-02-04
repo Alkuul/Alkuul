@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Grape Jam Jam
   m_EditorClassIdentifier: 
   id: Grape Jam Jam
-  displayName: Grape Jam Jam
+  displayName: "\uD3EC\uB3C4\uC7BC\uC7BC"
   abv: 20
   emotions:
     joy: 0.9

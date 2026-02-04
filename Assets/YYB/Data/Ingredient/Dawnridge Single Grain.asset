@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dawnridge Single Grain
   m_EditorClassIdentifier: 
   id: Dawnridge Single Grain
-  displayName: Dawnridge Single Grain
+  displayName: "\uB2E4\uC6B4\uB9BF\uC9C0 \uACE1\uBB3C"
   abv: 27
   emotions:
     joy: 0.2

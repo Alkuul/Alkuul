@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Iron sigle barrel
   m_EditorClassIdentifier: 
   id: Iron sigle barrel
-  displayName: Iron sigle barrel
+  displayName: "\uC1E0\uB9DB \uC2F1\uAE00 \uBC30\uB7F4"
   abv: 77
   emotions:
     joy: 0
