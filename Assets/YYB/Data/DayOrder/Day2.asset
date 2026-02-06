@@ -17,18 +17,33 @@ MonoBehaviour:
   - profile:
       id: Flara
       displayName: Flara
-      tolerance: 0
+      tolerance: 1
       icePreference: 0
-    slots: []
+    slots:
+    - dialogueLine: "\uBD88\uC548\uD574\uC694"
+      keywords:
+      - {fileID: 11400000, guid: 6f8987304b22c5d42b0516460e08bacc, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
   - profile:
       id: Kyra sunleaf
       displayName: Kyra sunleaf
       tolerance: 0
       icePreference: 0
-    slots: []
+    slots:
+    - dialogueLine: "\uBC30\uC2E0\uC790.."
+      keywords:
+      - {fileID: 11400000, guid: 1d014fbfd04e6434fac4a7f27a640d25, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
   - profile:
       id: Mahara
       displayName: Mahara
       tolerance: 0
       icePreference: 0
-    slots: []
+    slots:
+    - dialogueLine: "\uC8C4\uB97C \uC9C0\uC5C8\uC5B4\uC694.."
+      keywords:
+      - {fileID: 11400000, guid: 39da0d9ab035f1547b00b3e3d00b454d, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0

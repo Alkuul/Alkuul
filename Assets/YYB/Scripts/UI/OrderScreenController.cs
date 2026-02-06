@@ -25,9 +25,9 @@ namespace Alkuul.UI
             flow?.OnClickStartBrewing();
         }
 
-        public void OnClickNextDay()
+        public void OnClickReceiveOrder()
         {
-            flow?.OnClickNextDay();
+            flow?.OnClickReceiveOrder();
         }
     }
 }

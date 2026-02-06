@@ -7,29 +7,26 @@ namespace Alkuul.Systems
     {
         [SerializeField] private EconomySystem economy;
 
-        [Tooltip("여관 1회 기본 수익(만취 정상 상태 기준)")]
+        [Tooltip("숙박 1회 기본 수익(오버면 반값)")]
         [SerializeField] private int baseInnReward = 100;
 
-        /// <summary>
-        /// 손님을 재우면: 만취(4단계) = 100%, 오버(5단계↑) = 반값 수익.
-        /// canSleepAtInn=false거나 일찍 떠난 손님은 재울 수 없음.
-        /// </summary>
-        public bool TrySleep(CustomerResult cr)
+        public int ComputeSleepIncome(CustomerResult cr)
         {
-            if (!cr.canSleepAtInn)
-                return false;
+            if (!cr.canSleepAtInn) return 0;
 
-            int baseAmount = baseInnReward;
+            int amount = baseInnReward;
+            if (cr.isOver) amount /= 2;
+            return amount;
+        }
 
-            // 오버 상태면 반값
-            if (cr.isOver)
-                baseAmount /= 2;
+        public bool Sleep(CustomerResult cr)
+        {
+            if (!cr.canSleepAtInn) return false;
 
-            if (economy != null)
-                economy.AddIncome(baseAmount);
+            int amount = ComputeSleepIncome(cr);
+            if (economy != null) economy.AddIncome(amount);
 
-            Debug.Log($"[Inn] 손님 재움 ▶ base {baseAmount} (stage {cr.intoxStage}, over={cr.isOver})");
-
+            Debug.Log($"[Inn] Sleep income={amount} stage={cr.intoxStage} over={cr.isOver}");
             return true;
         }
     }

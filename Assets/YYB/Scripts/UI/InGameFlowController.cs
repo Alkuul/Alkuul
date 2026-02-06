@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using TMPro;
 
 namespace Alkuul.UI
 {
@@ -15,99 +13,383 @@ namespace Alkuul.UI
         [Header("Systems")]
         [SerializeField] private DayCycleController dayCycle;
         [SerializeField] private OrderSystem orderSystem;
-        [SerializeField] private BrewingPanelBridge bridge;
 
-        [Header("Customers (scene authoring)")]
+        [Header("Scene Names")]
+        [SerializeField] private string orderSceneName = "OrderScene";
+        [SerializeField] private string brewingSceneName = "BrewingScene";
+
+        [Header("Customers (Authoring)")]
         [SerializeField] private List<CustomerOrdersAuthoring> customerPool = new();
         [SerializeField] private int customersPerDay = 3;
 
-        [Header("Panels")]
-        [SerializeField] private GameObject orderPanel;
-        [SerializeField] private GameObject brewingPanel;
-        [SerializeField] private GameObject endDayPanel;
-
-        [Header("Order Panel UI (optional)")]
-        [SerializeField] private OrderDialogueUI orderUI;
         [Header("Day Plans (optional)")]
         [SerializeField] private List<DayOrdersSO> dayPlans = new();
 
+        [Header("Order Gate")]
+        [SerializeField] private bool requireReceiveOrderButton = true;
+        [SerializeField] private string promptBeforeStartDay = "태블릿을 열어 하루를 시작하세요.";
+        [SerializeField] private string promptBeforeReceiveCustomer = "손님을 맞이해주세요.";
+        [SerializeField] private string promptBeforeReceiveOrder = "주문받기를 눌러 주문을 확인하세요.";
+        [SerializeField] private string promptBeforeSettlement = "정산하기를 눌러 하루를 마무리하세요.";
+        [SerializeField] private string promptDuringRename = "술 이름을 정해주세요.";
+
+        [Header("UI (bound by OrderSceneBinder)")]
+        [SerializeField] private OrderDialogueUI orderUI;
+
+        [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
-        [SerializeField] private string brewingSceneName = "BrewingScene";
-        
 
-        private int _servedCustomersToday;
-        private CustomerOrdersAuthoring _activeCustomer;
-        private List<OrderSlotRuntime> _slots;
-        private int _slotIndex;
-
+        // runtime
         private DayOrdersSO _todayPlan;
         private int _todayCustomerIndex;
         private int _customersTargetToday;
+        private int _servedCustomersToday;
+
         private CustomerProfile _activeProfile;
+        private List<OrderSlotRuntime> _slots;
+        private int _slotIndex;
+
         private bool _dayPrepared;
+        private bool _awaitingReceiveCustomer;
+        private bool _awaitingReceiveOrder;
+        private bool _awaitingSettlement;
+        private bool _awaitingRename;
 
+        // rename pending
+        private BrewingPanelBridge _bridge;
+        private Drink _pendingDrink;
+        private DrinkResult _pendingDrinkResult;
+        private PendingAdvance _pendingAdvance = PendingAdvance.None;
 
+        private enum PendingAdvance
+        {
+            None,
+            NextSlot,
+            NextCustomer,
+            EndDay
+        }
+
+        public bool DayPrepared => _dayPrepared;
+        public bool AwaitingReceiveCustomer => _awaitingReceiveCustomer;
+        public bool AwaitingReceiveOrder => _awaitingReceiveOrder;
+        public bool AwaitingSettlement => _awaitingSettlement;
+        public bool AwaitingRename => _awaitingRename;
+
+        // ---- bindings ----
+        public void BindOrderUI(OrderDialogueUI ui)
+        {
+            orderUI = ui;
+            RefreshOrderUI();
+        }
+
+        // ---- day flow ----
         public void StartDay()
         {
-            if (verboseLog) Debug.Log($"[Flow] StartDay day={dayCycle?.currentDay} customersPerDay={customersPerDay}");
+            EnsureRefs();
+
+            if (_awaitingRename)
+            {
+                Debug.LogWarning("[Flow] StartDay blocked: awaiting rename.");
+                return;
+            }
+
+            _dayPrepared = true;
+            _awaitingSettlement = false;
 
             _servedCustomersToday = 0;
             _todayCustomerIndex = 0;
 
             _slots = null;
             _slotIndex = 0;
-            _activeCustomer = null;
             _activeProfile = default;
 
             dayCycle?.StartDay();
 
-            int day = (dayCycle != null) ? dayCycle.currentDay : 1;
-            _todayPlan = FindPlanForDay(day);
+            int dayNum = dayCycle != null ? dayCycle.currentDay : 1;
+            _todayPlan = FindPlanForDay(dayNum);
             _customersTargetToday = (_todayPlan != null) ? CountValidCustomers(_todayPlan) : customersPerDay;
 
-            _dayPrepared = true;
+            _awaitingReceiveCustomer = true;
+            _awaitingReceiveOrder = false;
 
             if (verboseLog)
-                Debug.Log($"[Flow] DayPlan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
+                Debug.Log($"[Flow] DayPrepared day={dayNum} plan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
 
-            Show(null);
+            RefreshOrderUI();
         }
 
+        /// <summary>태블릿의 "손님받기" 버튼에서 호출</summary>
         public void ReceiveCustomer()
         {
+            EnsureRefs();
+
             if (!_dayPrepared)
             {
-                Debug.LogWarning("[Flow] Day not started. Call StartDay() first.");
+                Debug.LogWarning("[Flow] ReceiveCustomer blocked: day not started.");
+                RefreshOrderUI();
                 return;
             }
 
-            if (_servedCustomersToday >= _customersTargetToday)
+            if (_awaitingSettlement)
             {
-                Debug.Log("[Flow] All customers served today.");
-                Show(endDayPanel); // 원하면 정산/다음날 패널로
+                Debug.LogWarning("[Flow] ReceiveCustomer blocked: awaiting settlement.");
+                RefreshOrderUI();
                 return;
             }
 
-            // 이미 손님 진행 중이면 중복 방지
-            if (_slots != null && _slots.Count > 0 && _slotIndex < _slots.Count)
+            if (_awaitingRename)
             {
-                Debug.Log("[Flow] Customer already active.");
+                Debug.LogWarning("[Flow] ReceiveCustomer blocked: awaiting rename.");
                 return;
             }
 
-            StartNextCustomer();
+            if (!_awaitingReceiveCustomer)
+            {
+                // 이미 손님이 있는 상태
+                RefreshOrderUI();
+                return;
+            }
+
+            if (!StartNextCustomerInternal())
+            {
+                // 손님이 없으면 정산 상태로
+                _awaitingSettlement = true;
+                _awaitingReceiveCustomer = false;
+                RefreshOrderUI();
+                return;
+            }
+
+            _awaitingReceiveCustomer = false;
+            EnterAwaitingOrderState();
+            RefreshOrderUI();
         }
 
-
-        private void StartNextCustomer()
+        /// <summary>태블릿의 "주문받기" 버튼에서 호출</summary>
+        public void OnClickReceiveOrder()
         {
+            if (_awaitingRename || _awaitingSettlement) return;
+            if (!_dayPrepared) { RefreshOrderUI(); return; }
+            if (_awaitingReceiveCustomer) { RefreshOrderUI(); return; }
+
+            if (requireReceiveOrderButton && _awaitingReceiveOrder)
+            {
+                _awaitingReceiveOrder = false;
+                RefreshOrderUI();
+            }
+        }
+
+        /// <summary>오더씬의 "조주하러가기" 버튼(또는 UI)에서 호출</summary>
+        public void OnClickStartBrewing()
+        {
+            EnsureRefs();
+
+            if (!_dayPrepared)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: day not started.");
+                RefreshOrderUI();
+                return;
+            }
+            if (_awaitingSettlement)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: awaiting settlement.");
+                RefreshOrderUI();
+                return;
+            }
+            if (_awaitingRename)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: awaiting rename.");
+                return;
+            }
+            if (_awaitingReceiveCustomer)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: no active customer. Press ReceiveCustomer first.");
+                RefreshOrderUI();
+                return;
+            }
+            if (!EnsureHasCurrentSlot()) return;
+
+            if (requireReceiveOrderButton && _awaitingReceiveOrder)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: press ReceiveOrder first.");
+                RefreshOrderUI();
+                return;
+            }
+
+            StartCoroutine(LoadBrewingAndBindBridge());
+        }
+
+        /// <summary>브루잉씬의 "제출" 버튼에서 호출 (BrewingScreenController가 호출)</summary>
+        public void OnClickServe()
+        {
+            if (_awaitingRename) return;
+
+            _bridge = FindObjectOfType<BrewingPanelBridge>(true);
+            if (_bridge == null)
+            {
+                Debug.LogWarning("[Flow] OnClickServe: BrewingPanelBridge not found.");
+                return;
+            }
+
+            // 1) 한 잔 제공
+            var r = _bridge.ServeOnce();
+            _bridge.TryGetLastServed(out _pendingDrink, out _pendingDrinkResult);
+
+            if (verboseLog) Debug.Log($"[Flow] ServeOnce sat={r.satisfaction} left={r.customerLeft}");
+
+            // 2) 이 잔 제공 후, 손님 종료 여부 판단(도망 or 마지막 잔)
+            bool isLastSlot = (_slots == null) || (_slotIndex >= (_slots.Count - 1));
+            bool customerEnded = r.customerLeft || isLastSlot;
+
+            // 3) 손님 종료면(마지막 잔 포함) CustomerResult 계산/반영은 지금 바로 처리(브루잉씬에 bridge가 있을 때)
+            if (customerEnded)
+            {
+                _bridge.FinishCustomer();
+            }
+
+            // 4) 다음 진행은 "이름정하기 확정" 이후에만!
+            if (!customerEnded)
+            {
+                _pendingAdvance = PendingAdvance.NextSlot;
+            }
+            else
+            {
+                // 손님 종료 후, 오늘 목표 손님 수 달성 여부
+                int servedAfterThis = _servedCustomersToday + 1;
+                _pendingAdvance = (servedAfterThis >= _customersTargetToday) ? PendingAdvance.EndDay : PendingAdvance.NextCustomer;
+            }
+
+            _awaitingRename = true;
+            RefreshOrderUI();
+
+            // 5) 오더씬으로 돌아가서 Rename 패널 열기
+            StartCoroutine(ReturnToOrderAndOpenRename());
+        }
+
+        /// <summary>Rename 패널 "확인" 버튼에서 호출 (TabletController.ConfirmRename → 여기로 전달)</summary>
+        public void ConfirmRenameAndContinue(string drinkName)
+        {
+            if (!_awaitingRename) return;
+
+            _awaitingRename = false;
+
+            string finalName = string.IsNullOrWhiteSpace(drinkName)
+                ? BuildDefaultDrinkName()
+                : drinkName.Trim();
+
+            if (verboseLog) Debug.Log($"[Flow] Rename confirmed: {finalName} advance={_pendingAdvance}");
+
+            // 진행 처리
+            switch (_pendingAdvance)
+            {
+                case PendingAdvance.NextSlot:
+                    _slotIndex++;
+                    EnterAwaitingOrderState(); // 다음 잔은 다시 주문받기 대기
+                    break;
+
+                case PendingAdvance.NextCustomer:
+                    _servedCustomersToday++;
+                    _todayCustomerIndex++;
+                    ClearActiveCustomer();
+                    _awaitingReceiveCustomer = true;
+                    break;
+
+                case PendingAdvance.EndDay:
+                    _servedCustomersToday++;
+                    _todayCustomerIndex++;
+                    ClearActiveCustomer();
+                    _awaitingSettlement = true;
+                    _awaitingReceiveCustomer = false;
+                    break;
+            }
+
+            _pendingAdvance = PendingAdvance.None;
+
+            RefreshOrderUI();
+        }
+
+        /// <summary>태블릿의 "정산하기" 버튼에서 호출 (하루 종료 이벤트 발생)</summary>
+        public void OnClickSettlement()
+        {
+            EnsureRefs();
+
+            if (!_awaitingSettlement)
+            {
+                Debug.LogWarning("[Flow] Settlement blocked: not awaiting settlement.");
+                RefreshOrderUI();
+                return;
+            }
+
+            dayCycle?.EndDayPublic();
+
+            // 다음 날은 "StartDay"를 눌러야 시작
+            _dayPrepared = false;
+            _awaitingSettlement = false;
+            _awaitingReceiveCustomer = false;
+            _awaitingReceiveOrder = false;
+            _awaitingRename = false;
+
+            ClearActiveCustomer();
+            RefreshOrderUI();
+        }
+
+        // ---- helpers ----
+        private void EnsureRefs()
+        {
+            if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
+            if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
+        }
+
+        private IEnumerator LoadBrewingAndBindBridge()
+        {
+            yield return SceneManager.LoadSceneAsync(brewingSceneName);
+
+            _bridge = FindObjectOfType<BrewingPanelBridge>(true);
+            if (_bridge == null)
+            {
+                Debug.LogError("[Flow] BrewingPanelBridge not found in BrewingScene.");
+                yield break;
+            }
+
+            _bridge.BeginCustomer(_activeProfile);
+            _bridge.SetCurrentOrder(_slots[_slotIndex].order);
+
+            if (verboseLog)
+                Debug.Log($"[Flow] Enter BrewingScene slot={_slotIndex + 1}/{_slots.Count}");
+        }
+
+        private IEnumerator ReturnToOrderAndOpenRename()
+        {
+            yield return SceneManager.LoadSceneAsync(orderSceneName);
+
+            // Rename UI는 태블릿에서 열기
+            var tablet = FindObjectOfType<TabletController>(true);
+            if (tablet != null)
+            {
+                int slotCount = _slots != null ? _slots.Count : 0;
+                tablet.OpenRename(_pendingDrink, _pendingDrinkResult, _activeProfile, _slotIndex + 1, slotCount);
+            }
+            else
+            {
+                Debug.LogWarning("[Flow] TabletController not found. Rename UI won't open.");
+            }
+
+            RefreshOrderUI();
+        }
+
+        private bool StartNextCustomerInternal()
+        {
+            if (orderSystem == null)
+            {
+                Debug.LogWarning("[Flow] OrderSystem missing.");
+                return false;
+            }
+
             _slots = null;
             _slotIndex = 0;
 
-            // DayPlan 우선
+            // 1) DayPlan 우선
             if (_todayPlan != null && _todayPlan.customers != null)
             {
-                // null 엔트리 스킵
                 while (_todayCustomerIndex < _todayPlan.customers.Count && _todayPlan.customers[_todayCustomerIndex] == null)
                     _todayCustomerIndex++;
 
@@ -116,37 +398,36 @@ namespace Alkuul.UI
                     var def = _todayPlan.customers[_todayCustomerIndex];
                     _activeProfile = def.profile;
                     _slots = def.BuildRuntime(orderSystem);
-                    _activeCustomer = null; // (기존 필드) 폴백용이므로 비워둠
 
-                    Debug.Log($"[Flow] DayPlan PickCustomer={_activeProfile.displayName} " +
-                              $"idx={_todayCustomerIndex + 1}/{_todayPlan.customers.Count} slotsBuilt={_slots.Count} orderSystemNull={(orderSystem == null)}");
+                    if (verboseLog)
+                        Debug.Log($"[Flow] DayPlan PickCustomer={_activeProfile.displayName} idx={_todayCustomerIndex + 1}/{_todayPlan.customers.Count} slotsBuilt={_slots.Count}");
                 }
             }
 
-            // DayPlan이 없거나 실패하면 기존 랜덤 풀 사용
+            // 2) Plan 없으면 pool 랜덤
             if (_slots == null)
             {
-                _activeCustomer = PickCustomer();
-                if (_activeCustomer == null)
+                var picked = PickCustomer();
+                if (picked == null)
                 {
                     Debug.LogWarning("[Flow] No customer in pool.");
-                    return;
+                    return false;
                 }
 
-                _activeProfile = _activeCustomer.profile;
-                _slots = _activeCustomer.BuildRuntime(orderSystem);
+                _activeProfile = picked.profile;
+                _slots = picked.BuildRuntime(orderSystem);
 
-                Debug.Log($"[Flow] Pool PickCustomer={_activeProfile.displayName} slotsBuilt={_slots.Count} orderSystemNull={(orderSystem == null)}");
+                if (verboseLog)
+                    Debug.Log($"[Flow] Pool PickCustomer={_activeProfile.displayName} slotsBuilt={_slots.Count}");
             }
 
             if (_slots == null || _slots.Count == 0)
             {
                 Debug.LogWarning("[Flow] Customer has 0 slots. Check slots / OrderSystem ref.");
-                return;
+                return false;
             }
 
-            RefreshOrderPanelText();
-            Show(orderPanel);
+            return true;
         }
 
         private CustomerOrdersAuthoring PickCustomer()
@@ -155,115 +436,87 @@ namespace Alkuul.UI
             return customerPool[Random.Range(0, customerPool.Count)];
         }
 
-        public void OnClickStartBrewing()
+        private void ClearActiveCustomer()
+        {
+            _slots = null;
+            _slotIndex = 0;
+            _activeProfile = default;
+        }
+
+        private void EnterAwaitingOrderState()
+        {
+            _awaitingReceiveOrder = requireReceiveOrderButton;
+        }
+
+        private bool EnsureHasCurrentSlot()
         {
             if (_slots == null || _slots.Count == 0)
             {
-                Debug.LogWarning("[Flow] No slot to brew.");
-                return;
+                Debug.LogWarning("[Flow] No slots.");
+                return false;
             }
-
             if (_slotIndex < 0 || _slotIndex >= _slots.Count)
             {
                 Debug.LogWarning("[Flow] Slot index out of range.");
-                return;
+                return false;
             }
-
-            // 1) 조주 씬 로드
-            StartCoroutine(LoadBrewingAndBindBridge());
+            return true;
         }
 
-        private IEnumerator LoadBrewingAndBindBridge()
+        public bool TryGetCurrentOrderDialogue(out CustomerProfile profile, out int idx1, out int cnt, out string line)
         {
-            // 씬 로드
-            yield return SceneManager.LoadSceneAsync(brewingSceneName);
+            profile = default;
+            idx1 = 0;
+            cnt = 0;
+            line = "";
 
-            // 브릿지 찾기(조주 씬에 있어야 함)
-            bridge = FindObjectOfType<BrewingPanelBridge>();
-            if (bridge == null)
+            if (!_dayPrepared)
             {
-                Debug.LogError("[Flow] BrewingPanelBridge not found in BrewingScene.");
-                yield break;
+                line = promptBeforeStartDay;
+                return true;
             }
 
-            // 2) 현재 손님/현재 주문을 브릿지에 주입
-            bridge.BeginCustomer(_activeProfile);              // 네 브릿지 메서드명에 맞게
-            bridge.SetCurrentOrder(_slots[_slotIndex].order);           // 네 브릿지 메서드명에 맞게
-
-            if (verboseLog)
-                Debug.Log($"[Flow] Enter BrewingScene slot={_slotIndex + 1}/{_slots.Count}");
-        }
-
-        public void OnClickServe()
-        {
-            // 1) 현재 주문 슬롯의 1잔 제출
-            var r = bridge.ServeOnce();
-
-            if (verboseLog) Debug.Log($"[Flow] Serve result sat={r.satisfaction} left={r.customerLeft}");
-
-            // 2) 떠났으면 즉시 손님 종료
-            if (r.customerLeft)
+            if (_awaitingSettlement)
             {
-                FinishCustomerAndContinue();
-                return;
+                line = promptBeforeSettlement;
+                return true;
             }
 
-            // 3) 다음 슬롯로 진행(최대 3)
-            _slotIndex++;
-            if (_slotIndex >= _slots.Count)
+            if (_awaitingReceiveCustomer)
             {
-                FinishCustomerAndContinue();
+                line = promptBeforeReceiveCustomer;
+                return true;
             }
-            else
+
+            if (_awaitingRename)
             {
-                RefreshOrderPanelText();
-                Show(orderPanel);
+                profile = _activeProfile;
+                line = promptDuringRename;
+                return true;
             }
-        }
 
-        private void FinishCustomerAndContinue()
-        {
-            bridge.FinishCustomer();
-
-            _servedCustomersToday++;
-            _todayCustomerIndex++; // DayPlan 순번 진행
-
-            // 현재 손님 정보 비우기(태블릿에 이전 대사 남는 것 방지)
-            _slots = null;
-            _slotIndex = 0;
-            _activeCustomer = null;
-            _activeProfile = default;
-            RefreshOrderPanelText(); // 있으면 비우는 용도
-
-            if (_servedCustomersToday >= _customersTargetToday)
+            if (!EnsureHasCurrentSlot())
             {
-                dayCycle?.EndDayPublic();
-                Show(endDayPanel);
+                line = "(주문 없음)";
+                return false;
             }
-            else
+
+            profile = _activeProfile;
+            idx1 = _slotIndex + 1;
+            cnt = _slots.Count;
+
+            if (requireReceiveOrderButton && _awaitingReceiveOrder)
             {
-                Show(null);
+                line = promptBeforeReceiveOrder;
+                return true;
             }
-        }
-
-        public void OnClickNextDay()
-        {
-            StartDay();
-        }
-
-        private void RefreshOrderPanelText()
-        {
-            if (_slots == null || _slots.Count == 0) return;
-            if (_slotIndex < 0 || _slotIndex >= _slots.Count) return;
 
             var slot = _slots[_slotIndex];
-
-            string line = string.IsNullOrWhiteSpace(slot.dialogueLine)
+            line = string.IsNullOrWhiteSpace(slot.dialogueLine)
                 ? BuildAutoLine(slot.keywords)
                 : slot.dialogueLine;
 
-            if (orderUI != null)
-                orderUI.Set(_activeProfile, _slotIndex + 1, _slots.Count, line, slot.order);
+            return true;
         }
 
         private string BuildAutoLine(List<SecondaryEmotionSO> keywords)
@@ -275,22 +528,41 @@ namespace Alkuul.UI
             return string.Join(", ", names);
         }
 
-        private void Show(GameObject panel)
+        private string BuildDefaultDrinkName()
         {
-            if (orderPanel != null) orderPanel.SetActive(panel == orderPanel);
-            if (brewingPanel != null) brewingPanel.SetActive(panel == brewingPanel);
-            if (endDayPanel != null) endDayPanel.SetActive(panel == endDayPanel);
+            // 간단 기본 이름
+            string cname = string.IsNullOrWhiteSpace(_activeProfile.displayName) ? _activeProfile.id : _activeProfile.displayName;
+            return $"{cname}의 술";
+        }
+
+        private void RefreshOrderUI()
+        {
+            if (orderUI == null) return;
+
+            if (TryGetCurrentOrderDialogue(out var p, out var idx, out var cnt, out var line))
+            {
+                if (cnt <= 0)
+                {
+                    orderUI.SetSystemLine(line);
+                    return;
+                }
+
+                // 주문 메타는 슬롯 있을 때만 표시
+                var order = _slots[idx - 1].order;
+                bool showMeta = !(requireReceiveOrderButton && _awaitingReceiveOrder);
+                orderUI.Set(p, idx, cnt, line, order, showMeta);
+            }
         }
 
         private DayOrdersSO FindPlanForDay(int day)
         {
             if (dayPlans == null) return null;
 
-            // (A) dayNumber로 매칭
+            // (A) dayNumber match
             foreach (var p in dayPlans)
                 if (p != null && p.dayNumber == day) return p;
 
-            // (B) 리스트 인덱스로 폴백(1일차=0번)
+            // (B) list index fallback
             int idx = day - 1;
             if (idx >= 0 && idx < dayPlans.Count) return dayPlans[idx];
 
@@ -300,36 +572,12 @@ namespace Alkuul.UI
         private int CountValidCustomers(DayOrdersSO plan)
         {
             if (plan == null || plan.customers == null) return 0;
+
             int c = 0;
             foreach (var d in plan.customers)
                 if (d != null) c++;
+
             return Mathf.Min(c, 3);
-        }
-
-        public void BindOrderUI(OrderDialogueUI ui)
-        {
-            orderUI = ui;
-            RefreshOrderPanelText(); // 이미 진행 중인 주문이 있으면 즉시 갱신
-        }
-        public bool TryGetCurrentOrderDialogue(out CustomerProfile profile, out int slotIndex1Based, out int slotCount, out string line)
-        {
-            profile = _activeProfile;
-            slotIndex1Based = 0;
-            slotCount = 0;
-            line = "";
-
-            if (_slots == null || _slots.Count == 0) return false;
-            if (_slotIndex < 0 || _slotIndex >= _slots.Count) return false;
-
-            var s = _slots[_slotIndex];
-            slotCount = _slots.Count;
-            slotIndex1Based = _slotIndex + 1;
-
-            line = string.IsNullOrWhiteSpace(s.dialogueLine)
-                ? BuildAutoLine(s.keywords)
-                : s.dialogueLine;
-
-            return true;
         }
     }
 }
