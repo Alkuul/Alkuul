@@ -30,7 +30,8 @@ namespace Alkuul.Systems
         {
             if (rep != null) rep.Apply(cr);
             if (economy != null) economy.Apply(cr);
-            if (inn != null) inn.TrySleep(cr);
+
+            EventBus.RaiseCustomerFinished(cr);
         }
     }
 }

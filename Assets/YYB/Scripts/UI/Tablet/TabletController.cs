@@ -1,132 +1,330 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Alkuul.Core;
+using Alkuul.Domain;
 using Alkuul.Systems;
 using Alkuul.UI;
 
 public class TabletController : MonoBehaviour
 {
-    /*
     [Header("Core Systems")]
     [SerializeField] private DayCycleController day;
     [SerializeField] private EconomySystem economy;
     [SerializeField] private RepSystem rep;
-    [SerializeField] private InnUpgradeSystem innUpgrade;
-    [SerializeField] private DailyLedgerSystem ledger;
-    [SerializeField] private PendingInnDecisionSystem innDecision;
-
-    [Header("Header UI")]
-    [SerializeField] private TMP_Text dayText;
-    [SerializeField] private TMP_Text goldText;
-    [SerializeField] private TMP_Text repText;
-    [SerializeField] private TMP_Text innText;
-
-    [Header("Pages")]
-    [SerializeField] private GameObject pageHome;
-    [SerializeField] private GameObject pageInnUpgrade;
-    [SerializeField] private GameObject pageReputation;
-    [SerializeField] private GameObject pageSettlement;
-    [SerializeField] private GameObject pageSettings;
-    [SerializeField] private GameObject pageRename;
-    [SerializeField] private GameObject pageInnDecision;
+    [SerializeField] private InnSystem inn;
 
     [Header("Root Toggle")]
-    [SerializeField] private GameObject tabletRoot; // Tablet UI 전체 루트(열고/닫기)
+    [SerializeField] private GameObject tabletRoot;   // 실제로 숨길 루트(권장: Tablet 안에 별도 Root 오브젝트)
+    [SerializeField] private bool autoOpenOnDayEnd = true;
+
+    [Header("Pages")]
+    [SerializeField] private GameObject page1;
+    [SerializeField] private GameObject page2;
+
+    [Header("Page1 Panels")]
+    [SerializeField] private GameObject p1_home;        // Page1/Panel1
+    [SerializeField] private GameObject p1_rename;      // Page1/Panel2
+    [SerializeField] private GameObject p1_innDecision; // Page1/Panel3
+
+    [Header("Page2 Panels")]
+    [SerializeField] private GameObject p2_settlePrompt;  // Page2/Panel1
+    [SerializeField] private GameObject p2_settleResult;  // Page2/Panel2
+    [SerializeField] private GameObject p2_dayStart;      // Page2/Panel3
+    [SerializeField] private GameObject p2_upgrade12;     // Page2/Panel4
+    [SerializeField] private GameObject p2_upgrade23;     // Page2/Panel5
+
+    [Header("Texts (optional)")]
+    [SerializeField] private TMP_Text headerDayText;
+    [SerializeField] private TMP_Text headerGoldText;
+    [SerializeField] private TMP_Text headerRepText;
+    [SerializeField] private TMP_Text headerInnText;
+
+    [SerializeField] private TMP_Text settlementText;
+
+    [Header("Order Preview (optional)")]
+    [SerializeField] private TMP_Text curCustomerNameText;
+    [SerializeField] private TMP_Text curDialogueText;
+    [SerializeField] private TMP_Text curOrderIndexText;
+
+    [Header("Inn Upgrade (MVP)")]
+    [SerializeField, Range(1, 3)] private int innLevel = 1;
+    [SerializeField] private int costLv2 = 200;
+    [SerializeField] private int costLv3 = 500;
+
+    // ---- Daily ledger (MVP) ----
+    private int dayStartMoney;
+    private float dayStartRep;
+    private int servedCustomers;
+    private int servedDrinks;
+    private int sleptCustomers;
+
+    // 숙박 결정 대기열
+    private readonly Queue<CustomerResult> pendingInn = new();
 
     private void Awake()
     {
-        // 코어에 있으니 Inspector 연결 권장. 비었으면 최소한 자동탐색(코어에서만)
         if (day == null) day = FindObjectOfType<DayCycleController>(true);
         if (economy == null) economy = FindObjectOfType<EconomySystem>(true);
         if (rep == null) rep = FindObjectOfType<RepSystem>(true);
-        if (innUpgrade == null) innUpgrade = FindObjectOfType<InnUpgradeSystem>(true);
-        if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
-        if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+        if (inn == null) inn = FindObjectOfType<InnSystem>(true);
 
-        ShowHome();
+        // 시작 화면(하루 시작 버튼)
+        Show_P2_DayStart();
         SetOpen(false);
+        RefreshHeader();
+    }
+
+    private void OnEnable()
+    {
+        EventBus.OnDayStarted += HandleDayStarted;
+        EventBus.OnDayEnded += HandleDayEnded;
+        EventBus.OnCustomerFinished += HandleCustomerFinished;
+    }
+
+    private void OnDisable()
+    {
+        EventBus.OnDayStarted -= HandleDayStarted;
+        EventBus.OnDayEnded -= HandleDayEnded;
+        EventBus.OnCustomerFinished -= HandleCustomerFinished;
     }
 
     private void Update()
     {
-        // 영상용: 헤더는 매 프레임 갱신해도 부담 거의 없음
         RefreshHeader();
 
-        // 단축키(원하면)
         if (Input.GetKeyDown(KeyCode.Tab))
-            SetOpen(!tabletRoot.activeSelf);
+            ToggleOpen();
+
+        if (Input.GetKeyDown(KeyCode.Escape) && tabletRoot != null && tabletRoot.activeSelf)
+            Close();
+
+        if (tabletRoot != null && tabletRoot.activeSelf)
+            RefreshOrderPreview();
     }
 
-    private void RefreshHeader()
+    private void RefreshOrderPreview()
     {
-        if (dayText) dayText.text = $"Day {day?.currentDay ?? 1}";
-        if (goldText) goldText.text = $"Gold {economy?.money ?? 0}";
-        if (repText) repText.text = $"Rep {(rep != null ? rep.reputation.ToString("0.00") : "2.50")}";
-        if (innText) innText.text = $"Inn Lv {(innUpgrade != null ? innUpgrade.Level.ToString() : "1")}";
+        var flow = FindObjectOfType<InGameFlowController>(true);
+        if (flow != null && flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line))
+        {
+            if (curCustomerNameText) curCustomerNameText.text = string.IsNullOrWhiteSpace(profile.displayName) ? profile.id : profile.displayName;
+            if (curOrderIndexText) curOrderIndexText.text = $"주문 {idx}/{cnt}";
+            if (curDialogueText) curDialogueText.text = line ?? "";
+        }
+        else
+        {
+            if (curCustomerNameText) curCustomerNameText.text = "(대기 중)";
+            if (curOrderIndexText) curOrderIndexText.text = "";
+            if (curDialogueText) curDialogueText.text = "손님받기를 누르세요.";
+        }
     }
 
+    private bool IsOpen => tabletRoot != null && tabletRoot.activeSelf;
+
+    // --------------------
+    // Event handlers
+    // --------------------
+    private void HandleDayStarted()
+    {
+        dayStartMoney = economy ? economy.money : 0;
+        dayStartRep = rep ? rep.reputation : 2.5f;
+
+        servedCustomers = 0;
+        servedDrinks = 0;
+        sleptCustomers = 0;
+        pendingInn.Clear();
+
+        Show_P1_Home();
+        SetOpen(false);
+    }
+
+    private void HandleCustomerFinished(CustomerResult cr)
+    {
+        servedCustomers++;
+        servedDrinks += (cr.drinkResults != null ? cr.drinkResults.Count : 0);
+
+        if (cr.canSleepAtInn)
+        {
+            pendingInn.Enqueue(cr);
+            // “재우기/쫓아내기” 패널 띄우기
+            Show_P1_InnDecision();
+            SetOpen(true);
+        }
+    }
+
+    private void HandleDayEnded()
+    {
+        // 마지막 잔 이후 = DayEnded
+        Show_P2_SettlePrompt();
+        if (autoOpenOnDayEnd) SetOpen(true);
+    }
+
+    // --------------------
+    // UI open/close
+    // --------------------
     public void SetOpen(bool open)
     {
         if (tabletRoot) tabletRoot.SetActive(open);
-        if (open) ShowHome();
     }
 
-    private void HideAllPages()
+    public void ToggleOpen()
     {
-        if (pageHome) pageHome.SetActive(false);
-        if (pageInnUpgrade) pageInnUpgrade.SetActive(false);
-        if (pageReputation) pageReputation.SetActive(false);
-        if (pageSettlement) pageSettlement.SetActive(false);
-        if (pageSettings) pageSettings.SetActive(false);
-        if (pageRename) pageRename.SetActive(false);
-        if (pageInnDecision) pageInnDecision.SetActive(false);
+        Debug.Log("[Tablet] ToggleOpen clicked");
+        if (!tabletRoot) return;
+        SetOpen(!tabletRoot.activeSelf);
     }
 
-    public void ShowHome()
+    public void Close()
     {
-        HideAllPages();
-        if (pageHome) pageHome.SetActive(true);
+        SetOpen(false);
     }
 
-    public void ShowInnUpgrade()
+    public void Open()
     {
-        HideAllPages();
-        if (pageInnUpgrade) pageInnUpgrade.SetActive(true);
+        SetOpen(true);
     }
 
-    public void ShowReputation()
+    private void HideAllPanels()
     {
-        HideAllPages();
-        if (pageReputation) pageReputation.SetActive(true);
+        if (page1) page1.SetActive(false);
+        if (page2) page2.SetActive(false);
+
+        if (p1_home) p1_home.SetActive(false);
+        if (p1_rename) p1_rename.SetActive(false);
+        if (p1_innDecision) p1_innDecision.SetActive(false);
+
+        if (p2_settlePrompt) p2_settlePrompt.SetActive(false);
+        if (p2_settleResult) p2_settleResult.SetActive(false);
+        if (p2_dayStart) p2_dayStart.SetActive(false);
+        if (p2_upgrade12) p2_upgrade12.SetActive(false);
+        if (p2_upgrade23) p2_upgrade23.SetActive(false);
     }
 
-    public void ShowSettlement()
+    // --------------------
+    // Show helpers (네 구조 그대로)
+    // --------------------
+    public void Show_P1_Home()
     {
-        HideAllPages();
-        if (pageSettlement) pageSettlement.SetActive(true);
+        HideAllPanels();
+        if (page1) page1.SetActive(true);
+        if (p1_home) p1_home.SetActive(true);
     }
 
-    public void ShowSettings()
+    public void Show_P1_Rename()
     {
-        HideAllPages();
-        if (pageSettings) pageSettings.SetActive(true);
+        HideAllPanels();
+        if (page1) page1.SetActive(true);
+        if (p1_rename) p1_rename.SetActive(true);
     }
 
-    public void ShowRename()
+    public void Show_P1_InnDecision()
     {
-        HideAllPages();
-        if (pageRename) pageRename.SetActive(true);
+        HideAllPanels();
+        if (page1) page1.SetActive(true);
+        if (p1_innDecision) p1_innDecision.SetActive(true);
     }
 
-    public void ShowInnDecision()
+    public void Show_P2_SettlePrompt()
     {
-        HideAllPages();
-        if (pageInnDecision) pageInnDecision.SetActive(true);
+        HideAllPanels();
+        if (page2) page2.SetActive(true);
+        if (p2_settlePrompt) p2_settlePrompt.SetActive(true);
     }
 
+    public void Show_P2_SettleResult()
+    {
+        HideAllPanels();
+        if (page2) page2.SetActive(true);
+        if (p2_settleResult) p2_settleResult.SetActive(true);
 
-    // 손님받기: OrderScene에 있는 InGameFlowController.StartDay() 호출
-    public void OnClickReceiveCustomer()
+        RefreshSettlementText();
+    }
+
+    public void Show_P2_DayStart()
+    {
+        HideAllPanels();
+        if (page2) page2.SetActive(true);
+        if (p2_dayStart) p2_dayStart.SetActive(true);
+    }
+
+    public void Show_P2_Upgrade()
+    {
+        HideAllPanels();
+        if (page2) page2.SetActive(true);
+
+        if (innLevel <= 1)
+        {
+            if (p2_upgrade12) p2_upgrade12.SetActive(true);
+        }
+        else if (innLevel == 2)
+        {
+            if (p2_upgrade23) p2_upgrade23.SetActive(true);
+        }
+        else
+        {
+            // 이미 Lv3면 홈으로 돌려도 되고, UI로 “최대 레벨” 표시해도 됨
+            Show_P1_Home();
+        }
+    }
+
+    // --------------------
+    // Header / Settlement
+    // --------------------
+    private void RefreshHeader()
+    {
+        if (headerDayText) headerDayText.text = $"Day {day?.currentDay ?? 1}";
+        if (headerGoldText) headerGoldText.text = $"Gold {economy?.money ?? 0}";
+        if (headerRepText) headerRepText.text = $"Rep {(rep != null ? rep.reputation.ToString("0.00") : "2.50")}";
+        if (headerInnText) headerInnText.text = $"Inn Lv {innLevel} (대기 {pendingInn.Count})";
+    }
+
+    private void RefreshSettlementText()
+    {
+        if (settlementText == null) return;
+
+        int moneyNow = economy ? economy.money : 0;
+        float repNow = rep ? rep.reputation : 2.5f;
+
+        int incomeDelta = moneyNow - dayStartMoney;
+        float repDelta = repNow - dayStartRep;
+
+        settlementText.text =
+            $"오늘 정산\n" +
+            $"{repDelta: +0.00; -0.00}\n" +
+            $"{incomeDelta}\n" +
+            $"{sleptCustomers}\n" +
+            $"{servedDrinks}\n";
+    }
+
+    // --------------------
+    // Button callbacks (Inspector OnClick에 연결)
+    // --------------------
+    public void OnClick_ToggleTablet()
+    {
+        if (tabletRoot == null) return;
+        tabletRoot.SetActive(!tabletRoot.activeSelf);
+    }
+
+    // “하루 시작” 버튼 (Page2/Panel3)
+    public void OnClick_StartDay()
+    {
+        var flow = FindObjectOfType<InGameFlowController>(true);
+        if (flow == null)
+        {
+            Debug.LogWarning("[Tablet] InGameFlowController not found.");
+            return;
+        }
+
+        flow.StartDay();
+
+        Show_P1_Home();
+        SetOpen(true);
+    }
+
+    // “손님받기”를 홈에 두고 싶으면 이걸 연결
+    public void OnClick_ReceiveCustomer()
     {
         var flow = FindObjectOfType<InGameFlowController>(true);
         if (flow == null)
@@ -134,51 +332,87 @@ public class TabletController : MonoBehaviour
             Debug.LogWarning("[Tablet] InGameFlowController not found in current scene.");
             return;
         }
-        flow.StartDay();
+
+        flow.ReceiveCustomer();
+
+        // 주문 화면 보이게 태블릿 닫고 싶으면:
         SetOpen(false);
     }
 
-    // 정산하기: 정산 페이지 열고, 다음날 버튼은 Settlement 페이지에서 처리
-    public void OnClickSettlement()
+    // “정산하기” 버튼 (Page2/Panel1)
+    public void OnClick_DoSettlement()
     {
-        ShowSettlement();
+        Show_P2_SettleResult();
     }
 
-    // 타이틀로: 씬 로드(코어는 남아있음) 필요하면 Reset도 붙이면 됨
-    public void OnClickGoTitle()
+    // “다음 일차” 버튼(정산 결과 화면에서)
+    public void OnClick_NextDay()
+    {
+        var flow = FindObjectOfType<InGameFlowController>(true);
+        if (flow != null) flow.OnClickNextDay();
+        else Debug.LogWarning("[Tablet] InGameFlowController not found.");
+
+        Show_P2_DayStart();
+        SetOpen(false);
+    }
+
+    // “재우기/쫓아내기” (Page1/Panel3)
+    public void OnClick_Sleep()
+    {
+        if (inn == null) inn = FindObjectOfType<InnSystem>(true);
+        if (inn == null) return;
+
+        if (pendingInn.Count <= 0) { Show_P1_Home(); return; }
+
+        var cr = pendingInn.Dequeue();
+        bool ok = inn.TrySleep(cr);
+        if (ok) sleptCustomers++;
+
+        Show_P1_Home();
+        RefreshSettlementText();
+    }
+
+    public void OnClick_Evict()
+    {
+        if (pendingInn.Count > 0) pendingInn.Dequeue();
+        Show_P1_Home();
+        RefreshSettlementText();
+    }
+
+    // 업그레이드 (Page2/Panel4, Panel5)
+    public void OnClick_OpenUpgrade()
+    {
+        Show_P2_Upgrade();
+        SetOpen(true);
+    }
+
+    public void OnClick_ConfirmUpgrade()
+    {
+        if (economy == null) return;
+
+        int cost = innLevel == 1 ? costLv2 : (innLevel == 2 ? costLv3 : -1);
+        if (cost < 0) { Show_P1_Home(); return; }
+
+        if (economy.money < cost)
+        {
+            Debug.Log($"[Tablet] Not enough gold. need={cost} have={economy.money}");
+            return;
+        }
+
+        economy.money -= cost;
+        innLevel = Mathf.Clamp(innLevel + 1, 1, 3);
+
+        // 조주쪽 브릿지에 가니쉬 슬롯 반영
+        var bridge = FindObjectOfType<BrewingPanelBridge>(true);
+        if (bridge != null) bridge.SetMaxGarnishSlots(innLevel);
+
+        Show_P1_Home();
+    }
+
+    // 타이틀로
+    public void OnClick_GoTitle()
     {
         SceneManager.LoadScene("TitleScene");
         SetOpen(false);
     }
-
-    public void OnClickUpgradeInn()
-    {
-        if (innUpgrade == null || economy == null) return;
-        innUpgrade.TryUpgrade(economy);
-    }
-
-    public void OnClickNextDay()
-    {
-        // 흐름은 InGameFlowController에 이미 OnClickNextDay()가 있음
-        var flow = FindObjectOfType<InGameFlowController>(true);
-        if (flow == null)
-        {
-            Debug.LogWarning("[Tablet] InGameFlowController not found.");
-            return;
-        }
-        flow.OnClickNextDay();
-        SetOpen(false);
-    }
-
-    public void OnClickSleep()
-    {
-        if (innDecision == null) return;
-        innDecision.SleepOne(); // 아래 시스템에서 구현
-    }
-
-    public void OnClickEvict()
-    {
-        if (innDecision == null) return;
-        innDecision.EvictOne();
-    }*/
 }

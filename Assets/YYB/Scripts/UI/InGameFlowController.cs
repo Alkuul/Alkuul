@@ -44,6 +44,8 @@ namespace Alkuul.UI
         private int _todayCustomerIndex;
         private int _customersTargetToday;
         private CustomerProfile _activeProfile;
+        private bool _dayPrepared;
+
 
         public void StartDay()
         {
@@ -52,17 +54,50 @@ namespace Alkuul.UI
             _servedCustomersToday = 0;
             _todayCustomerIndex = 0;
 
+            _slots = null;
+            _slotIndex = 0;
+            _activeCustomer = null;
+            _activeProfile = default;
+
             dayCycle?.StartDay();
 
             int day = (dayCycle != null) ? dayCycle.currentDay : 1;
             _todayPlan = FindPlanForDay(day);
             _customersTargetToday = (_todayPlan != null) ? CountValidCustomers(_todayPlan) : customersPerDay;
 
+            _dayPrepared = true;
+
             if (verboseLog)
                 Debug.Log($"[Flow] DayPlan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
 
+            Show(null);
+        }
+
+        public void ReceiveCustomer()
+        {
+            if (!_dayPrepared)
+            {
+                Debug.LogWarning("[Flow] Day not started. Call StartDay() first.");
+                return;
+            }
+
+            if (_servedCustomersToday >= _customersTargetToday)
+            {
+                Debug.Log("[Flow] All customers served today.");
+                Show(endDayPanel); // 원하면 정산/다음날 패널로
+                return;
+            }
+
+            // 이미 손님 진행 중이면 중복 방지
+            if (_slots != null && _slots.Count > 0 && _slotIndex < _slots.Count)
+            {
+                Debug.Log("[Flow] Customer already active.");
+                return;
+            }
+
             StartNextCustomer();
         }
+
 
         private void StartNextCustomer()
         {
@@ -193,6 +228,13 @@ namespace Alkuul.UI
             _servedCustomersToday++;
             _todayCustomerIndex++; // DayPlan 순번 진행
 
+            // 현재 손님 정보 비우기(태블릿에 이전 대사 남는 것 방지)
+            _slots = null;
+            _slotIndex = 0;
+            _activeCustomer = null;
+            _activeProfile = default;
+            RefreshOrderPanelText(); // 있으면 비우는 용도
+
             if (_servedCustomersToday >= _customersTargetToday)
             {
                 dayCycle?.EndDayPublic();
@@ -200,7 +242,7 @@ namespace Alkuul.UI
             }
             else
             {
-                StartNextCustomer();
+                Show(null);
             }
         }
 
@@ -268,6 +310,26 @@ namespace Alkuul.UI
         {
             orderUI = ui;
             RefreshOrderPanelText(); // 이미 진행 중인 주문이 있으면 즉시 갱신
+        }
+        public bool TryGetCurrentOrderDialogue(out CustomerProfile profile, out int slotIndex1Based, out int slotCount, out string line)
+        {
+            profile = _activeProfile;
+            slotIndex1Based = 0;
+            slotCount = 0;
+            line = "";
+
+            if (_slots == null || _slots.Count == 0) return false;
+            if (_slotIndex < 0 || _slotIndex >= _slots.Count) return false;
+
+            var s = _slots[_slotIndex];
+            slotCount = _slots.Count;
+            slotIndex1Based = _slotIndex + 1;
+
+            line = string.IsNullOrWhiteSpace(s.dialogueLine)
+                ? BuildAutoLine(s.keywords)
+                : s.dialogueLine;
+
+            return true;
         }
     }
 }
