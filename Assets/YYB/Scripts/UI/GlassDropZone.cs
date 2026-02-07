@@ -70,6 +70,16 @@ public class GlassDropZone : MonoBehaviour, IDropHandler
         if (bridge == null) bridge = FindObjectOfType<BrewingPanelBridge>();
 
         bool ok = bridge != null && bridge.SetGarnishes(data.garnish, true);
+        if (glassImage != null)
+        {
+            Sprite nextSprite = data.garnish.icon != null ? data.garnish.icon : defaultGlassSprite;
+            glassImage.sprite = nextSprite;
+
+            if (hideGlassWhenEmpty)
+            {
+                glassImage.enabled = nextSprite != null;
+            }
+        }
         Debug.Log($"[UI] Drop Garnish: {data.garnish.name} ok={ok}");
     }
 }

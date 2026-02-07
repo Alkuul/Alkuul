@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 public class UIGarnishSlotDragProxy : MonoBehaviour,
     IPointerClickHandler,
     IPointerDownHandler,
+    IPointerUpHandler,
     IInitializePotentialDragHandler,
     IBeginDragHandler,
     IDragHandler,
@@ -15,6 +16,8 @@ public class UIGarnishSlotDragProxy : MonoBehaviour,
     [SerializeField] private bool hideOnStart = true;
 
     private UIDraggableIcon draggable;
+    private bool isDragging;
+    private bool isPointerDown;
 
     private void Awake()
     {
@@ -34,6 +37,17 @@ public class UIGarnishSlotDragProxy : MonoBehaviour,
         }
     }
 
+    private void OnEnable()
+    {
+        if (garnishVisual != null)
+        {
+            garnishVisual.SetActive(false);
+        }
+
+        isDragging = false;
+        isPointerDown = false;
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         ActivateVisual();
@@ -41,9 +55,21 @@ public class UIGarnishSlotDragProxy : MonoBehaviour,
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        isPointerDown = true;
         ActivateVisual();
         AssignDragTarget(eventData);
     }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        isPointerDown = false;
+
+        if (!isDragging && garnishVisual != null)
+        {
+            garnishVisual.SetActive(false);
+        }
+    }
+
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
@@ -56,15 +82,13 @@ public class UIGarnishSlotDragProxy : MonoBehaviour,
 
         if (draggable == null || garnishVisual == null) return;
 
+        isDragging = true;
         AssignDragTarget(eventData);
-        draggable.OnBeginDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (draggable == null) return;
-
-        draggable.OnDrag(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -72,8 +96,9 @@ public class UIGarnishSlotDragProxy : MonoBehaviour,
         if (draggable == null) return;
 
         bool droppedOnGlass = IsDroppedOnGlass(eventData);
-        draggable.OnEndDrag(eventData);
 
+        isDragging = false;
+        isPointerDown = false;
         if (garnishVisual != null)
         {
             garnishVisual.SetActive(false);

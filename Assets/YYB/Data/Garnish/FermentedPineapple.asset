@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: "\uBC1C\uD6A8 \uD30C\uC778\uC560\uD50C"
   tags:
   - Disgust
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: d673b5fd8ecf86448a08c087cba24777, type: 3}

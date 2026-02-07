@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e6ab2f39033d7146a6531f0dadaa7c6, type: 3}
   m_Name: Owner
   m_EditorClassIdentifier: 
-  sober: {fileID: 21300000, guid: 482a075b77231994b8a25c21c41fbbf6, type: 3}
-  tipsy: {fileID: 21300000, guid: d7637a942fade8441b167801239ee040, type: 3}
-  drunk: {fileID: 21300000, guid: 9de04dc1d2272584183599a6a3e36a7a, type: 3}
-  wasted: {fileID: 21300000, guid: 9108c3df18d33214e91c40c68124c6f3, type: 3}
+  sober: {fileID: 21300000, guid: 44b1f65c048d8fa449ac098adec60034, type: 3}
+  tipsy: {fileID: 21300000, guid: 87cfdc9aff6c4f949a22a0217cfa4e2c, type: 3}
+  drunk: {fileID: 21300000, guid: 402a58f23a338964d96fab59e873ab06, type: 3}
+  wasted: {fileID: 21300000, guid: f783b2ea165a8884baa24bfc558077cd, type: 3}
   wastedLoopController: {fileID: 0}
   dragEvictController: {fileID: 0}
   dragSleepController: {fileID: 0}

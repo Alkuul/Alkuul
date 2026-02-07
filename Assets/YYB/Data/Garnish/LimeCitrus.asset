@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: "\uB77C\uC784 \uAECD\uC9C8"
   tags:
   - Joy
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 3268e840558435c428db823a2b0fcf77, type: 3}
