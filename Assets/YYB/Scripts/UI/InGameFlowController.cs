@@ -35,6 +35,7 @@ namespace Alkuul.UI
 
         [Header("UI (bound by OrderSceneBinder)")]
         [SerializeField] private OrderDialogueUI orderUI;
+        [SerializeField] private CustomerPortraitView portraitView;
 
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
@@ -337,6 +338,7 @@ namespace Alkuul.UI
         {
             if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
+            if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
         }
 
         private IEnumerator LoadBrewingAndBindBridge()
@@ -427,6 +429,7 @@ namespace Alkuul.UI
                 return false;
             }
 
+            UpdatePortraitForActiveCustomer();
             return true;
         }
 
@@ -441,6 +444,21 @@ namespace Alkuul.UI
             _slots = null;
             _slotIndex = 0;
             _activeProfile = default;
+            if (portraitView != null) portraitView.Clear();
+        }
+
+        private void UpdatePortraitForActiveCustomer()
+        {
+            if (portraitView == null) return;
+
+            if (_activeProfile.portraitSet == null)
+            {
+                portraitView.Clear();
+                if (verboseLog) Debug.LogWarning("[Flow] Active customer has no portrait set.");
+                return;
+            }
+
+            portraitView.Bind(_activeProfile.portraitSet, IntoxStage.Sober);
         }
 
         private void EnterAwaitingOrderState()

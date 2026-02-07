@@ -19,6 +19,7 @@ MonoBehaviour:
       displayName: Flara
       tolerance: 1
       icePreference: 0
+      portraitSet: {fileID: 11400000, guid: c56c58d3fdd9f424ab808426613d846b, type: 2}
     slots:
     - dialogueLine: "\uBD88\uC548\uD574\uC694"
       keywords:
@@ -30,6 +31,7 @@ MonoBehaviour:
       displayName: Kyra sunleaf
       tolerance: 0
       icePreference: 0
+      portraitSet: {fileID: 11400000, guid: 9f05f3a63ad04d347b2044f454a11ef3, type: 2}
     slots:
     - dialogueLine: "\uBC30\uC2E0\uC790.."
       keywords:
@@ -41,6 +43,7 @@ MonoBehaviour:
       displayName: Mahara
       tolerance: 0
       icePreference: 0
+      portraitSet: {fileID: 11400000, guid: 9eb38f1c2159da045b26ff807bf80b49, type: 2}
     slots:
     - dialogueLine: "\uC8C4\uB97C \uC9C0\uC5C8\uC5B4\uC694.."
       keywords:

@@ -38,6 +38,22 @@ public class CustomerPortraitView : MonoBehaviour
     public IntoxStage CurrentStage => _stage;
     public bool HasSet => _set != null;
 
+    public void Clear()
+    {
+        _set = null;
+        _stage = IntoxStage.Sober;
+        _overrideVisual = false;
+
+        if (animator != null)
+        {
+            animator.enabled = false;
+            animator.runtimeAnimatorController = _baseController;
+        }
+
+        if (portraitImage != null)
+            portraitImage.sprite = null;
+    }
+
     private void ApplyStageVisual()
     {
         if (_set == null) return;

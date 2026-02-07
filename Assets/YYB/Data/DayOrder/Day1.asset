@@ -19,6 +19,7 @@ MonoBehaviour:
       displayName: "\uC0AC\uC7A5\uB2D8"
       tolerance: 1
       icePreference: 1
+      portraitSet: {fileID: 11400000, guid: 032087f75fbcfdb48aad2afe197a59bd, type: 2}
     slots:
     - dialogueLine: "\uD654\uAC00 \uB09C\uB2E4."
       keywords:
