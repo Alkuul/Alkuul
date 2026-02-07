@@ -17,4 +17,4 @@ MonoBehaviour:
   tags:
   - Sadness
   capacityMl: 180
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a78c3cffffcf39244a385cab60308858, type: 3}

@@ -17,4 +17,4 @@ MonoBehaviour:
   tags:
   - Surprise
   capacityMl: 30
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6559f57591c2d814a8b2923d69a19956, type: 3}

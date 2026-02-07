@@ -104,6 +104,18 @@ public class BrewingPanelBridge : MonoBehaviour
         ResetMix();
     }
 
+    public void RestoreSession(IReadOnlyList<Drink> drinks, IReadOnlyList<DrinkResult> results, bool left)
+    {
+        servedDrinks.Clear();
+        drinkResults.Clear();
+
+        if (drinks != null) servedDrinks.AddRange(drinks);
+        if (results != null) drinkResults.AddRange(results);
+
+        leftEarly = left;
+        _hasLastServed = false;
+    }
+
     public void SetOrder(Order order)
     {
         currentOrder = order;

@@ -62,6 +62,10 @@ namespace Alkuul.UI
         private DrinkResult _pendingDrinkResult;
         private PendingAdvance _pendingAdvance = PendingAdvance.None;
 
+        private readonly List<Drink> _currentCustomerDrinks = new();
+        private readonly List<DrinkResult> _currentCustomerResults = new();
+        private bool _currentCustomerLeftEarly;
+
         private enum PendingAdvance
         {
             None,
@@ -235,7 +239,14 @@ namespace Alkuul.UI
 
             // 1) ÇÑ ÀÜ Á¦°ø
             var r = _bridge.ServeOnce();
-            _bridge.TryGetLastServed(out _pendingDrink, out _pendingDrinkResult);
+            bool hasServed = _bridge.TryGetLastServed(out _pendingDrink, out _pendingDrinkResult);
+
+            if (hasServed)
+            {
+                _currentCustomerDrinks.Add(_pendingDrink);
+                _currentCustomerResults.Add(_pendingDrinkResult);
+            }
+            if (r.customerLeft) _currentCustomerLeftEarly = true;
 
             if (verboseLog) Debug.Log($"[Flow] ServeOnce sat={r.satisfaction} left={r.customerLeft}");
 
@@ -355,6 +366,8 @@ namespace Alkuul.UI
             }
 
             _bridge.BeginCustomer(_activeProfile);
+            if (_currentCustomerDrinks.Count > 0 || _currentCustomerResults.Count > 0 || _currentCustomerLeftEarly)
+                _bridge.RestoreSession(_currentCustomerDrinks, _currentCustomerResults, _currentCustomerLeftEarly);
             _bridge.SetCurrentOrder(_slots[_slotIndex].order);
 
             if (verboseLog)
@@ -404,6 +417,7 @@ namespace Alkuul.UI
                     var def = _todayPlan.customers[_todayCustomerIndex];
                     _activeProfile = def.profile;
                     _slots = def.BuildRuntime(orderSystem);
+                    ResetCustomerSession();
 
                     if (verboseLog)
                         Debug.Log($"[Flow] DayPlan PickCustomer={_activeProfile.displayName} idx={_todayCustomerIndex + 1}/{_todayPlan.customers.Count} slotsBuilt={_slots.Count}");
@@ -422,6 +436,7 @@ namespace Alkuul.UI
 
                 _activeProfile = picked.profile;
                 _slots = picked.BuildRuntime(orderSystem);
+                ResetCustomerSession();
 
                 if (verboseLog)
                     Debug.Log($"[Flow] Pool PickCustomer={_activeProfile.displayName} slotsBuilt={_slots.Count}");
@@ -448,7 +463,15 @@ namespace Alkuul.UI
             _slots = null;
             _slotIndex = 0;
             _activeProfile = default;
+            ResetCustomerSession();
             if (portraitView != null) portraitView.Clear();
+        }
+
+        private void ResetCustomerSession()
+        {
+            _currentCustomerDrinks.Clear();
+            _currentCustomerResults.Clear();
+            _currentCustomerLeftEarly = false;
         }
 
         private void UpdatePortraitForActiveCustomer()

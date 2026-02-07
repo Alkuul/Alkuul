@@ -296,9 +296,9 @@ public class TabletController : MonoBehaviour
     {
         starFullSprite = starFullSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Full.png");
         starHalfSprite = starHalfSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Half.png");
-        starEmptySprite = starEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Star_empty.png");
+        starEmptySprite = starEmptySprite ?? LoadSpriteFromAssets("Image/tablet/103_3.png");
         innFullSprite = innFullSprite ?? LoadSpriteFromAssets("Image/tablet/Full_room 1.png");
-        innEmptySprite = innEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Room_empty 1.png");
+        innEmptySprite = innEmptySprite ?? LoadSpriteFromAssets("Image/tablet/102_3.png");
     }
 
     private Sprite LoadSpriteFromAssets(string relativePath)
@@ -597,23 +597,26 @@ public class TabletController : MonoBehaviour
         ResolveRefs();
         if (innUpgrade == null) return;
 
+        if (!IsOpen)
+        {
+            SetOpen(true);
+        }
+
+
         // 레벨에 따라 패널 선택
         if (innUpgrade.Level == 1)
         {
             ShowPanel(p2_upgrade12);
             FillUpgradeTexts(2);
-            SetOpen(true);
         }
         else if (innUpgrade.Level == 2)
         {
             ShowPanel(p2_upgrade23);
             FillUpgradeTexts(3);
-            SetOpen(true);
         }
         else
         {
             // 이미 Lv3이면 홈으로
-            SetOpen(true);
             ShowPanel(p1_home);
         }
     }

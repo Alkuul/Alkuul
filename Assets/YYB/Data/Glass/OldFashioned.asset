@@ -17,4 +17,4 @@ MonoBehaviour:
   tags:
   - Anger
   capacityMl: 60
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: d17f31e820517f843a5fb9b6ac824f79, type: 3}

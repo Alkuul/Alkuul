@@ -40,6 +40,7 @@ namespace Alkuul.Systems
         public void EndDayPublic()
         {
             Debug.Log($"[DayCycle] Day {currentDay} Á¾·á");
+            if (economy != null) economy.ApplyPendingIncome();
             _advanceDayOnNextStart = true;
             EventBus.RaiseDayEnded();
         }

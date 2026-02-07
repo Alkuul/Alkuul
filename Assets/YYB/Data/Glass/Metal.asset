@@ -17,4 +17,4 @@ MonoBehaviour:
   tags:
   - Disgust
   capacityMl: 300
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 78639c3cde76e964eae8435599ec575d, type: 3}
