@@ -17,7 +17,13 @@ public class BrewingSelectionPreview : MonoBehaviour
     [SerializeField] private List<Image> garnishSlots = new();
     [SerializeField] private bool hideEmptyGarnishSlots = true;
 
+    [Header("Garnish Full Preview")]
+    [SerializeField] private Image garnishImage;
+    [SerializeField] private bool hideGarnishWhenEmpty = false;
+    [SerializeField] private bool useLastSelectedGarnish = true;
+    
     private Sprite defaultGlassSprite;
+    private Sprite defaultGarnishSprite;
 
     private void Awake()
     {
@@ -27,6 +33,11 @@ public class BrewingSelectionPreview : MonoBehaviour
         if (glassImage != null)
         {
             defaultGlassSprite = glassImage.sprite;
+        }
+
+        if (garnishImage != null)
+        {
+            defaultGarnishSprite = garnishImage.sprite;
         }
     }
 
@@ -71,6 +82,29 @@ public class BrewingSelectionPreview : MonoBehaviour
 
     private void HandleGarnishesChanged(IReadOnlyList<GarnishSO> garnishes)
     {
+        if (garnishImage != null)
+        {
+            GarnishSO selectedGarnish = null;
+            if (garnishes != null && garnishes.Count > 0)
+            {
+                selectedGarnish = useLastSelectedGarnish
+                    ? garnishes[garnishes.Count - 1]
+                    : garnishes[0];
+            }
+
+            Sprite nextSprite = selectedGarnish != null ? selectedGarnish.icon : defaultGarnishSprite;
+            garnishImage.sprite = nextSprite;
+
+            if (hideGarnishWhenEmpty)
+            {
+                garnishImage.enabled = selectedGarnish != null && nextSprite != null;
+            }
+            else
+            {
+                garnishImage.enabled = nextSprite != null;
+            }
+        }
+
         if (garnishSlots == null || garnishSlots.Count == 0) return;
 
         for (int i = 0; i < garnishSlots.Count; i++)
