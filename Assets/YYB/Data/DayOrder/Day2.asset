@@ -15,38 +15,43 @@ MonoBehaviour:
   dayNumber: 2
   customers:
   - profile:
-      id: Flara
-      displayName: Flara
-      tolerance: 1
-      icePreference: 0
-      portraitSet: {fileID: 11400000, guid: c56c58d3fdd9f424ab808426613d846b, type: 2}
+      id: Mahara
+      displayName: Mahara
+      tolerance: 0
+      icePreference: 2
+      portraitSet: {fileID: 11400000, guid: 9eb38f1c2159da045b26ff807bf80b49, type: 2}
     slots:
-    - dialogueLine: "\uBD88\uC548\uD574\uC694"
+    - dialogueLine: "\"...\uC800\uAE30, \uC220... \uC8FC\uBB38\uD560 \uC218 \uC788\uB098\uC694?\""
       keywords:
-      - {fileID: 11400000, guid: 6f8987304b22c5d42b0516460e08bacc, type: 2}
+      - {fileID: 11400000, guid: 15b4c0c2eb1d17946b834db712c65ee0, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+    - dialogueLine: "\"...\uB530\uB73B\uD574\uC694. \uC61B\uB0A0 \uC0DD\uAC01\uB098\uC694.\""
+      keywords:
+      - {fileID: 11400000, guid: fb048cdeee54e4345b4a33bde2587a8f, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0
   - profile:
       id: Kyra sunleaf
       displayName: Kyra sunleaf
-      tolerance: 0
-      icePreference: 0
+      tolerance: 1
+      icePreference: 1
       portraitSet: {fileID: 11400000, guid: 9f05f3a63ad04d347b2044f454a11ef3, type: 2}
     slots:
-    - dialogueLine: "\uBC30\uC2E0\uC790.."
+    - dialogueLine: "\"\uD654\uAC00 \uB098\uC694. \uB098 \uC790\uC2E0\uC5D0\uAC8C.\""
       keywords:
-      - {fileID: 11400000, guid: 1d014fbfd04e6434fac4a7f27a640d25, type: 2}
+      - {fileID: 11400000, guid: 94aad4c62ec0c444e9c4f156d19ce6f2, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0
   - profile:
-      id: Mahara
-      displayName: Mahara
-      tolerance: 0
-      icePreference: 0
-      portraitSet: {fileID: 11400000, guid: 9eb38f1c2159da045b26ff807bf80b49, type: 2}
+      id: Flara
+      displayName: Flara
+      tolerance: 2
+      icePreference: 2
+      portraitSet: {fileID: 11400000, guid: c56c58d3fdd9f424ab808426613d846b, type: 2}
     slots:
-    - dialogueLine: "\uC8C4\uB97C \uC9C0\uC5C8\uC5B4\uC694.."
+    - dialogueLine: "\"\uAC00\uC7A5 \uB3C5\uD55C \uAC78\uB85C \uD558\uB098.\""
       keywords:
-      - {fileID: 11400000, guid: 39da0d9ab035f1547b00b3e3d00b454d, type: 2}
+      - {fileID: 11400000, guid: 6b1d9130a4e68924ab58d71dc049ac76, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   tipsy: {fileID: 21300000, guid: 866023ee7c7cdcd41ba2603e25a95bb4, type: 3}
   drunk: {fileID: 21300000, guid: 866023ee7c7cdcd41ba2603e25a95bb4, type: 3}
   wasted: {fileID: 21300000, guid: 110598ef8f4085f4b803492aafb58722, type: 3}
-  wastedLoopController: {fileID: 0}
+  wastedLoopController: {fileID: 9100000, guid: cfc0fa21b89125b4f8529834f1f62f5f, type: 2}
   dragEvictController: {fileID: 0}
   dragSleepController: {fileID: 0}
   dragEvictSprite: {fileID: 0}
