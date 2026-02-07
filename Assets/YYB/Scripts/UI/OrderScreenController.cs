@@ -9,7 +9,7 @@ namespace Alkuul.UI
         private void Awake()
         {
             // CoreScene(또는 DontDestroyOnLoad) 쪽에 살아있는 Flow를 런타임에 찾음
-            flow = FindObjectOfType<InGameFlowController>();
+            flow = FindObjectOfType<InGameFlowController>(true);
 
             if (flow == null)
                 Debug.LogError("[OrderScreen] InGameFlowController not found. Core/GameRoot가 먼저 로드됐는지 확인.");

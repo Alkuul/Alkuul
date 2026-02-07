@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e6ab2f39033d7146a6531f0dadaa7c6, type: 3}
+  m_Name: Mahara
+  m_EditorClassIdentifier: 
+  sober: {fileID: 21300000, guid: 701121e715d05a947874d84f008a944e, type: 3}
+  tipsy: {fileID: 21300000, guid: 9e48e8467a8a1d642a1acd3457f06a21, type: 3}
+  drunk: {fileID: 21300000, guid: 4bcffa425745d0b49aff5167268e6e93, type: 3}
+  wasted: {fileID: 21300000, guid: d9fa1fd11c9144b4aaa382877defd781, type: 3}
+  wastedLoopController: {fileID: 0}
+  dragEvictController: {fileID: 0}
+  dragSleepController: {fileID: 0}
+  dragEvictSprite: {fileID: 0}
+  dragSleepSprite: {fileID: 0}

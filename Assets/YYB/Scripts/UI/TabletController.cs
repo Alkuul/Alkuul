@@ -65,6 +65,8 @@ public class TabletController : MonoBehaviour
     private GameObject _lastShownPanel;
     private bool _settlementDoneView = false;
 
+    private bool _lockToSettlementResult = false;
+
     public bool IsOpen => tabletRoot != null && tabletRoot.activeSelf;
 
     private void Awake()
@@ -174,6 +176,13 @@ public class TabletController : MonoBehaviour
     private void SyncPanelToState(bool force = false)
     {
         if (flow == null) return;
+
+        if (_lockToSettlementResult)
+        {
+            if (_lastShownPanel != p2_settleResult) ShowPanel(p2_settleResult);
+            RefreshSettlementText();
+            return;
+        }
 
         // 업그레이드 패널을 사용자가 수동으로 열어둔 상태는 유지하고 싶으면 force=false일 때는 건드리지 않기
         if (!force && (_lastShownPanel == p2_upgrade12 || _lastShownPanel == p2_upgrade23))
@@ -323,6 +332,7 @@ public class TabletController : MonoBehaviour
 
         // 이제 정산 결과를 보여주자
         _settlementDoneView = true;
+        _lockToSettlementResult = true;
 
         SetOpen(true);
         ShowPanel(p2_settleResult);
@@ -331,6 +341,9 @@ public class TabletController : MonoBehaviour
 
     public void OnClick_OpenStartDayPanelFromSettlement()
     {
+        _lockToSettlementResult = false;
+        _settlementDoneView = false;
+
         // 정산 결과 패널에서 "다음" 버튼으로 하루 시작 패널로 이동
         SetOpen(true);
         ShowPanel(p2_startDay);

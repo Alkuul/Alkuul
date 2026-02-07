@@ -2,8 +2,6 @@ using TMPro;
 using UnityEngine;
 using Alkuul.Domain;
 
-namespace Alkuul.UI
-{
     public class OrderDialogueUI : MonoBehaviour
     {
         [Header("TMP Refs")]
@@ -59,4 +57,3 @@ namespace Alkuul.UI
             _ => "얼음 상관없음"
         };
     }
-}
