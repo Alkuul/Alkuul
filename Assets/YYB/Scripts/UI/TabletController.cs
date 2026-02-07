@@ -43,8 +43,8 @@ public class TabletController : MonoBehaviour
     [SerializeField] private Sprite starEmptySprite;
     [SerializeField] private Sprite innFullSprite;
     [SerializeField] private Sprite innEmptySprite;
-    [SerializeField, Range(1, 5)] private int repStarCount = 5;
-    [SerializeField, Range(1, 3)] private int innHouseCount = 3;
+    [SerializeField, Range(0, 5)] private float repStarCount = 5;
+    [SerializeField, Range(0, 3)] private int innHouseCount = 3;
     [SerializeField] private float starSpacing = 6f;
     [SerializeField] private float houseSpacing = 6f;
 
@@ -338,7 +338,7 @@ public class TabletController : MonoBehaviour
             layout.childForceExpandWidth = false;
         }
 
-        _repStars = new Image[Mathf.Max(1, repStarCount)];
+        _repStars = new Image[Mathf.Max(0, Mathf.RoundToInt(repStarCount))];
         for (int i = 0; i < _repStars.Length; i++)
         {
             var star = new GameObject($"Star_{i + 1}", typeof(RectTransform), typeof(Image));
@@ -372,7 +372,7 @@ public class TabletController : MonoBehaviour
             layout.childForceExpandWidth = false;
         }
 
-        _innHouses = new Image[Mathf.Max(1, innHouseCount)];
+        _innHouses = new Image[Mathf.Max(0, innHouseCount)];
         for (int i = 0; i < _innHouses.Length; i++)
         {
             var house = new GameObject($"House_{i + 1}", typeof(RectTransform), typeof(Image));
@@ -387,9 +387,11 @@ public class TabletController : MonoBehaviour
     private void UpdateRepStars()
     {
         if (_repStars.Length == 0) return;
+        int repStarSlots = Mathf.Max(0, Mathf.RoundToInt(repStarCount));
         float rating = rep != null ? Mathf.Clamp(rep.reputation, 0f, repStarCount) : 2.5f;
-        int fullStars = Mathf.FloorToInt(rating);
-        bool hasHalf = rating - fullStars >= 0.5f;
+        float snappedRating = Mathf.Round(rating * 2f) / 2f;
+        int fullStars = Mathf.FloorToInt(snappedRating);
+        bool hasHalf = snappedRating - fullStars >= 0.5f;
 
         for (int i = 0; i < _repStars.Length; i++)
         {
@@ -406,7 +408,9 @@ public class TabletController : MonoBehaviour
     private void UpdateInnHouses()
     {
         if (_innHouses.Length == 0) return;
-        int count = innDecision != null ? innDecision.Count : (innUpgrade != null ? innUpgrade.Level : 1);
+        int count = ledger != null
+            ? ledger.SleptCustomers
+            : (innDecision != null ? innDecision.Count : (innUpgrade != null ? innUpgrade.Level : 1));
         count = Mathf.Clamp(count, 0, _innHouses.Length);
 
         for (int i = 0; i < _innHouses.Length; i++)
@@ -526,12 +530,10 @@ public class TabletController : MonoBehaviour
         if (settlementText == null || ledger == null) return;
 
         settlementText.text =
-            $"[정산]\n" +
-            $"수익 변화: {ledger.IncomeDelta}\n" +
             $"평판 변화: {ledger.RepDelta:+0.00;-0.00}\n" +
-            $"제공한 잔 수: {ledger.ServedDrinks}\n" +
+            $"수익 변화: {ledger.IncomeDelta}\n" +
             $"재운 인원: {ledger.SleptCustomers}\n" +
-            $"손님 수: {ledger.ServedCustomers}";
+            $"제공한 잔 수: {ledger.ServedDrinks}\n";
     }
 
     // -------------------------
@@ -548,9 +550,7 @@ public class TabletController : MonoBehaviour
             renameInfoText.text =
                 $"[이름 정하기]\n" +
                 $"{cname} / 주문 {slotIndex1Based}/{slotCount}\n" +
-                $"만족도: {result.satisfaction:0.#}\n" +
-                $"도수: {drink.finalABV:0.#}%\n" +
-                $"총량: {drink.totalMl:0.#}ml";
+                $"도수: {drink.finalABV:0.#}%\n";
         }
 
         if (renameInput != null)

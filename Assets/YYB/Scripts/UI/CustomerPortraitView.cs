@@ -19,11 +19,13 @@ public class CustomerPortraitView : MonoBehaviour
         if (portraitImage == null) portraitImage = GetComponent<Image>();
         if (animator == null) animator = GetComponent<Animator>();
         if (animator != null) _baseController = animator.runtimeAnimatorController;
+        SetVisible(false);
     }
 
     public void Bind(CustomerPortraitSet set, IntoxStage startStage)
     {
         _set = set;
+        SetVisible(true);
         SetStage(startStage);
     }
 
@@ -52,6 +54,8 @@ public class CustomerPortraitView : MonoBehaviour
 
         if (portraitImage != null)
             portraitImage.sprite = null;
+
+        SetVisible(false);
     }
 
     private void ApplyStageVisual()
@@ -75,6 +79,12 @@ public class CustomerPortraitView : MonoBehaviour
 
         if (portraitImage != null)
             portraitImage.sprite = _set.GetStageSprite(_stage);
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (portraitImage != null) portraitImage.enabled = visible;
+        if (!visible && animator != null) animator.enabled = false;
     }
 
     // 드래그 중 시각 연출 (evict/sleep)

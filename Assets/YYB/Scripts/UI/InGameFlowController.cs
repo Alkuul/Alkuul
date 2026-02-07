@@ -28,7 +28,7 @@ namespace Alkuul.UI
         [Header("Order Gate")]
         [SerializeField] private bool requireReceiveOrderButton = true;
         [SerializeField] private string promptBeforeStartDay = "태블릿을 열어 하루를 시작하세요.";
-        [SerializeField] private string promptBeforeReceiveCustomer = "손님을 맞이해주세요.";
+        [SerializeField] private string promptBeforeReceiveCustomer = "손님을 맞이하세요.";
         [SerializeField] private string promptBeforeReceiveOrder = "주문받기를 눌러 주문을 확인하세요.";
         [SerializeField] private string promptBeforeSettlement = "정산하기를 눌러 하루를 마무리하세요.";
         [SerializeField] private string promptDuringRename = "술 이름을 정해주세요.";
