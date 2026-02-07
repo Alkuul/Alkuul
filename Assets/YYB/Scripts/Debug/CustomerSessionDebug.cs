@@ -23,7 +23,8 @@ namespace Alkuul.Dev
 
         [Header("Customer Profile")]
         [SerializeField] private string customerId = "debug_customer";
-        [SerializeField] private string customerName = "테스트 손님";
+        [SerializeField] private string customerName = "Test Customer";
+        [SerializeField] private Sprite customerPortrait;
         [SerializeField] private Tolerance tolerance = Tolerance.Normal;
         [SerializeField] private IcePreference icePreference = IcePreference.Neutral;
 
@@ -41,7 +42,7 @@ namespace Alkuul.Dev
         {
             if (orderSystem == null)
             {
-                Debug.LogWarning("CustomerSessionDebug: OrderSystem이 비어있습니다.");
+                Debug.LogWarning("CustomerSessionDebug: OrderSystem missing.");
                 return;
             }
 
@@ -50,6 +51,7 @@ namespace Alkuul.Dev
             {
                 id = customerId,
                 displayName = customerName,
+                portrait = customerPortrait,
                 tolerance = tolerance,
                 icePreference = icePreference
             };
@@ -60,14 +62,14 @@ namespace Alkuul.Dev
             if (brewingUI != null)
                 brewingUI.ResetUI();
 
-            Debug.Log($"[CustomerSession] 새 손님 입장: {_currentCustomer.displayName}");
+            Debug.Log($"[CustomerSession] New customer: {_currentCustomer.displayName}");
         }
 
         public void ServeOneDrinkFromBrewingUI()
         {
             if (_finished)
             {
-                Debug.LogWarning("[CustomerSession] 이미 손님 정산이 끝났습니다. FinishCustomer를 눌러 다음 손님으로 넘어가세요.");
+                Debug.LogWarning("[CustomerSession] Customer already finished.");
                 return;
             }
 
@@ -90,17 +92,15 @@ namespace Alkuul.Dev
 
             resultUI?.ShowDrinkResult(drinkResult);
 
-            Debug.Log($"[CustomerSession] 잔 {_servedDrinks.Count} 서빙 완료");
+            Debug.Log($"[CustomerSession] Served drink {_servedDrinks.Count}");
 
-            // 3잔 채우거나, 이번 잔에서 떠났으면 자동으로 정산
             if (drinkResult.customerLeft || _servedDrinks.Count >= 3)
             {
-                Debug.Log("[CustomerSession] 자동으로 손님 정산을 진행합니다.");
+                Debug.Log("[CustomerSession] Auto finishing customer.");
                 FinishCustomer();
                 return;
             }
 
-            // 다음 잔을 위해 리셋
             brewingUI.ResetUI();
         }
 
@@ -108,18 +108,18 @@ namespace Alkuul.Dev
         {
             if (_finished)
             {
-                Debug.LogWarning("[CustomerSession] 이미 정산 완료됨.");
+                Debug.LogWarning("[CustomerSession] Already finished.");
                 return;
             }
 
             if (serveSystem == null)
             {
-                Debug.LogWarning("CustomerSessionDebug: ServeSystem 없음.");
+                Debug.LogWarning("CustomerSessionDebug: ServeSystem missing.");
                 return;
             }
             if (_servedDrinks.Count == 0)
             {
-                Debug.LogWarning("[CustomerSession] 제공한 잔이 없습니다.");
+                Debug.LogWarning("[CustomerSession] No drinks served.");
                 return;
             }
 
@@ -130,9 +130,7 @@ namespace Alkuul.Dev
 
             _finished = true;
 
-            Debug.Log("[CustomerSession] 손님 정산 완료. 버튼으로 다음 손님/다음 Day를 진행할 수 있습니다.");
-
-            // 다음 손님 준비는 DayCycle/버튼에서 호출하는 걸로 둠
+            Debug.Log("[CustomerSession] Customer finished.");
         }
 
         public void NextCustomer()

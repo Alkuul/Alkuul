@@ -4,9 +4,9 @@ namespace Alkuul.Domain
 {
     public enum Tolerance
     {
-        Weak,   // ¡¿1.25
-        Normal, // ¡¿1.0
-        Strong  // ¡¿0.75
+        Weak,   // x1.25
+        Normal, // x1.0
+        Strong  // x0.75
     }
 
     public enum IcePreference
@@ -21,8 +21,8 @@ namespace Alkuul.Domain
     {
         public string id;
         public string displayName;
+        public Sprite portrait;
         public Tolerance tolerance;
         public IcePreference icePreference;
     }
 }
-

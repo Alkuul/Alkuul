@@ -1,59 +1,72 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Alkuul.Domain;
 
-    public class OrderDialogueUI : MonoBehaviour
+public class OrderDialogueUI : MonoBehaviour
+{
+    [Header("TMP Refs")]
+    [SerializeField] private TMP_Text nameText;
+    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField] private TMP_Text orderIndexText;
+    [SerializeField] private TMP_Text metaText;
+
+    [Header("Portrait")]
+    [SerializeField] private Image portraitImage;
+
+    public void SetSystemLine(string line)
     {
-        [Header("TMP Refs")]
-        [SerializeField] private TMP_Text nameText;
-        [SerializeField] private TMP_Text dialogueText;
-        [SerializeField] private TMP_Text orderIndexText;
-        [SerializeField] private TMP_Text metaText;
-
-        public void SetSystemLine(string line)
-        {
-            if (nameText != null) nameText.text = "";
-            if (orderIndexText != null) orderIndexText.text = "";
-            if (metaText != null) metaText.text = "";
-            if (dialogueText != null) dialogueText.text = line ?? "";
-        }
-
-        // ±âÁ¸ È£È¯¿ë(´Ù¸¥ ÄÚµå¿¡¼­ È£ÃâÇØµµ ÄÄÆÄÀÏ À¯Áö)
-        public void Set(CustomerProfile customer, int slotIndex1Based, int slotCount, string line, Order order)
-        {
-            Set(customer, slotIndex1Based, slotCount, line, order, true);
-        }
-
-        public void Set(CustomerProfile customer, int slotIndex1Based, int slotCount, string line, Order order, bool showMeta)
-        {
-            // ½½·ÔÀÌ ¾øÀ¸¸é "½Ã½ºÅÛ ¹®±¸"Ã³·³ Ã³¸®
-            if (slotCount <= 0)
-            {
-                SetSystemLine(line);
-                return;
-            }
-
-            if (nameText != null)
-                nameText.text = string.IsNullOrWhiteSpace(customer.displayName) ? customer.id : customer.displayName;
-
-            if (orderIndexText != null)
-                orderIndexText.text = $"ÁÖ¹® {slotIndex1Based}/{slotCount}";
-
-            if (dialogueText != null)
-                dialogueText.text = line ?? "";
-
-            if (metaText != null)
-            {
-                metaText.text = showMeta
-                    ? $"{IcePrefToKorean(customer.icePreference)} | Á¦ÇÑ {order.timeLimit:0}s"
-                    : "";
-            }
-        }
-
-        private static string IcePrefToKorean(IcePreference pref) => pref switch
-        {
-            IcePreference.Like => "¾óÀ½ ÁÁ¾ÆÇÔ",
-            IcePreference.Dislike => "¾óÀ½ ½È¾îÇÔ",
-            _ => "¾óÀ½ »ó°ü¾øÀ½"
-        };
+        if (nameText != null) nameText.text = "";
+        if (orderIndexText != null) orderIndexText.text = "";
+        if (metaText != null) metaText.text = "";
+        if (dialogueText != null) dialogueText.text = line ?? "";
+        SetPortrait(null);
     }
+
+    // Backward-compatible overload.
+    public void Set(CustomerProfile customer, int slotIndex1Based, int slotCount, string line, Order order)
+    {
+        Set(customer, slotIndex1Based, slotCount, line, order, true);
+    }
+
+    public void Set(CustomerProfile customer, int slotIndex1Based, int slotCount, string line, Order order, bool showMeta)
+    {
+        if (slotCount <= 0)
+        {
+            SetSystemLine(line);
+            return;
+        }
+
+        if (nameText != null)
+            nameText.text = string.IsNullOrWhiteSpace(customer.displayName) ? customer.id : customer.displayName;
+
+        if (orderIndexText != null)
+            orderIndexText.text = $"ì£¼ë¬¸ {slotIndex1Based}/{slotCount}";
+
+        if (dialogueText != null)
+            dialogueText.text = line ?? "";
+
+        if (metaText != null)
+        {
+            metaText.text = showMeta
+                ? $"{IcePrefToKorean(customer.icePreference)} | ì œí•œ {order.timeLimit:0}s"
+                : "";
+        }
+
+        SetPortrait(customer.portrait);
+    }
+
+    private void SetPortrait(Sprite portrait)
+    {
+        if (portraitImage == null) return;
+        portraitImage.sprite = portrait;
+        portraitImage.enabled = portrait != null;
+    }
+
+    private static string IcePrefToKorean(IcePreference pref) => pref switch
+    {
+        IcePreference.Like => "ì–¼ìŒ ì¢‹ì•„í•¨",
+        IcePreference.Dislike => "ì–¼ìŒ ì‹«ì–´í•¨",
+        _ => "ì–¼ìŒ ìƒê´€ì—†ìŒ"
+    };
+}
