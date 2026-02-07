@@ -32,10 +32,14 @@ namespace Alkuul.UI
         [SerializeField] private string promptBeforeReceiveOrder = "주문받기를 눌러 주문을 확인하세요.";
         [SerializeField] private string promptBeforeSettlement = "정산하기를 눌러 하루를 마무리하세요.";
         [SerializeField] private string promptDuringRename = "술 이름을 정해주세요.";
+        [SerializeField] private string promptDuringInnDecision = "재우시겠습니까?";
 
         [Header("UI (bound by OrderSceneBinder)")]
         [SerializeField] private OrderDialogueUI orderUI;
         [SerializeField] private CustomerPortraitView portraitView;
+
+        [Header("Inn Decision")]
+        [SerializeField] private PendingInnDecisionSystem innDecision;
 
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
@@ -140,6 +144,13 @@ namespace Alkuul.UI
             if (_awaitingSettlement)
             {
                 Debug.LogWarning("[Flow] ReceiveCustomer blocked: awaiting settlement.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (innDecision != null && innDecision.HasPending)
+            {
+                Debug.LogWarning("[Flow] ReceiveCustomer blocked: pending inn decision.");
                 RefreshOrderUI();
                 return;
             }
@@ -540,6 +551,13 @@ namespace Alkuul.UI
                 line = promptBeforeSettlement;
                 return true;
             }
+
+            if (innDecision != null && innDecision.HasPending)
+            {
+                line = promptDuringInnDecision;
+                return true;
+            }
+
 
             if (_awaitingReceiveCustomer)
             {
