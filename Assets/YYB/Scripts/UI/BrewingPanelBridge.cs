@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Alkuul.Domain;
@@ -31,6 +32,10 @@ public class BrewingPanelBridge : MonoBehaviour
 
     [SerializeField] private bool verboseLog = true;
 
+    public event Action<GlassSO> GlassChanged;
+    public event Action<IReadOnlyList<GarnishSO>> GarnishesChanged;
+
+
     // Session
     private CustomerProfile customer;
     private bool hasCustomer;
@@ -41,6 +46,8 @@ public class BrewingPanelBridge : MonoBehaviour
     public bool UsesIce => usesIce;
     public int CurrentPortionCount => brewing != null ? brewing.PortionCount : 0;
     public Drink PreviewDrink() => brewing != null ? brewing.Compute(usesIce) : default;
+    public GlassSO SelectedGlass => glass;
+    public IReadOnlyList<GarnishSO> SelectedGarnishes => garnishes;
 
     // served history
     private readonly List<Drink> servedDrinks = new();
@@ -124,6 +131,7 @@ public class BrewingPanelBridge : MonoBehaviour
     public void SelectGlass(GlassSO g)
     {
         glass = g;
+        GlassChanged?.Invoke(glass);
         Log($"[Bridge] Glass={(g ? g.name : "NULL")}");
     }
     public void SetGlass(GlassSO g) => SelectGlass(g);
@@ -137,6 +145,7 @@ public class BrewingPanelBridge : MonoBehaviour
         {
             garnishes.Remove(garnish);
             Log($"[Bridge] Garnish OFF: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
+            GarnishesChanged?.Invoke(garnishes);
             return true;
         }
 
@@ -150,6 +159,7 @@ public class BrewingPanelBridge : MonoBehaviour
 
         garnishes.Add(garnish);
         Log($"[Bridge] Garnish ON: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
+        GarnishesChanged?.Invoke(garnishes);
         return true;
     }
 
@@ -160,6 +170,7 @@ public class BrewingPanelBridge : MonoBehaviour
         maxGarnishSlots = Mathf.Clamp(slots, 1, 3);
         if (garnishes.Count > maxGarnishSlots)
             garnishes.RemoveRange(maxGarnishSlots, garnishes.Count - maxGarnishSlots);
+        GarnishesChanged?.Invoke(garnishes);
     }
 
     public void OnPortionAdded(IngredientSO ingredient, float ml)
@@ -177,6 +188,7 @@ public class BrewingPanelBridge : MonoBehaviour
     public void ResetMix()
     {
         brewing?.ResetMix();
+        garnishes.Clear();
         Log("[Bridge] ResetMix");
     }
 

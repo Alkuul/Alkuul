@@ -110,6 +110,7 @@ namespace Alkuul.UI
                 {
                     bridge?.ResetMix();
                     if (iceToggle != null) iceToggle.SetIsOnWithoutNotify(false);
+                    ClearGarnishToggles();
                     if (verboseLog) Debug.Log("[UI] ResetMix");
                 });
 
@@ -165,6 +166,15 @@ namespace Alkuul.UI
                     bridge?.SetGlass(g);
                     if (verboseLog) Debug.Log($"[UI] Glass={g.name}");
                 });
+            }
+        }
+
+        private void ClearGarnishToggles()
+        {
+            foreach (var b in garnishes)
+            {
+                if (b.toggle == null) continue;
+                b.toggle.SetIsOnWithoutNotify(false);
             }
         }
 
