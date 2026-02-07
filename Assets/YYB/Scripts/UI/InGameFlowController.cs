@@ -485,7 +485,21 @@ namespace Alkuul.UI
                 return;
             }
 
-            portraitView.Bind(_activeProfile.portraitSet, IntoxStage.Sober);
+            var stage = GetPortraitStageForCurrentCustomer();
+            portraitView.Bind(_activeProfile.portraitSet, stage);
+        }
+
+        private IntoxStage GetPortraitStageForCurrentCustomer()
+        {
+            if (string.IsNullOrEmpty(_activeProfile.id)) return IntoxStage.Sober;
+
+            int points = IntoxSystem.ComputePoints(_currentCustomerDrinks, _activeProfile.tolerance);
+            int stage = IntoxSystem.GetStage(points);
+
+            if (stage <= 1) return IntoxStage.Sober;
+            if (stage == 2) return IntoxStage.Tipsy;
+            if (stage == 3) return IntoxStage.Drunk;
+            return IntoxStage.Wasted;
         }
 
         private void EnterAwaitingOrderState()

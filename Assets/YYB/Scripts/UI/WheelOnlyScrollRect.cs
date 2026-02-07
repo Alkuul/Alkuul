@@ -16,6 +16,11 @@ public class WheelOnlyScrollRect : ScrollRect
             return;
         }
 
+        if (EventSystem.current == null)
+        {
+            return;
+        }
+
         Vector2 scrollDelta = Input.mouseScrollDelta;
         if (Mathf.Approximately(scrollDelta.y, 0f) && Mathf.Approximately(scrollDelta.x, 0f))
         {
@@ -42,6 +47,11 @@ public class WheelOnlyScrollRect : ScrollRect
         if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
         {
             return null;
+        }
+
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null)
+        {
+            return Camera.main;
         }
 
         return canvas.worldCamera;

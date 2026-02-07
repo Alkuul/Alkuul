@@ -279,13 +279,15 @@ public class TabletController : MonoBehaviour
 
     private void EnsureHeaderVisuals()
     {
-        if (_repStars.Length == 0)
+        int repCount = Mathf.Max(0, Mathf.RoundToInt(repStarCount));
+        if (_repStars.Length != repCount)
         {
             LoadHeaderSprites();
             BuildRepStars();
         }
 
-        if (_innHouses.Length == 0)
+        int houseCount = Mathf.Max(0, innHouseCount);
+        if (_innHouses.Length != houseCount)
         {
             LoadHeaderSprites();
             BuildInnHouses();
@@ -338,6 +340,8 @@ public class TabletController : MonoBehaviour
             layout.childForceExpandWidth = false;
         }
 
+        ClearChildren(repStarsRoot);
+
         _repStars = new Image[Mathf.Max(0, Mathf.RoundToInt(repStarCount))];
         for (int i = 0; i < _repStars.Length; i++)
         {
@@ -371,6 +375,8 @@ public class TabletController : MonoBehaviour
             layout.childForceExpandHeight = false;
             layout.childForceExpandWidth = false;
         }
+
+        ClearChildren(innHousesRoot);
 
         _innHouses = new Image[Mathf.Max(0, innHouseCount)];
         for (int i = 0; i < _innHouses.Length; i++)
@@ -430,6 +436,15 @@ public class TabletController : MonoBehaviour
         target.pivot = source.pivot;
         target.localRotation = source.localRotation;
         target.localScale = source.localScale;
+    }
+
+    private static void ClearChildren(Transform root)
+    {
+        if (root == null) return;
+        for (int i = root.childCount - 1; i >= 0; i--)
+        {
+            Destroy(root.GetChild(i).gameObject);
+        }
     }
 
     private void RefreshTabletDialogue()
