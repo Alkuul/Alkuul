@@ -1,8 +1,6 @@
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Alkuul.Domain;
 using Alkuul.Systems;
 using Alkuul.UI;
@@ -17,34 +15,17 @@ public class TabletController : MonoBehaviour
     [SerializeField] private GameObject page2;
 
     [Header("Page1 Panels")]
-    [Header("Header Visuals (optional)")]
-    [SerializeField] private Transform repStarsRoot;
-    [SerializeField] private Transform innHousesRoot;
-    [SerializeField] private Sprite starFullSprite;
-    [SerializeField] private Sprite starHalfSprite;
-    [SerializeField] private Sprite starEmptySprite;
-    [SerializeField] private Sprite innFullSprite;
-    [SerializeField] private Sprite innEmptySprite;
-    [SerializeField, Range(1, 5)] private int repStarCount = 5;
-    [SerializeField, Range(1, 3)] private int innHouseCount = 3;
-    [SerializeField] private float starSpacing = 6f;
-    [SerializeField] private float houseSpacing = 6f;
-
-    private Image[] _repStars = new Image[0];
-    private Image[] _innHouses = new Image[0];
-
-        EnsureHeaderVisuals();
-    [SerializeField] private GameObject p1_home;        // Panel1: ì†ë‹˜ë°›ê¸°(í™ˆ)
-    [SerializeField] private GameObject p1_rename;      // Panel2: ì´ë¦„ ì •í•˜ê¸°
-    [SerializeField] private GameObject p1_innDecision; // Panel3: ì¬ìš°ê¸°/ì«“ì•„ë‚´ê¸°
-    [SerializeField] private GameObject p1_receiveOrder; // Panel4: ì£¼ë¬¸ë°›ê¸°
+    [SerializeField] private GameObject p1_home;        // Panel1: ¼Õ´Ô¹Ş±â(È¨)
+    [SerializeField] private GameObject p1_rename;      // Panel2: ÀÌ¸§ Á¤ÇÏ±â
+    [SerializeField] private GameObject p1_innDecision; // Panel3: Àç¿ì±â/ÂÑ¾Æ³»±â
+    [SerializeField] private GameObject p1_receiveOrder; // Panel4: ÁÖ¹®¹Ş±â
 
     [Header("Page2 Panels")]
-    [SerializeField] private GameObject p2_settleButton;  // Panel1: ì •ì‚°í•˜ê¸° ë²„íŠ¼
-    [SerializeField] private GameObject p2_settleResult;  // Panel2: ì •ì‚° ê²°ê³¼ + ë‹¤ìŒ í™”ë©´ ë²„íŠ¼
-    [SerializeField] private GameObject p2_startDay;      // Panel3: í•˜ë£¨ ì‹œì‘ ë²„íŠ¼
-    [SerializeField] private GameObject p2_upgrade12;     // Panel4: ì—¬ê´€ 1->2
-    [SerializeField] private GameObject p2_upgrade23;     // Panel5: ì—¬ê´€ 2->3
+    [SerializeField] private GameObject p2_settleButton;  // Panel1: Á¤»êÇÏ±â ¹öÆ°
+    [SerializeField] private GameObject p2_settleResult;  // Panel2: Á¤»ê °á°ú + ´ÙÀ½ È­¸é ¹öÆ°
+    [SerializeField] private GameObject p2_startDay;      // Panel3: ÇÏ·ç ½ÃÀÛ ¹öÆ°
+    [SerializeField] private GameObject p2_upgrade12;     // Panel4: ¿©°ü 1->2
+    [SerializeField] private GameObject p2_upgrade23;     // Panel5: ¿©°ü 2->3
 
     [Header("Header TMP (optional)")]
     [SerializeField] private TMP_Text dayText;
@@ -68,8 +49,8 @@ public class TabletController : MonoBehaviour
     [SerializeField] private TMP_Text upgradeCostText;
 
     [Header("Behavior")]
-    [SerializeField] private bool autoSyncWhenOpened = true;  // ì—´ë¦´ ë•Œ Flow ìƒíƒœë¡œ ìë™ ì´ë™
-    [SerializeField] private bool autoSyncWhileOpen = true;   // ì—´ë ¤ìˆëŠ” ë™ì•ˆì—ë„ ìƒíƒœ ë³€í™” ë°˜ì˜
+    [SerializeField] private bool autoSyncWhenOpened = true;  // ¿­¸± ¶§ Flow »óÅÂ·Î ÀÚµ¿ ÀÌµ¿
+    [SerializeField] private bool autoSyncWhileOpen = true;   // ¿­·ÁÀÖ´Â µ¿¾È¿¡µµ »óÅÂ º¯È­ ¹İ¿µ
 
     // Systems/Flow
     [SerializeField] private InGameFlowController flow;
@@ -92,7 +73,7 @@ public class TabletController : MonoBehaviour
     {
         ResolveRefs();
 
-        // ì‹œì‘ì€ ë‹«ì•„ë‘ê³ , ë§ˆì§€ë§‰ íŒ¨ë„ì€ í™ˆ
+        // ½ÃÀÛÀº ´İ¾ÆµÎ°í, ¸¶Áö¸· ÆĞ³ÎÀº È¨
         _lastShownPanel = p1_home;
         SetOpen(false);
         ShowPanel(p1_home);
@@ -178,7 +159,7 @@ public class TabletController : MonoBehaviour
 
         HideAll();
 
-        // íŒ¨ë„ì´ Page1 ì†Œì†ì¸ì§€ Page2 ì†Œì†ì¸ì§€ íŒë‹¨í•´ì„œ í˜ì´ì§€ ë¨¼ì € ì¼¬
+        // ÆĞ³ÎÀÌ Page1 ¼Ò¼ÓÀÎÁö Page2 ¼Ò¼ÓÀÎÁö ÆÇ´ÜÇØ¼­ ÆäÀÌÁö ¸ÕÀú ÄÔ
         bool isPage1 =
             panel == p1_home || panel == p1_rename || panel == p1_innDecision || panel == p1_receiveOrder;
 
@@ -190,7 +171,7 @@ public class TabletController : MonoBehaviour
     }
 
     // -------------------------
-    // Auto Sync: Flow ìƒíƒœì— ë§ê²Œ íŒ¨ë„ ì „í™˜
+    // Auto Sync: Flow »óÅÂ¿¡ ¸Â°Ô ÆĞ³Î ÀüÈ¯
     // -------------------------
     private void SyncPanelToState(bool force = false)
     {
@@ -203,216 +184,64 @@ public class TabletController : MonoBehaviour
             return;
         }
 
-        // ì—…ê·¸ë ˆì´ë“œ íŒ¨ë„ì„ ì‚¬ìš©ìê°€ ìˆ˜ë™ìœ¼ë¡œ ì—´ì–´ë‘” ìƒíƒœëŠ” ìœ ì§€í•˜ê³  ì‹¶ìœ¼ë©´ force=falseì¼ ë•ŒëŠ” ê±´ë“œë¦¬ì§€ ì•Šê¸°
+        // ¾÷±×·¹ÀÌµå ÆĞ³ÎÀ» »ç¿ëÀÚ°¡ ¼öµ¿À¸·Î ¿­¾îµĞ »óÅÂ´Â À¯ÁöÇÏ°í ½ÍÀ¸¸é force=falseÀÏ ¶§´Â °Çµå¸®Áö ¾Ê±â
         if (!force && (_lastShownPanel == p2_upgrade12 || _lastShownPanel == p2_upgrade23))
             return;
 
-        // ìš°ì„ ìˆœìœ„:
-        // 1) Rename ì¤‘ì´ë©´ Rename íŒ¨ë„
+        // ¿ì¼±¼øÀ§:
+        // 1) Rename ÁßÀÌ¸é Rename ÆĞ³Î
         if (flow.AwaitingRename)
         {
             if (_lastShownPanel != p1_rename) ShowPanel(p1_rename);
             return;
         }
 
-        // 2) ìˆ™ë°•/í‡´ì‹¤ ê²°ì • ëŒ€ê¸°(íê°€ ìˆìœ¼ë©´) -> p1_innDecision
+        // 2) ¼÷¹Ú/Åğ½Ç °áÁ¤ ´ë±â(Å¥°¡ ÀÖÀ¸¸é) -> p1_innDecision
         if (innDecision != null && innDecision.HasPending)
         {
             if (_lastShownPanel != p1_innDecision) ShowPanel(p1_innDecision);
             return;
         }
 
-        // 3) ì •ì‚° ëŒ€ê¸° ìƒíƒœ
+        // 3) Á¤»ê ´ë±â »óÅÂ
         if (flow.AwaitingSettlement)
         {
-            // ì •ì‚°ì„ ì•„ì§ ì•ˆ ëˆŒë €ìœ¼ë©´ ì •ì‚° ë²„íŠ¼ íŒ¨ë„
+            // Á¤»êÀ» ¾ÆÁ÷ ¾È ´­·¶À¸¸é Á¤»ê ¹öÆ° ÆĞ³Î
             if (!_settlementDoneView)
             {
                 if (_lastShownPanel != p2_settleButton) ShowPanel(p2_settleButton);
             }
             else
             {
-                // ì •ì‚° ëˆ„ë¥¸ ë’¤ë¼ë©´ ê²°ê³¼ íŒ¨ë„
+                // Á¤»ê ´©¸¥ µÚ¶ó¸é °á°ú ÆĞ³Î
                 if (_lastShownPanel != p2_settleResult) ShowPanel(p2_settleResult);
                 RefreshSettlementText();
             }
             return;
         }
 
-        // 4) í•˜ë£¨ ì¤€ë¹„ ì•ˆ ë¨(= StartDay ëˆ„ë¥´ê¸° ì „) -> í•˜ë£¨ ì‹œì‘ íŒ¨ë„
+        // 4) ÇÏ·ç ÁØºñ ¾È µÊ(= StartDay ´©¸£±â Àü) -> ÇÏ·ç ½ÃÀÛ ÆĞ³Î
         if (!flow.DayPrepared)
         {
             if (_lastShownPanel != p2_startDay) ShowPanel(p2_startDay);
             return;
         }
 
-        EnsureHeaderVisuals();
-        UpdateRepStars();
-        UpdateInnHouses();
-    }
-
-    private void EnsureHeaderVisuals()
-    {
-        if (_repStars.Length == 0)
-        {
-            LoadHeaderSprites();
-            BuildRepStars();
-        }
-
-        if (_innHouses.Length == 0)
-        {
-            LoadHeaderSprites();
-            BuildInnHouses();
-        }
-    }
-
-    private void LoadHeaderSprites()
-    {
-        starFullSprite = starFullSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Full.png");
-        starHalfSprite = starHalfSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Half.png");
-        starEmptySprite = starEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Star_empty.png");
-        innFullSprite = innFullSprite ?? LoadSpriteFromAssets("Image/tablet/Full_room 1.png");
-        innEmptySprite = innEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Room_empty 1.png");
-    }
-
-    private Sprite LoadSpriteFromAssets(string relativePath)
-    {
-        string path = Path.Combine(Application.dataPath, relativePath);
-        if (!File.Exists(path)) return null;
-
-        byte[] bytes = File.ReadAllBytes(path);
-        if (bytes.Length == 0) return null;
-
-        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-        if (!texture.LoadImage(bytes)) return null;
-
-        texture.wrapMode = TextureWrapMode.Clamp;
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-    }
-
-    private void BuildRepStars()
-    {
-        if (repText == null) return;
-        if (repStarsRoot == null)
-        {
-            repStarsRoot = new GameObject("RepStars", typeof(RectTransform)).transform;
-            repStarsRoot.SetParent(repText.transform.parent, false);
-            CopyRectTransform(repText.rectTransform, repStarsRoot.GetComponent<RectTransform>());
-        }
-
-        repText.gameObject.SetActive(false);
-
-        var layout = repStarsRoot.GetComponent<HorizontalLayoutGroup>();
-        if (layout == null)
-        {
-            layout = repStarsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.spacing = starSpacing;
-            layout.childForceExpandHeight = false;
-            layout.childForceExpandWidth = false;
-        }
-
-        _repStars = new Image[Mathf.Max(1, repStarCount)];
-        for (int i = 0; i < _repStars.Length; i++)
-        {
-            var star = new GameObject($"Star_{i + 1}", typeof(RectTransform), typeof(Image));
-            star.transform.SetParent(repStarsRoot, false);
-            var image = star.GetComponent<Image>();
-            image.sprite = starEmptySprite;
-            image.preserveAspect = true;
-            _repStars[i] = image;
-        }
-    }
-
-    private void BuildInnHouses()
-    {
-        if (innText == null) return;
-        if (innHousesRoot == null)
-        {
-            innHousesRoot = new GameObject("InnHouses", typeof(RectTransform)).transform;
-            innHousesRoot.SetParent(innText.transform.parent, false);
-            CopyRectTransform(innText.rectTransform, innHousesRoot.GetComponent<RectTransform>());
-        }
-
-        innText.gameObject.SetActive(false);
-
-        var layout = innHousesRoot.GetComponent<HorizontalLayoutGroup>();
-        if (layout == null)
-        {
-            layout = innHousesRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.spacing = houseSpacing;
-            layout.childForceExpandHeight = false;
-            layout.childForceExpandWidth = false;
-        }
-
-        _innHouses = new Image[Mathf.Max(1, innHouseCount)];
-        for (int i = 0; i < _innHouses.Length; i++)
-        {
-            var house = new GameObject($"House_{i + 1}", typeof(RectTransform), typeof(Image));
-            house.transform.SetParent(innHousesRoot, false);
-            var image = house.GetComponent<Image>();
-            image.sprite = innEmptySprite;
-            image.preserveAspect = true;
-            _innHouses[i] = image;
-        }
-    }
-
-    private void UpdateRepStars()
-    {
-        if (_repStars.Length == 0) return;
-        float rating = rep != null ? Mathf.Clamp(rep.reputation, 0f, repStarCount) : 2.5f;
-        int fullStars = Mathf.FloorToInt(rating);
-        bool hasHalf = rating - fullStars >= 0.5f;
-
-        for (int i = 0; i < _repStars.Length; i++)
-        {
-            if (_repStars[i] == null) continue;
-            if (i < fullStars)
-                _repStars[i].sprite = starFullSprite;
-            else if (i == fullStars && hasHalf)
-                _repStars[i].sprite = starHalfSprite;
-            else
-                _repStars[i].sprite = starEmptySprite;
-        }
-    }
-
-    private void UpdateInnHouses()
-    {
-        if (_innHouses.Length == 0) return;
-        int count = innDecision != null ? innDecision.Count : (innUpgrade != null ? innUpgrade.Level : 1);
-        count = Mathf.Clamp(count, 0, _innHouses.Length);
-
-        for (int i = 0; i < _innHouses.Length; i++)
-        {
-            if (_innHouses[i] == null) continue;
-            _innHouses[i].sprite = i < count ? innFullSprite : innEmptySprite;
-        }
-    }
-
-    private static void CopyRectTransform(RectTransform source, RectTransform target)
-    {
-        if (source == null || target == null) return;
-        target.anchorMin = source.anchorMin;
-        target.anchorMax = source.anchorMax;
-        target.anchoredPosition = source.anchoredPosition;
-        target.sizeDelta = source.sizeDelta;
-        target.pivot = source.pivot;
-        target.localRotation = source.localRotation;
-        target.localScale = source.localScale;
+        // 5) ¼Õ´Ô ¹Ş±â ´ë±â -> È¨(¼Õ´Ô¹Ş±â)
+        if (flow.AwaitingReceiveCustomer)
         {
             if (_lastShownPanel != p1_home) ShowPanel(p1_home);
             return;
         }
 
-        // 6) ì£¼ë¬¸ë°›ê¸° ëŒ€ê¸° -> ì£¼ë¬¸ë°›ê¸° íŒ¨ë„
+        // 6) ÁÖ¹®¹Ş±â ´ë±â -> ÁÖ¹®¹Ş±â ÆĞ³Î
         if (flow.AwaitingReceiveOrder)
         {
             if (_lastShownPanel != p1_receiveOrder) ShowPanel(p1_receiveOrder);
             return;
         }
 
-        // ê¸°ë³¸: í™ˆ
+        // ±âº»: È¨
         if (_lastShownPanel != p1_home) ShowPanel(p1_home);
     }
 
@@ -455,7 +284,7 @@ public class TabletController : MonoBehaviour
         ResolveRefs();
         flow?.StartDay();
 
-        // ì •ì‚° ê²°ê³¼ ë·°ëŠ” ë‹¤ìŒ ë‚  ì‹œì‘í•˜ë©´ ì´ˆê¸°í™”
+        // Á¤»ê °á°ú ºä´Â ´ÙÀ½ ³¯ ½ÃÀÛÇÏ¸é ÃÊ±âÈ­
         _settlementDoneView = false;
 
         SetOpen(true);
@@ -476,7 +305,7 @@ public class TabletController : MonoBehaviour
         ResolveRefs();
         flow?.OnClickReceiveOrder();
 
-        // ì£¼ë¬¸ë°›ê¸° ëˆ„ë¥´ë©´ íƒœë¸”ë¦¿ ë‹«ê¸°
+        // ÁÖ¹®¹Ş±â ´©¸£¸é ÅÂºí¸´ ´İ±â
         SetOpen(false);
         ShowPanel(p1_home);
     }
@@ -486,7 +315,7 @@ public class TabletController : MonoBehaviour
         ResolveRefs();
         flow?.OnClickStartBrewing();
 
-        // ì¡°ì£¼í•˜ëŸ¬ê°€ê¸° ëˆ„ë¥´ë©´ ë‹«ê¸°
+        // Á¶ÁÖÇÏ·¯°¡±â ´©¸£¸é ´İ±â
         SetOpen(false);
         ShowPanel(p1_home);
     }
@@ -498,10 +327,10 @@ public class TabletController : MonoBehaviour
     {
         ResolveRefs();
 
-        // flow ë‚´ë¶€ì—ì„œ dayCycle.EndDayPublic() í˜¸ì¶œ + dayPrepared=falseë¡œ ë‚´ë ¤ê°
+        // flow ³»ºÎ¿¡¼­ dayCycle.EndDayPublic() È£Ãâ + dayPrepared=false·Î ³»·Á°¨
         flow?.OnClickSettlement();
 
-        // ì´ì œ ì •ì‚° ê²°ê³¼ë¥¼ ë³´ì—¬ì£¼ì
+        // ÀÌÁ¦ Á¤»ê °á°ú¸¦ º¸¿©ÁÖÀÚ
         _settlementDoneView = true;
         _lockToSettlementResult = true;
 
@@ -515,7 +344,7 @@ public class TabletController : MonoBehaviour
         _lockToSettlementResult = false;
         _settlementDoneView = false;
 
-        // ì •ì‚° ê²°ê³¼ íŒ¨ë„ì—ì„œ "ë‹¤ìŒ" ë²„íŠ¼ìœ¼ë¡œ í•˜ë£¨ ì‹œì‘ íŒ¨ë„ë¡œ ì´ë™
+        // Á¤»ê °á°ú ÆĞ³Î¿¡¼­ "´ÙÀ½" ¹öÆ°À¸·Î ÇÏ·ç ½ÃÀÛ ÆĞ³Î·Î ÀÌµ¿
         SetOpen(true);
         ShowPanel(p2_startDay);
     }
@@ -525,16 +354,16 @@ public class TabletController : MonoBehaviour
         if (settlementText == null || ledger == null) return;
 
         settlementText.text =
-            $"[ì •ì‚°]\n" +
-            $"ìˆ˜ìµ ë³€í™”: {ledger.IncomeDelta}\n" +
-            $"í‰íŒ ë³€í™”: {ledger.RepDelta:+0.00;-0.00}\n" +
-            $"ì œê³µí•œ ì” ìˆ˜: {ledger.ServedDrinks}\n" +
-            $"ì¬ìš´ ì¸ì›: {ledger.SleptCustomers}\n" +
-            $"ì†ë‹˜ ìˆ˜: {ledger.ServedCustomers}";
+            $"[Á¤»ê]\n" +
+            $"¼öÀÍ º¯È­: {ledger.IncomeDelta}\n" +
+            $"ÆòÆÇ º¯È­: {ledger.RepDelta:+0.00;-0.00}\n" +
+            $"Á¦°øÇÑ ÀÜ ¼ö: {ledger.ServedDrinks}\n" +
+            $"Àç¿î ÀÎ¿ø: {ledger.SleptCustomers}\n" +
+            $"¼Õ´Ô ¼ö: {ledger.ServedCustomers}";
     }
 
     // -------------------------
-    // Rename (Flowê°€ OpenRename í˜¸ì¶œ)
+    // Rename (Flow°¡ OpenRename È£Ãâ)
     // -------------------------
     public void OpenRename(Drink drink, DrinkResult result, CustomerProfile customer, int slotIndex1Based, int slotCount)
     {
@@ -545,11 +374,11 @@ public class TabletController : MonoBehaviour
         {
             string cname = string.IsNullOrWhiteSpace(customer.displayName) ? customer.id : customer.displayName;
             renameInfoText.text =
-                $"[ì´ë¦„ ì •í•˜ê¸°]\n" +
-                $"{cname} / ì£¼ë¬¸ {slotIndex1Based}/{slotCount}\n" +
-                $"ë§Œì¡±ë„: {result.satisfaction:0.#}\n" +
-                $"ë„ìˆ˜: {drink.finalABV:0.#}%\n" +
-                $"ì´ëŸ‰: {drink.totalMl:0.#}ml";
+                $"[ÀÌ¸§ Á¤ÇÏ±â]\n" +
+                $"{cname} / ÁÖ¹® {slotIndex1Based}/{slotCount}\n" +
+                $"¸¸Á·µµ: {result.satisfaction:0.#}\n" +
+                $"µµ¼ö: {drink.finalABV:0.#}%\n" +
+                $"ÃÑ·®: {drink.totalMl:0.#}ml";
         }
 
         if (renameInput != null)
@@ -566,7 +395,7 @@ public class TabletController : MonoBehaviour
         string name = (renameInput != null) ? renameInput.text : "";
         flow?.ConfirmRenameAndContinue(name);
 
-        // ì´ë¦„ í™•ì • í›„ íƒœë¸”ë¦¿ ë‹«ê³ , ë‹¤ìŒ ìƒíƒœëŠ” flowê°€ ê²°ì •(ì†ë‹˜ë°›ê¸°/ì£¼ë¬¸ë°›ê¸°/ì •ì‚°í•˜ê¸°)
+        // ÀÌ¸§ È®Á¤ ÈÄ ÅÂºí¸´ ´İ°í, ´ÙÀ½ »óÅÂ´Â flow°¡ °áÁ¤(¼Õ´Ô¹Ş±â/ÁÖ¹®¹Ş±â/Á¤»êÇÏ±â)
         SetOpen(false);
         SyncPanelToState(true);
     }
@@ -596,7 +425,7 @@ public class TabletController : MonoBehaviour
         ResolveRefs();
         if (innUpgrade == null) return;
 
-        // ë ˆë²¨ì— ë”°ë¼ íŒ¨ë„ ì„ íƒ
+        // ·¹º§¿¡ µû¶ó ÆĞ³Î ¼±ÅÃ
         if (innUpgrade.Level == 1)
         {
             ShowPanel(p2_upgrade12);
@@ -611,7 +440,7 @@ public class TabletController : MonoBehaviour
         }
         else
         {
-            // ì´ë¯¸ Lv3ì´ë©´ í™ˆìœ¼ë¡œ
+            // ÀÌ¹Ì Lv3ÀÌ¸é È¨À¸·Î
             SetOpen(true);
             ShowPanel(p1_home);
         }
@@ -622,10 +451,10 @@ public class TabletController : MonoBehaviour
         if (innUpgrade == null) return;
 
         if (upgradeTitleText != null)
-            upgradeTitleText.text = $"ì—¬ê´€ ì—…ê·¸ë ˆì´ë“œ Lv{targetLevel}";
+            upgradeTitleText.text = $"¿©°ü ¾÷±×·¹ÀÌµå Lv{targetLevel}";
 
         if (upgradeCostText != null)
-            upgradeCostText.text = $"ë¹„ìš©: {innUpgrade.NextCost}G";
+            upgradeCostText.text = $"ºñ¿ë: {innUpgrade.NextCost}G";
     }
 
     public void OnClick_ConfirmUpgrade()
@@ -636,12 +465,12 @@ public class TabletController : MonoBehaviour
         bool ok = innUpgrade.TryUpgrade(economy);
         RefreshHeader();
 
-        // ì„±ê³µ/ì‹¤íŒ¨ ìƒê´€ì—†ì´ í™ˆìœ¼ë¡œ ë³µê·€(ì›í•˜ë©´ ì‹¤íŒ¨ ì‹œ ê·¸ëŒ€ë¡œ ìœ ì§€ë¡œ ë°”ê¿”ë„ ë¨)
+        // ¼º°ø/½ÇÆĞ »ó°ü¾øÀÌ È¨À¸·Î º¹±Í(¿øÇÏ¸é ½ÇÆĞ ½Ã ±×´ë·Î À¯Áö·Î ¹Ù²ãµµ µÊ)
         SetOpen(true);
         ShowPanel(p1_home);
 
         if (!ok)
-            Debug.Log("[Tablet] Upgrade failed (gold ë¶€ì¡± ë˜ëŠ” max level).");
+            Debug.Log("[Tablet] Upgrade failed (gold ºÎÁ· ¶Ç´Â max level).");
     }
 
     public void OnClick_CancelUpgrade()
