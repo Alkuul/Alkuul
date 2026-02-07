@@ -45,24 +45,7 @@ public class UIMixContentsView : MonoBehaviour
         sb.AppendLine("믹싱글라스");
         sb.AppendLine($"총량: {d.totalMl:0.#} ml" + (ice ? " (얼음 포함)" : ""));
         sb.AppendLine($"도수: {d.finalABV:0.#}%");
-        sb.AppendLine();
 
-        sb.AppendLine("구성:");
-        if (d.portions == null || d.portions.Count == 0)
-        {
-            sb.AppendLine("- (비어있음)");
-        }
-        else
-        {
-            foreach (var p in d.portions)
-            {
-                if (p.ingredient == null) continue;
-                string name = string.IsNullOrWhiteSpace(p.ingredient.displayName) ? p.ingredient.name : p.ingredient.displayName;
-                sb.AppendLine($"- {name} {p.ml:0.#} ml");
-            }
-        }
-
-        sb.AppendLine();
         sb.AppendLine("감정(프리뷰):");
         sb.AppendLine(EmotionFormat.ToPercentLines(d.emotions, emotionTopK, emotionMinPct));
 

@@ -80,6 +80,8 @@ namespace Alkuul.UI
         public void BindOrderUI(OrderDialogueUI ui)
         {
             orderUI = ui;
+            EnsureRefs();
+            UpdatePortraitForActiveCustomer();
             RefreshOrderUI();
         }
 
@@ -362,6 +364,8 @@ namespace Alkuul.UI
         private IEnumerator ReturnToOrderAndOpenRename()
         {
             yield return SceneManager.LoadSceneAsync(orderSceneName);
+            EnsureRefs();
+            UpdatePortraitForActiveCustomer();
 
             // Rename UI는 태블릿에서 열기
             var tablet = FindObjectOfType<TabletController>(true);
