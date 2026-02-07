@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -7,4 +8,42 @@ public class WheelOnlyScrollRect : ScrollRect
     public override void OnBeginDrag(PointerEventData eventData) { }
     public override void OnDrag(PointerEventData eventData) { }
     public override void OnEndDrag(PointerEventData eventData) { }
+
+    private void Update()
+    {
+        if (!IsActive())
+        {
+            return;
+        }
+
+        Vector2 scrollDelta = Input.mouseScrollDelta;
+        if (Mathf.Approximately(scrollDelta.y, 0f) && Mathf.Approximately(scrollDelta.x, 0f))
+        {
+            return;
+        }
+
+        RectTransform targetRect = viewport != null ? viewport : (RectTransform)transform;
+        if (!RectTransformUtility.RectangleContainsScreenPoint(targetRect, Input.mousePosition, GetEventCamera()))
+        {
+            return;
+        }
+
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            scrollDelta = scrollDelta
+        };
+
+        base.OnScroll(eventData);
+    }
+
+    private Camera GetEventCamera()
+    {
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return canvas.worldCamera;
+    }
 }
