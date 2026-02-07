@@ -1,6 +1,8 @@
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Alkuul.Domain;
 using Alkuul.Systems;
 using Alkuul.UI;
@@ -32,6 +34,23 @@ public class TabletController : MonoBehaviour
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text repText;
     [SerializeField] private TMP_Text innText;
+
+    [Header("Header Visuals (optional)")]
+    [SerializeField] private Transform repStarsRoot;
+    [SerializeField] private Transform innHousesRoot;
+    [SerializeField] private Sprite starFullSprite;
+    [SerializeField] private Sprite starHalfSprite;
+    [SerializeField] private Sprite starEmptySprite;
+    [SerializeField] private Sprite innFullSprite;
+    [SerializeField] private Sprite innEmptySprite;
+    [SerializeField, Range(1, 5)] private int repStarCount = 5;
+    [SerializeField, Range(1, 3)] private int innHouseCount = 3;
+    [SerializeField] private float starSpacing = 6f;
+    [SerializeField] private float houseSpacing = 6f;
+
+    private Image[] _repStars = new Image[0];
+    private Image[] _innHouses = new Image[0];
+
 
     [Header("Order Dialogue TMP on Tablet (optional)")]
     [SerializeField] private TMP_Text tabletCustomerNameText;
@@ -77,6 +96,7 @@ public class TabletController : MonoBehaviour
         _lastShownPanel = p1_home;
         SetOpen(false);
         ShowPanel(p1_home);
+        EnsureHeaderVisuals();
         RefreshHeader();
         RefreshTabletDialogue();
     }
@@ -252,8 +272,160 @@ public class TabletController : MonoBehaviour
     {
         if (dayText) dayText.text = $"Day {day?.currentDay ?? 1}";
         if (moneyText) moneyText.text = $"Gold {economy?.money ?? 0}";
-        if (repText) repText.text = $"Rep {(rep != null ? rep.reputation.ToString("0.00") : "2.50")}";
-        if (innText) innText.text = $"Inn Lv {(innUpgrade != null ? innUpgrade.Level.ToString() : "1")}";
+        EnsureHeaderVisuals();
+        UpdateRepStars();
+        UpdateInnHouses();
+    }
+
+    private void EnsureHeaderVisuals()
+    {
+        if (_repStars.Length == 0)
+        {
+            LoadHeaderSprites();
+            BuildRepStars();
+        }
+
+        if (_innHouses.Length == 0)
+        {
+            LoadHeaderSprites();
+            BuildInnHouses();
+        }
+    }
+
+    private void LoadHeaderSprites()
+    {
+        starFullSprite = starFullSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Full.png");
+        starHalfSprite = starHalfSprite ?? LoadSpriteFromAssets("Image/tablet/Star_Half.png");
+        starEmptySprite = starEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Star_empty.png");
+        innFullSprite = innFullSprite ?? LoadSpriteFromAssets("Image/tablet/Full_room 1.png");
+        innEmptySprite = innEmptySprite ?? LoadSpriteFromAssets("Image/tablet/Room_empty 1.png");
+    }
+
+    private Sprite LoadSpriteFromAssets(string relativePath)
+    {
+        string path = Path.Combine(Application.dataPath, relativePath);
+        if (!File.Exists(path)) return null;
+
+        byte[] bytes = File.ReadAllBytes(path);
+        if (bytes.Length == 0) return null;
+
+        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        if (!texture.LoadImage(bytes)) return null;
+
+        texture.wrapMode = TextureWrapMode.Clamp;
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+    }
+
+    private void BuildRepStars()
+    {
+        if (repText == null) return;
+        if (repStarsRoot == null)
+        {
+            repStarsRoot = new GameObject("RepStars", typeof(RectTransform)).transform;
+            repStarsRoot.SetParent(repText.transform.parent, false);
+            CopyRectTransform(repText.rectTransform, repStarsRoot.GetComponent<RectTransform>());
+        }
+
+        repText.gameObject.SetActive(false);
+
+        var layout = repStarsRoot.GetComponent<HorizontalLayoutGroup>();
+        if (layout == null)
+        {
+            layout = repStarsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.spacing = starSpacing;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = false;
+        }
+
+        _repStars = new Image[Mathf.Max(1, repStarCount)];
+        for (int i = 0; i < _repStars.Length; i++)
+        {
+            var star = new GameObject($"Star_{i + 1}", typeof(RectTransform), typeof(Image));
+            star.transform.SetParent(repStarsRoot, false);
+            var image = star.GetComponent<Image>();
+            image.sprite = starEmptySprite;
+            image.preserveAspect = true;
+            _repStars[i] = image;
+        }
+    }
+
+    private void BuildInnHouses()
+    {
+        if (innText == null) return;
+        if (innHousesRoot == null)
+        {
+            innHousesRoot = new GameObject("InnHouses", typeof(RectTransform)).transform;
+            innHousesRoot.SetParent(innText.transform.parent, false);
+            CopyRectTransform(innText.rectTransform, innHousesRoot.GetComponent<RectTransform>());
+        }
+
+        innText.gameObject.SetActive(false);
+
+        var layout = innHousesRoot.GetComponent<HorizontalLayoutGroup>();
+        if (layout == null)
+        {
+            layout = innHousesRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.spacing = houseSpacing;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = false;
+        }
+
+        _innHouses = new Image[Mathf.Max(1, innHouseCount)];
+        for (int i = 0; i < _innHouses.Length; i++)
+        {
+            var house = new GameObject($"House_{i + 1}", typeof(RectTransform), typeof(Image));
+            house.transform.SetParent(innHousesRoot, false);
+            var image = house.GetComponent<Image>();
+            image.sprite = innEmptySprite;
+            image.preserveAspect = true;
+            _innHouses[i] = image;
+        }
+    }
+
+    private void UpdateRepStars()
+    {
+        if (_repStars.Length == 0) return;
+        float rating = rep != null ? Mathf.Clamp(rep.reputation, 0f, repStarCount) : 2.5f;
+        int fullStars = Mathf.FloorToInt(rating);
+        bool hasHalf = rating - fullStars >= 0.5f;
+
+        for (int i = 0; i < _repStars.Length; i++)
+        {
+            if (_repStars[i] == null) continue;
+            if (i < fullStars)
+                _repStars[i].sprite = starFullSprite;
+            else if (i == fullStars && hasHalf)
+                _repStars[i].sprite = starHalfSprite;
+            else
+                _repStars[i].sprite = starEmptySprite;
+        }
+    }
+
+    private void UpdateInnHouses()
+    {
+        if (_innHouses.Length == 0) return;
+        int count = innDecision != null ? innDecision.Count : (innUpgrade != null ? innUpgrade.Level : 1);
+        count = Mathf.Clamp(count, 0, _innHouses.Length);
+
+        for (int i = 0; i < _innHouses.Length; i++)
+        {
+            if (_innHouses[i] == null) continue;
+            _innHouses[i].sprite = i < count ? innFullSprite : innEmptySprite;
+        }
+    }
+
+    private static void CopyRectTransform(RectTransform source, RectTransform target)
+    {
+        if (source == null || target == null) return;
+        target.anchorMin = source.anchorMin;
+        target.anchorMax = source.anchorMax;
+        target.anchoredPosition = source.anchoredPosition;
+        target.sizeDelta = source.sizeDelta;
+        target.pivot = source.pivot;
+        target.localRotation = source.localRotation;
+        target.localScale = source.localScale;
     }
 
     private void RefreshTabletDialogue()
