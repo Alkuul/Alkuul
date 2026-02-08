@@ -32,7 +32,7 @@ namespace Alkuul.UI
         [SerializeField] private string promptBeforeReceiveOrder = "주문받기를 눌러 주문을 확인하세요.";
         [SerializeField] private string promptBeforeSettlement = "정산하기를 눌러 하루를 마무리하세요.";
         [SerializeField] private string promptDuringRename = "술 이름을 정해주세요.";
-        [SerializeField] private string promptDuringInnDecision = "재우시겠습니까?";
+        [SerializeField] private string promptDuringInnDecision = "손님이 만취 상태입니다. 여관에 재우시겠습니까?";
 
         [Header("UI (bound by OrderSceneBinder)")]
         [SerializeField] private OrderDialogueUI orderUI;
@@ -66,6 +66,7 @@ namespace Alkuul.UI
         private int _postServeIndex;
         private List<string> _dayIntroLines = new();
         private List<string> _postServeLines = new();
+        private bool _innDecisionBound;
 
         // rename pending
         private BrewingPanelBridge _bridge;
@@ -90,6 +91,19 @@ namespace Alkuul.UI
         public bool AwaitingReceiveOrder => _awaitingReceiveOrder;
         public bool AwaitingSettlement => _awaitingSettlement;
         public bool AwaitingRename => _awaitingRename;
+
+        private void OnEnable()
+        {
+            EnsureRefs();
+        }
+
+        private void OnDisable()
+        {
+            if (innDecision != null)
+                innDecision.QueueChanged -= HandleInnDecisionQueueChanged;
+            _innDecisionBound = false;
+        }
+
 
         public void RefreshOrderUIExternal()
         {
@@ -408,6 +422,19 @@ namespace Alkuul.UI
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+            BindInnDecision();
+        }
+
+        private void BindInnDecision()
+        {
+            if (_innDecisionBound || innDecision == null) return;
+            innDecision.QueueChanged += HandleInnDecisionQueueChanged;
+            _innDecisionBound = true;
+        }
+
+        private void HandleInnDecisionQueueChanged()
+        {
+            RefreshOrderUI();
         }
 
         private IEnumerator LoadBrewingAndBindBridge()

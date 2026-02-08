@@ -1,22 +1,21 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Alkuul.Domain;
 using Alkuul.Systems;
-using Alkuul.UI;
 
 public class PendingInnDecisionSystem : MonoBehaviour
 {
     [SerializeField] private InnSystem inn;
     [SerializeField] private DailyLedgerSystem ledger;
-    [SerializeField] private InGameFlowController flow;
 
     private readonly Queue<CustomerResult> _queue = new();
+    public event Action QueueChanged;
 
     private void Awake()
     {
         if (inn == null) inn = FindObjectOfType<InnSystem>(true);
         if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
-        if (flow == null) flow = FindObjectOfType<InGameFlowController>(true);
     }
 
     public int Count => _queue.Count;
@@ -38,6 +37,7 @@ public class PendingInnDecisionSystem : MonoBehaviour
         // 숙박 불가능이면 큐에 쌓지 않음
         if (!cr.canSleepAtInn) return;
         _queue.Enqueue(cr);
+        QueueChanged?.Invoke();
     }
 
     public bool SleepOne()
@@ -50,7 +50,7 @@ public class PendingInnDecisionSystem : MonoBehaviour
         if (ok && ledger != null)
             ledger.RecordSleepSuccess();
 
-        flow?.RefreshOrderUIExternal();
+        QueueChanged?.Invoke();
         return ok;
     }
 
@@ -58,7 +58,7 @@ public class PendingInnDecisionSystem : MonoBehaviour
     {
         if (_queue.Count == 0) return false;
         _queue.Dequeue();
-        flow?.RefreshOrderUIExternal();
+        QueueChanged?.Invoke();
         return true;
     }
 }
