@@ -34,9 +34,7 @@ MonoBehaviour:
     - dialogueLine: "\" \uC774\uBC88\uC5D4 \uC81C\uAC00 \uC0C8\uB85C \uD0DC\uC5B4\uB0A0
         \uC218 \uC788\uB294 \uC124\uB808\uB294 \uAC10\uC815\uC744 \uB290\uB07C\uACE0
         \uC2F6\uC5B4\uC694 \""
-      postServeLines:
-      - "\"\uC190\uB2D8\uC774 \uB9CC\uCDE8 \uC0C1\uD0DC\uC785\uB2C8\uB2E4. \uC5EC\uAD00\uC5D0
-        \uC7AC\uC6B0\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?\""
+      postServeLines: []
       keywords:
       - {fileID: 11400000, guid: fb048cdeee54e4345b4a33bde2587a8f, type: 2}
       abvRange: {x: 0, y: 0}
