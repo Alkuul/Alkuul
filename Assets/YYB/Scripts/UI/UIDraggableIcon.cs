@@ -13,6 +13,7 @@ public class UIDraggableIcon : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private Transform originalParent;
     private int originalSiblingIndex;
+    private Vector2 originalAnchoredPosition;
 
     // 포인터(캔버스 로컬)와 아이콘(localPosition) 사이 오프셋
     private Vector2 pointerToIconOffset;
@@ -31,6 +32,7 @@ public class UIDraggableIcon : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
+        originalAnchoredPosition = rt.anchoredPosition;
 
         // 1) 드래그 중 다른 UI에 가려지지 않게 캔버스 최상단으로(현재 위치 유지)
         transform.SetParent(rootCanvas.transform, true);
@@ -72,6 +74,6 @@ public class UIDraggableIcon : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         transform.SetSiblingIndex(originalSiblingIndex);
 
         // 슬롯 중앙에 스냅(슬롯 방식이면 이게 가장 깔끔)
-        rt.anchoredPosition = Vector2.zero;
+        rt.anchoredPosition = originalAnchoredPosition;
     }
 }

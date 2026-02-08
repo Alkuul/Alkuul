@@ -10,6 +10,9 @@ namespace Alkuul.UI
     {
         [Min(1)] public int dayNumber = 1;
 
+        [Header("Day Intro Dialogue (optional)")]
+        public List<string> dayIntroLines = new();
+
         [Header("Customers (권장: 최대 3)")]
         public List<CustomerOrdersDefinition> customers = new();
 
@@ -37,7 +40,8 @@ namespace Alkuul.UI
                     {
                         order = order,
                         keywords = (s.keywords != null) ? new List<SecondaryEmotionSO>(s.keywords) : new List<SecondaryEmotionSO>(),
-                        dialogueLine = s.dialogueLine
+                        dialogueLine = s.dialogueLine,
+                        postServeLines = (s.postServeLines != null) ? new List<string>(s.postServeLines) : new List<string>()
                     });
                 }
 

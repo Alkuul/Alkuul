@@ -72,7 +72,7 @@ namespace Alkuul.DebugTools
             // 2) 현재 대사/프롬프트 표시
             if (dialogueText != null || extraText != null)
             {
-                if (flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line))
+                if (flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line, out var showMeta))
                 {
                     if (dialogueText != null)
                         dialogueText.text = line ?? "";

@@ -452,7 +452,7 @@ public class TabletController : MonoBehaviour
         if (flow == null) return;
         if (tabletDialogueText == null && tabletCustomerNameText == null) return;
 
-        if (flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line))
+        if (flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line, out var showMeta))
         {
             if (tabletCustomerNameText != null)
             {

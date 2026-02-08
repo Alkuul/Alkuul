@@ -59,6 +59,13 @@ namespace Alkuul.UI
         private bool _awaitingReceiveOrder;
         private bool _awaitingSettlement;
         private bool _awaitingRename;
+        private bool _awaitingDayIntro;
+        private bool _awaitingPostServeDialogue;
+
+        private int _dayIntroIndex;
+        private int _postServeIndex;
+        private List<string> _dayIntroLines = new();
+        private List<string> _postServeLines = new();
 
         // rename pending
         private BrewingPanelBridge _bridge;
@@ -93,6 +100,36 @@ namespace Alkuul.UI
             RefreshOrderUI();
         }
 
+        public void AdvanceDialogue()
+        {
+            if (_awaitingDayIntro)
+            {
+                _dayIntroIndex++;
+                if (_dayIntroIndex >= _dayIntroLines.Count)
+                {
+                    _awaitingDayIntro = false;
+                    _dayIntroIndex = 0;
+                    _awaitingReceiveCustomer = true;
+                }
+
+                RefreshOrderUI();
+                return;
+            }
+
+            if (_awaitingPostServeDialogue)
+            {
+                _postServeIndex++;
+                if (_postServeIndex >= _postServeLines.Count)
+                {
+                    _awaitingPostServeDialogue = false;
+                    _postServeIndex = 0;
+                    TryOpenRenameUI();
+                }
+
+                RefreshOrderUI();
+            }
+        }
+
         // ---- day flow ----
         public void StartDay()
         {
@@ -120,8 +157,15 @@ namespace Alkuul.UI
             _todayPlan = FindPlanForDay(dayNum);
             _customersTargetToday = (_todayPlan != null) ? CountValidCustomers(_todayPlan) : customersPerDay;
 
-            _awaitingReceiveCustomer = true;
+            _dayIntroLines = FilterDialogueLines(_todayPlan != null ? _todayPlan.dayIntroLines : null);
+            _dayIntroIndex = 0;
+            _awaitingDayIntro = _dayIntroLines.Count > 0;
+
+            _awaitingReceiveCustomer = !_awaitingDayIntro;
             _awaitingReceiveOrder = false;
+            _awaitingPostServeDialogue = false;
+            _postServeIndex = 0;
+            _postServeLines.Clear();
 
             if (verboseLog)
                 Debug.Log($"[Flow] DayPrepared day={dayNum} plan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
@@ -144,6 +188,12 @@ namespace Alkuul.UI
             if (_awaitingSettlement)
             {
                 Debug.LogWarning("[Flow] ReceiveCustomer blocked: awaiting settlement.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (_awaitingDayIntro)
+            {
                 RefreshOrderUI();
                 return;
             }
@@ -352,6 +402,12 @@ namespace Alkuul.UI
             _awaitingReceiveCustomer = false;
             _awaitingReceiveOrder = false;
             _awaitingRename = false;
+            _awaitingDayIntro = false;
+            _awaitingPostServeDialogue = false;
+            _dayIntroIndex = 0;
+            _postServeIndex = 0;
+            _dayIntroLines.Clear();
+            _postServeLines.Clear();
 
             ClearActiveCustomer();
             RefreshOrderUI();
@@ -391,18 +447,13 @@ namespace Alkuul.UI
             EnsureRefs();
             UpdatePortraitForActiveCustomer();
 
-            // Rename UI는 태블릿에서 열기
-            var tablet = FindObjectOfType<TabletController>(true);
-            if (tablet != null)
+            PreparePostServeDialogue();
+            if (_awaitingPostServeDialogue)
             {
-                int slotCount = _slots != null ? _slots.Count : 0;
-                tablet.OpenRename(_pendingDrink, _pendingDrinkResult, _activeProfile, _slotIndex + 1, slotCount);
+                RefreshOrderUI();
+                yield break;
             }
-            else
-            {
-                Debug.LogWarning("[Flow] TabletController not found. Rename UI won't open.");
-            }
-
+            TryOpenRenameUI();
             RefreshOrderUI();
         }
 
@@ -518,6 +569,55 @@ namespace Alkuul.UI
             _awaitingReceiveOrder = requireReceiveOrderButton;
         }
 
+        private void PreparePostServeDialogue()
+        {
+            _postServeLines = FilterDialogueLines(GetPostServeLinesForCurrentSlot());
+            _postServeIndex = 0;
+            _awaitingPostServeDialogue = _postServeLines.Count > 0;
+        }
+
+        private List<string> GetPostServeLinesForCurrentSlot()
+        {
+            if (_slots == null || _slotIndex < 0 || _slotIndex >= _slots.Count) return null;
+            return _slots[_slotIndex].postServeLines;
+        }
+
+        private void TryOpenRenameUI()
+        {
+            if (!_awaitingRename) return;
+
+            var tablet = FindObjectOfType<TabletController>(true);
+            if (tablet != null)
+            {
+                int slotCount = _slots != null ? _slots.Count : 0;
+                tablet.OpenRename(_pendingDrink, _pendingDrinkResult, _activeProfile, _slotIndex + 1, slotCount);
+            }
+            else
+            {
+                Debug.LogWarning("[Flow] TabletController not found. Rename UI won't open.");
+            }
+        }
+
+        private string GetDayIntroLine()
+        {
+            if (_dayIntroLines == null || _dayIntroLines.Count == 0) return "";
+            if (_dayIntroIndex < 0 || _dayIntroIndex >= _dayIntroLines.Count) return "";
+            return _dayIntroLines[_dayIntroIndex];
+        }
+
+        private string GetPostServeLine()
+        {
+            if (_postServeLines == null || _postServeLines.Count == 0) return "";
+            if (_postServeIndex < 0 || _postServeIndex >= _postServeLines.Count) return "";
+            return _postServeLines[_postServeIndex];
+        }
+
+        private List<string> FilterDialogueLines(List<string> lines)
+        {
+            if (lines == null || lines.Count == 0) return new List<string>();
+            return lines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line.Trim()).ToList();
+        }
+
         private bool EnsureHasCurrentSlot()
         {
             if (_slots == null || _slots.Count == 0)
@@ -533,12 +633,13 @@ namespace Alkuul.UI
             return true;
         }
 
-        public bool TryGetCurrentOrderDialogue(out CustomerProfile profile, out int idx1, out int cnt, out string line)
+        public bool TryGetCurrentOrderDialogue(out CustomerProfile profile, out int idx1, out int cnt, out string line, out bool showMeta)
         {
             profile = default;
             idx1 = 0;
             cnt = 0;
             line = "";
+            showMeta = true;
 
             if (!_dayPrepared)
             {
@@ -558,6 +659,22 @@ namespace Alkuul.UI
                 return true;
             }
 
+            if (_awaitingDayIntro)
+            {
+                line = GetDayIntroLine();
+                showMeta = false;
+                return true;
+            }
+
+            if (_awaitingPostServeDialogue)
+            {
+                profile = _activeProfile;
+                idx1 = _slotIndex + 1;
+                cnt = _slots != null ? _slots.Count : 0;
+                line = GetPostServeLine();
+                showMeta = false;
+                return true;
+            }
 
             if (_awaitingReceiveCustomer)
             {
@@ -569,6 +686,7 @@ namespace Alkuul.UI
             {
                 profile = _activeProfile;
                 line = promptDuringRename;
+                showMeta = false;
                 return true;
             }
 
@@ -616,7 +734,7 @@ namespace Alkuul.UI
         {
             if (orderUI == null) return;
 
-            if (TryGetCurrentOrderDialogue(out var p, out var idx, out var cnt, out var line))
+            if (TryGetCurrentOrderDialogue(out var p, out var idx, out var cnt, out var line, out var showMeta))
             {
                 if (cnt <= 0)
                 {
@@ -626,8 +744,8 @@ namespace Alkuul.UI
 
                 // 주문 메타는 슬롯 있을 때만 표시
                 var order = _slots[idx - 1].order;
-                bool showMeta = !(requireReceiveOrderButton && _awaitingReceiveOrder);
-                orderUI.Set(p, idx, cnt, line, order, showMeta);
+                bool allowMeta = showMeta && !(requireReceiveOrderButton && _awaitingReceiveOrder);
+                orderUI.Set(p, idx, cnt, line, order, allowMeta);
             }
         }
 
