@@ -597,6 +597,19 @@ namespace Alkuul.UI
         {
             if (string.IsNullOrWhiteSpace(id) || customerPool == null) return default;
 
+            if (!string.IsNullOrWhiteSpace(_activeProfile.id) && _activeProfile.id == id)
+                return _activeProfile;
+
+            if (_todayPlan != null && _todayPlan.customers != null)
+            {
+                foreach (var def in _todayPlan.customers)
+                {
+                    if (def == null) continue;
+                    var profile = def.profile;
+                    if (profile.id == id) return profile;
+                }
+            }
+
             foreach (var customer in customerPool)
             {
                 if (customer == null) continue;
