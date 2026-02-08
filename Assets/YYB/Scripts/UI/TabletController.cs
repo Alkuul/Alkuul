@@ -478,7 +478,7 @@ public class TabletController : MonoBehaviour
         // 정산 결과 뷰는 다음 날 시작하면 초기화
         _settlementDoneView = false;
 
-        SetOpen(true);
+        SetOpen(false);
         ShowPanel(p1_home);
     }
 

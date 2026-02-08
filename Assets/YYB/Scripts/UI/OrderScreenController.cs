@@ -29,5 +29,10 @@ namespace Alkuul.UI
         {
             flow?.OnClickReceiveOrder();
         }
+
+        public void OnClickAdvanceDialogue()
+        {
+            flow?.AdvanceDialogue();
+        }
     }
 }

@@ -9,6 +9,11 @@ public class CustomerPortraitView : MonoBehaviour
 
     private CustomerPortraitSet _set;
     private IntoxStage _stage;
+    private RectTransform _portraitRect;
+    private Vector3 _baseLocalScale;
+    private Vector2 _baseSizeDelta;
+    private Vector2 _baseAnchoredPosition;
+    private Quaternion _baseLocalRotation;
 
     // 드래그 상태(내쫓기/재우기 중)일 때 표시를 잠깐 덮어씌움
     private bool _overrideVisual;
@@ -19,12 +24,21 @@ public class CustomerPortraitView : MonoBehaviour
         if (portraitImage == null) portraitImage = GetComponent<Image>();
         if (animator == null) animator = GetComponent<Animator>();
         if (animator != null) _baseController = animator.runtimeAnimatorController;
+        if (portraitImage != null)
+        {
+            _portraitRect = portraitImage.rectTransform;
+            _baseLocalScale = _portraitRect.localScale;
+            _baseSizeDelta = _portraitRect.sizeDelta;
+            _baseAnchoredPosition = _portraitRect.anchoredPosition;
+            _baseLocalRotation = _portraitRect.localRotation;
+        }
         SetVisible(false);
     }
 
     public void Bind(CustomerPortraitSet set, IntoxStage startStage)
     {
         _set = set;
+        ResetPortraitTransform();
         SetVisible(true);
         SetStage(startStage);
     }
@@ -55,6 +69,7 @@ public class CustomerPortraitView : MonoBehaviour
         if (portraitImage != null)
             portraitImage.sprite = null;
 
+        ResetPortraitTransform();
         SetVisible(false);
     }
 
@@ -77,6 +92,7 @@ public class CustomerPortraitView : MonoBehaviour
             animator.enabled = false;
         }
 
+        ResetPortraitTransform();
         if (portraitImage != null)
             portraitImage.sprite = _set.GetStageSprite(_stage);
     }
@@ -116,5 +132,14 @@ public class CustomerPortraitView : MonoBehaviour
     {
         _overrideVisual = false;
         ApplyStageVisual();
+    }
+
+    private void ResetPortraitTransform()
+    {
+        if (_portraitRect == null) return;
+        _portraitRect.localScale = _baseLocalScale;
+        _portraitRect.sizeDelta = _baseSizeDelta;
+        _portraitRect.anchoredPosition = _baseAnchoredPosition;
+        _portraitRect.localRotation = _baseLocalRotation;
     }
 }

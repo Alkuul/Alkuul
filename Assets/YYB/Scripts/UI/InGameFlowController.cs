@@ -91,6 +91,11 @@ namespace Alkuul.UI
         public bool AwaitingSettlement => _awaitingSettlement;
         public bool AwaitingRename => _awaitingRename;
 
+        public void RefreshOrderUIExternal()
+        {
+            RefreshOrderUI();
+        }
+
         // ---- bindings ----
         public void BindOrderUI(OrderDialogueUI ui)
         {
@@ -123,7 +128,7 @@ namespace Alkuul.UI
                 {
                     _awaitingPostServeDialogue = false;
                     _postServeIndex = 0;
-                    TryOpenRenameUI();
+                    ApplyPendingAdvance();
                 }
 
                 RefreshOrderUI();
@@ -353,31 +358,14 @@ namespace Alkuul.UI
 
             if (verboseLog) Debug.Log($"[Flow] Rename confirmed: {finalName} advance={_pendingAdvance}");
 
-            // 진행 처리
-            switch (_pendingAdvance)
+            PreparePostServeDialogue();
+            if (_awaitingPostServeDialogue)
             {
-                case PendingAdvance.NextSlot:
-                    _slotIndex++;
-                    EnterAwaitingOrderState(); // 다음 잔은 다시 주문받기 대기
-                    break;
-
-                case PendingAdvance.NextCustomer:
-                    _servedCustomersToday++;
-                    _todayCustomerIndex++;
-                    ClearActiveCustomer();
-                    _awaitingReceiveCustomer = true;
-                    break;
-
-                case PendingAdvance.EndDay:
-                    _servedCustomersToday++;
-                    _todayCustomerIndex++;
-                    ClearActiveCustomer();
-                    _awaitingSettlement = true;
-                    _awaitingReceiveCustomer = false;
-                    break;
+                RefreshOrderUI();
+                return;
             }
 
-            _pendingAdvance = PendingAdvance.None;
+            ApplyPendingAdvance();
 
             RefreshOrderUI();
         }
@@ -419,6 +407,7 @@ namespace Alkuul.UI
             if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
+            if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
         }
 
         private IEnumerator LoadBrewingAndBindBridge()
@@ -447,12 +436,6 @@ namespace Alkuul.UI
             EnsureRefs();
             UpdatePortraitForActiveCustomer();
 
-            PreparePostServeDialogue();
-            if (_awaitingPostServeDialogue)
-            {
-                RefreshOrderUI();
-                yield break;
-            }
             TryOpenRenameUI();
             RefreshOrderUI();
         }
@@ -540,6 +523,12 @@ namespace Alkuul.UI
         {
             if (portraitView == null) return;
 
+            if (string.IsNullOrEmpty(_activeProfile.id))
+            {
+                portraitView.Clear();
+                return;
+            }
+
             if (_activeProfile.portraitSet == null)
             {
                 portraitView.Clear();
@@ -564,6 +553,42 @@ namespace Alkuul.UI
             return IntoxStage.Wasted;
         }
 
+        private bool TryGetPendingInnDecisionProfile(out CustomerProfile profile, out IntoxStage stage)
+        {
+            profile = default;
+            stage = IntoxStage.Sober;
+
+            if (innDecision == null) return false;
+            if (!innDecision.TryPeek(out var result)) return false;
+
+            profile = FindCustomerProfileById(result.customerId);
+            stage = GetPortraitStageFromIntoxStageValue(result.intoxStage);
+            return true;
+        }
+
+        private CustomerProfile FindCustomerProfileById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || customerPool == null) return default;
+
+            foreach (var customer in customerPool)
+            {
+                if (customer == null) continue;
+                var profile = customer.profile;
+                if (profile.id == id) return profile;
+            }
+
+            return default;
+        }
+
+        private IntoxStage GetPortraitStageFromIntoxStageValue(int stage)
+        {
+            if (stage <= 1) return IntoxStage.Sober;
+            if (stage == 2) return IntoxStage.Tipsy;
+            if (stage == 3) return IntoxStage.Drunk;
+            return IntoxStage.Wasted;
+        }
+
+
         private void EnterAwaitingOrderState()
         {
             _awaitingReceiveOrder = requireReceiveOrderButton;
@@ -574,6 +599,35 @@ namespace Alkuul.UI
             _postServeLines = FilterDialogueLines(GetPostServeLinesForCurrentSlot());
             _postServeIndex = 0;
             _awaitingPostServeDialogue = _postServeLines.Count > 0;
+        }
+
+        private void ApplyPendingAdvance()
+        {
+            
+            switch (_pendingAdvance)
+            {
+                case PendingAdvance.NextSlot:
+                    _slotIndex++;
+                    EnterAwaitingOrderState(); 
+                    break;
+
+                case PendingAdvance.NextCustomer:
+                    _servedCustomersToday++;
+                    _todayCustomerIndex++;
+                    ClearActiveCustomer();
+                    _awaitingReceiveCustomer = true;
+                    break;
+
+                case PendingAdvance.EndDay:
+                    _servedCustomersToday++;
+                    _todayCustomerIndex++;
+                    ClearActiveCustomer();
+                    _awaitingSettlement = true;
+                    _awaitingReceiveCustomer = false;
+                    break;
+            }
+
+            _pendingAdvance = PendingAdvance.None;
         }
 
         private List<string> GetPostServeLinesForCurrentSlot()
@@ -733,6 +787,23 @@ namespace Alkuul.UI
         private void RefreshOrderUI()
         {
             if (orderUI == null) return;
+
+            if (innDecision != null && innDecision.HasPending)
+            {
+                if (TryGetPendingInnDecisionProfile(out var pendingProfile, out var pendingStage)
+                    && pendingProfile.portraitSet != null)
+                {
+                    portraitView?.Bind(pendingProfile.portraitSet, pendingStage);
+                }
+                else
+                {
+                    portraitView?.Clear();
+                }
+            }
+            else
+            {
+                UpdatePortraitForActiveCustomer();
+            }
 
             if (TryGetCurrentOrderDialogue(out var p, out var idx, out var cnt, out var line, out var showMeta))
             {
