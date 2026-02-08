@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sailing the Moon
   m_EditorClassIdentifier: 
   id: Sailing the Moon
-  displayName: Sailing the Moon
+  displayName: "\uB2EC\uC744 \uD56D\uD574\uD574"
   abv: 40
   emotions:
     joy: 0.5

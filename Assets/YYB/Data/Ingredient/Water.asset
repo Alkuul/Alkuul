@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Water
   m_EditorClassIdentifier: 
   id: Water
-  displayName: Water
+  displayName: "\uBB3C"
   abv: 0
   emotions:
     joy: 0

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
   m_Name: HurricaneGlass
   m_EditorClassIdentifier: 
-  id: "\uD5C8\uB9AC\uCF00\uC778 \uAE00\uB77C\uC2A4"
+  id: HurricaneGlass
   displayName: "\uD5C8\uB9AC\uCF00\uC778 \uAE00\uB77C\uC2A4"
   tags:
   - Fear
   capacityMl: 240
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e7bada37ca243cc46b4fbf8317f87bd0, type: 3}

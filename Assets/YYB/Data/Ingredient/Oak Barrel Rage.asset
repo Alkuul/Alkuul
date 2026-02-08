@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Oak Barrel Rage
   m_EditorClassIdentifier: 
   id: Oak Barrel Rage
-  displayName: Oak Barrel Rage
+  displayName: "\uC624\uD06C\uD1B5 \uBD84\uB178"
   abv: 45
   emotions:
     joy: 0

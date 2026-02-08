@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Resignation
   m_EditorClassIdentifier: 
-  id: "\uCCB4\uB150"
+  id: Resignation
   displayName: "\uCCB4\uB150"
   composition:
     joy: 0

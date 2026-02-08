@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e79f9e3fe3c5d740b33dc02a4740807, type: 3}
   m_Name: Shot
   m_EditorClassIdentifier: 
-  id: "\uC0F7 \uAE00\uB77C\uC2A4"
+  id: Shot Glass
   displayName: "\uC0F7 \uAE00\uB77C\uC2A4"
   tags:
   - Surprise
   capacityMl: 30
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6559f57591c2d814a8b2923d69a19956, type: 3}

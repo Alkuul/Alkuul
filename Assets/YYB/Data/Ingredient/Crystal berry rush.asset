@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Crystal berry rush
   m_EditorClassIdentifier: 
   id: Crystal berry rush
-  displayName: Crystal berry rush
+  displayName: "\uD06C\uB9AC\uC2A4\uD0C8 \uBCA0\uB9AC \uB7EC\uC26C"
   abv: 30
   emotions:
     joy: 1

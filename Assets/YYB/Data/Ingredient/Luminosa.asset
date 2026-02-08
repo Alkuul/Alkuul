@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Luminosa
   m_EditorClassIdentifier: 
   id: Luminosa
-  displayName: Luminosa
+  displayName: "\uB8E8\uBBF8\uB178\uC0AC"
   abv: 35
   emotions:
     joy: 0.5

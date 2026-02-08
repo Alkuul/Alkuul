@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Young A
   m_EditorClassIdentifier: 
   id: Young A
-  displayName: Young A
+  displayName: "\uC601\uC544"
   abv: 25
   emotions:
     joy: 0.1

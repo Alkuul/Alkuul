@@ -7,6 +7,9 @@ namespace Alkuul.Systems
     {
         [SerializeField] private RepSystem rep;
         public int money;
+        [SerializeField] private int pendingIncome;
+
+        public int PendingIncome => pendingIncome;
 
         /// <summary>손님 팁 수익 반영 (평판 보정 포함)</summary>
         public void Apply(CustomerResult cr)
@@ -23,9 +26,21 @@ namespace Alkuul.Systems
             float mul = IncomeMultiplierByRep(repScore);
             int amount = Mathf.RoundToInt(baseAmount * mul);
 
-            money += amount;
+            pendingIncome += amount;
 
-            Debug.Log($"[Economy] +{amount} (base {baseAmount}, rep {repScore:0.00}) → 총 {money}");
+            Debug.Log($"[Economy] +{amount} (base {baseAmount}, rep {repScore:0.00}) pending={pendingIncome} money={money}");
+        }
+
+        public int ApplyPendingIncome()
+        {
+            if (pendingIncome == 0) return 0;
+
+            int applied = pendingIncome;
+            money += pendingIncome;
+            pendingIncome = 0;
+
+            Debug.Log($"[Economy] Applied income +{applied} => money={money}");
+            return applied;
         }
 
         private float IncomeMultiplierByRep(float repScore) =>

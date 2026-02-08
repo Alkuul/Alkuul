@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Moscatel
   m_EditorClassIdentifier: 
   id: Moscatel
-  displayName: Moscatel
+  displayName: "\uBAA8\uC2A4\uCE74\uD154"
   abv: 18
   emotions:
     joy: 0

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
+  m_Name: FermentedPineapple
+  m_EditorClassIdentifier: 
+  id: Fermented Pineapple
+  displayName: "\uBC1C\uD6A8 \uD30C\uC778\uC560\uD50C"
+  tags:
+  - Disgust
+  icon: {fileID: 21300000, guid: d673b5fd8ecf86448a08c087cba24777, type: 3}

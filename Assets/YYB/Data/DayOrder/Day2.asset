@@ -13,22 +13,61 @@ MonoBehaviour:
   m_Name: Day2
   m_EditorClassIdentifier: 
   dayNumber: 2
+  dayIntroLines:
+  - "\"...\uC800\uAE30, \uC220... \uC8FC\uBB38\uD560 \uC218 \uC788\uB098\uC694?\""
   customers:
-  - profile:
-      id: Flara
-      displayName: Flara
-      tolerance: 0
-      icePreference: 0
-    slots: []
-  - profile:
-      id: Kyra sunleaf
-      displayName: Kyra sunleaf
-      tolerance: 0
-      icePreference: 0
-    slots: []
   - profile:
       id: Mahara
       displayName: Mahara
       tolerance: 0
-      icePreference: 0
-    slots: []
+      icePreference: 2
+      portraitSet: {fileID: 11400000, guid: 9eb38f1c2159da045b26ff807bf80b49, type: 2}
+    slots:
+    - dialogueLine: "\" \uADF8\uB9AC\uC6B4 \uC61B\uB0A0\uC744 \uB290\uB07C\uACE0
+        \uC2F6\uC5B4\uC694.. \""
+      postServeLines:
+      - "\"...\uB530\uB73B\uD574\uC694. \uC61B\uB0A0 \uC0DD\uAC01\uB098\uC694.\""
+      keywords:
+      - {fileID: 11400000, guid: 15b4c0c2eb1d17946b834db712c65ee0, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+    - dialogueLine: "\" \uC774\uBC88\uC5D4 \uC81C\uAC00 \uC0C8\uB85C \uD0DC\uC5B4\uB0A0
+        \uC218 \uC788\uB294 \uC124\uB808\uB294 \uAC10\uC815\uC744 \uB290\uB07C\uACE0
+        \uC2F6\uC5B4\uC694 \""
+      postServeLines: []
+      keywords:
+      - {fileID: 11400000, guid: fb048cdeee54e4345b4a33bde2587a8f, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+  - profile:
+      id: Kyra sunleaf
+      displayName: Kyra sunleaf
+      tolerance: 1
+      icePreference: 1
+      portraitSet: {fileID: 11400000, guid: 9f05f3a63ad04d347b2044f454a11ef3, type: 2}
+    slots:
+    - dialogueLine: "\"\uD654\uAC00 \uB098\uC694. \uB098 \uC790\uC2E0\uC5D0\uAC8C.\""
+      postServeLines:
+      - "\"...\uADF8\uB798\uB3C4 \uB098\uC058\uC9C0 \uC54A\uB124\uC694. \uAC10\uC0AC\uD574\uC694.\""
+      - "\"\uC870\uAE08\uC740 \uB9C8\uC74C\uC774 \uB098\uC544\uC9C4 \uAC83 \uAC19\uC544\uC694.
+        \uC548\uB155\uD788.\""
+      keywords:
+      - {fileID: 11400000, guid: 94aad4c62ec0c444e9c4f156d19ce6f2, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+  - profile:
+      id: Flara
+      displayName: Flara
+      tolerance: 2
+      icePreference: 2
+      portraitSet: {fileID: 11400000, guid: c56c58d3fdd9f424ab808426613d846b, type: 2}
+    slots:
+    - dialogueLine: "\"\uAC00\uC7A5 \uB3C5\uD55C \uAC78\uB85C \uD558\uB098.\""
+      postServeLines:
+      - "\"\uC774\uAC74 \uC2AC\uD514\uC774\uC796\uC544! \uB098\uB294 \uBD84\uB178\uB97C
+        \uC6D0\uD588\uC5B4!\""
+      - "\"...\uAC00\uACA0\uC5B4!\" "
+      keywords:
+      - {fileID: 11400000, guid: 6b1d9130a4e68924ab58d71dc049ac76, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0

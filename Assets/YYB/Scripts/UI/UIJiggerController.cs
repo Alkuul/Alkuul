@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Alkuul.Domain;
+using UnityEngine.EventSystems;
 
-public class UIJiggerController : MonoBehaviour
+public class UIJiggerController : MonoBehaviour, IPointerClickHandler
 {
     [Header("Refs")]
     [SerializeField] private Image icon;
@@ -74,5 +75,13 @@ public class UIJiggerController : MonoBehaviour
         // 재료 비어있으면 흐리게 표시(선택)
         if (icon != null)
             icon.enabled = (jiggerData != null && jiggerData.ingredient != null);
+    }
+
+    [SerializeField] private bool clickToToggleMl = true;
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!clickToToggleMl) return;
+        ToggleMl();
     }
 }

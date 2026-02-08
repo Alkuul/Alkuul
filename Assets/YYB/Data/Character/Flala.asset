@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e6ab2f39033d7146a6531f0dadaa7c6, type: 3}
+  m_Name: Flala
+  m_EditorClassIdentifier: 
+  sober: {fileID: 21300000, guid: ea836d37b4d1b7f4cb2e5530b938d634, type: 3}
+  tipsy: {fileID: 21300000, guid: e18251f60260e244da2f3295dca094c2, type: 3}
+  drunk: {fileID: 21300000, guid: e18251f60260e244da2f3295dca094c2, type: 3}
+  wasted: {fileID: 21300000, guid: 0a0079c1884f82c4a864a5521df4cc6e, type: 3}
+  wastedLoopController: {fileID: 9100000, guid: 43d17b7c2214e1d468db6782b7869b5f, type: 2}
+  dragEvictController: {fileID: 0}
+  dragSleepController: {fileID: 0}
+  dragEvictSprite: {fileID: 0}
+  dragSleepSprite: {fileID: 0}

@@ -26,6 +26,7 @@ namespace Alkuul.Dev
         [SerializeField] private string customerName = "Å×½ºÆ® ¼Õ´Ô";
         [SerializeField] private Tolerance tolerance = Tolerance.Normal;
         [SerializeField] private IcePreference icePreference = IcePreference.Neutral;
+        [SerializeField] private CustomerPortraitSet portraitSet;
 
         private readonly List<(Drink drink, ServeSystem.Meta meta)> _servedDrinks = new();
         private Order _currentOrder;
@@ -51,7 +52,8 @@ namespace Alkuul.Dev
                 id = customerId,
                 displayName = customerName,
                 tolerance = tolerance,
-                icePreference = icePreference
+                icePreference = icePreference,
+                portraitSet = portraitSet
             };
 
             _servedDrinks.Clear();

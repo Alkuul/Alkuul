@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/YYB/Scenes/OrderScene.unity
     guid: 1fb8bd4c6af5c134fa9a8a9eb9c878e9
+  - enabled: 1
+    path: Assets/YYB/Scenes/IntroVideoScene.unity
+    guid: 48453ec8cd6837a4fb42c71aca1cf964
+  - enabled: 1
+    path: Assets/YYB/Scenes/TitleScene.unity
+    guid: 3a33d2e54e6d83b4586e04839bbba0da
   m_configObjects: {}

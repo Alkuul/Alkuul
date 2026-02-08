@@ -11,18 +11,37 @@ namespace Alkuul.Systems
         [Header("Systems")]
         [SerializeField] private RepSystem rep;
         [SerializeField] private EconomySystem economy;
-        [SerializeField] private InnSystem inn;
+        [SerializeField] private DailyLedgerSystem ledger;
+        [SerializeField] private PendingInnDecisionSystem innDecision;
+
+        private bool _advanceDayOnNextStart = false;
+
+        private void Awake()
+        {
+            if (rep == null) rep = FindObjectOfType<RepSystem>(true);
+            if (economy == null) economy = FindObjectOfType<EconomySystem>(true);
+            if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
+            if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+        }
 
         public void StartDay()
         {
-            Debug.Log($"Day {currentDay} 시작");
+            // "정산"에서 EndDay가 찍히고, 다음 날은 StartDay 누를 때 day++ 되게
+            if (_advanceDayOnNextStart)
+            {
+                currentDay++;
+                _advanceDayOnNextStart = false;
+            }
+
+            Debug.Log($"[DayCycle] Day {currentDay} 시작");
             EventBus.RaiseDayStarted();
         }
 
         public void EndDayPublic()
         {
-            Debug.Log($"Day {currentDay} 종료");
-            currentDay++;
+            Debug.Log($"[DayCycle] Day {currentDay} 종료");
+            if (economy != null) economy.ApplyPendingIncome();
+            _advanceDayOnNextStart = true;
             EventBus.RaiseDayEnded();
         }
 
@@ -30,7 +49,13 @@ namespace Alkuul.Systems
         {
             if (rep != null) rep.Apply(cr);
             if (economy != null) economy.Apply(cr);
-            if (inn != null) inn.TrySleep(cr);
+
+            // 정산용 기록
+            if (ledger != null) ledger.RecordCustomer(cr);
+
+            // 숙박 여부는 "결정"으로 넘김(자동 숙박 X)
+            if (innDecision != null)
+                innDecision.Enqueue(cr);
         }
     }
 }

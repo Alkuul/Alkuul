@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dimension Starlight
   m_EditorClassIdentifier: 
   id: Dimension Starlight
-  displayName: Dimension Starlight
+  displayName: "\uCC28\uC6D0 \uBCC4\uBE5B"
   abv: 52
   emotions:
     joy: 0.2

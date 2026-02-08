@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Triple salt
   m_EditorClassIdentifier: 
   id: Triple salt
-  displayName: Triple salt
+  displayName: "\uD2B8\uB9AC\uD50C \uC194\uD2B8"
   abv: 51
   emotions:
     joy: 0

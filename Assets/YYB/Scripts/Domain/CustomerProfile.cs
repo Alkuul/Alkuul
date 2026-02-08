@@ -23,6 +23,7 @@ namespace Alkuul.Domain
         public string displayName;
         public Tolerance tolerance;
         public IcePreference icePreference;
+        public CustomerPortraitSet portraitSet;
     }
 }
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Crema obscura
   m_EditorClassIdentifier: 
   id: Crema obscura
-  displayName: Crema obscura
+  displayName: "\uD06C\uB808\uB9C8 \uC635\uC2A4\uD050\uB77C"
   abv: 16
   emotions:
     joy: 0

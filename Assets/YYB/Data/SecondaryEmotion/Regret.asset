@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Regret
   m_EditorClassIdentifier: 
-  id: "\uD6C4\uD68C"
+  id: Regret
   displayName: "\uD6C4\uD68C"
   composition:
     joy: 0.1

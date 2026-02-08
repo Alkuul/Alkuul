@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Jack Candies 7
   m_EditorClassIdentifier: 
   id: Jack Candies 7
-  displayName: Jack Candies 7
+  displayName: "\uC7AD \uCE94\uB514\uC2A4 7"
   abv: 10
   emotions:
     joy: 0.2

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Mystic20
   m_EditorClassIdentifier: 
   id: Mystic20
-  displayName: Mystic20
+  displayName: "20\uAC00\uC9C0\uC758 \uBE44\uBC00\uC2A4\uB7EC\uC6B4 \uBB34\uC5B8\uAC00"
   abv: 31
   emotions:
     joy: 0

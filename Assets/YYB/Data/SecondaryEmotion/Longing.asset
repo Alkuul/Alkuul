@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Longing
   m_EditorClassIdentifier: 
-  id: "\uADF8\uB9AC\uC6C0"
+  id: Longing
   displayName: "\uADF8\uB9AC\uC6C0"
   composition:
     joy: 0

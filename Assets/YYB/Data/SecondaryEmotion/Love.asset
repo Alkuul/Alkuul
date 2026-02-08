@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86f99ba03e84904597598d81fc0aed5, type: 3}
   m_Name: Love
   m_EditorClassIdentifier: 
-  id: "\uC0AC\uB791"
+  id: Love
   displayName: "\uC0AC\uB791"
   composition:
     joy: 0.7

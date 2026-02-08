@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: A round pumpkin
   m_EditorClassIdentifier: 
   id: A round pumpkin
-  displayName: A round pumpkin
+  displayName: "\uB465\uADFC \uD638\uBC15"
   abv: 60
   emotions:
     joy: 0
