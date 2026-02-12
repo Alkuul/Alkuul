@@ -41,7 +41,7 @@ public class TutorialOverlay : MonoBehaviour
     [Header("Events")]
     public UnityEvent onCompleted; // 끝났을 때(버튼 활성화 등) 연결 가능
     public event Action<bool> PlayingStateChanged;
-
+    
     private int _index = -1;
     private bool _playing;
     private bool _subscribedDayStart;
