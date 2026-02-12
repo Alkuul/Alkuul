@@ -16,3 +16,5 @@ MonoBehaviour:
   displayName: "\uC250\uC774\uD0B9"
   tags:
   - Anger
+  tooltipSummary: 
+  tooltipDetails: "\uD754\uB4E4\uC5B4 \uC11E\uB294\uB2E4."
