@@ -564,8 +564,8 @@ public class TabletController : MonoBehaviour
             string cname = string.IsNullOrWhiteSpace(customer.displayName) ? customer.id : customer.displayName;
             renameInfoText.text =
                 $"[이름 정하기]\n" +
-                $"{cname} / 주문 {slotIndex1Based}/{slotCount}\n" +
-                $"도수: {drink.finalABV:0.#}%\n";
+                $"도수: {drink.finalABV:0.#}%\n" +
+                $"만족도: {result.satisfaction:0.#}%\n";
         }
 
         if (renameInput != null)
