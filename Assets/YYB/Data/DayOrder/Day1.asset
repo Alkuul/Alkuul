@@ -13,12 +13,7 @@ MonoBehaviour:
   m_Name: Day1
   m_EditorClassIdentifier: 
   dayNumber: 1
-  dayIntroLines:
-  - "\"\uC5B4\uC774, \uB108! \uAC10\uC815 \uC5C6\uB294 \uC5BC\uAD74\uC774\uB124.
-    \uB531 \uC88B\uC544!\""
-  - "\"\uC5EC\uAE30\uC11C \uC77C\uD574. \uBC14\uD150\uB354\uB85C. \uC77C\uD558\uBA74\uC11C
-    \uAC10\uC815 \uBC30\uC6B8 \uC218 \uC788\uC5B4.\""
-  - "\"\uC88B\uC544! \uBC14\uB85C \uC900\uBE44\uB97C \uD574\uBCFC\uAE4C!\""
+  dayIntroLines: []
   customers:
   - profile:
       id: Owner
@@ -27,10 +22,13 @@ MonoBehaviour:
       icePreference: 1
       portraitSet: {fileID: 11400000, guid: 032087f75fbcfdb48aad2afe197a59bd, type: 2}
     slots:
-    - dialogueLine: "\"\uC124\uB808\uB294 \uAC10\uC815\uC774 \uB2F4\uAE34 \uC220\uC744
-        \uB9CC\uB4E4\uC5B4\uBCF4\uC790!\""
+    - dialogueLine: "\"\uC624\uB978\uCABD\uC758 \uD654\uC0B4\uD45C \uBC84\uD2BC\uC744
+        \uD1B5\uD574\uC11C \n\uC124\uB808\uB294 \uAC10\uC815\uC774 \uB2F4\uAE34 \uC220\uC744
+        \uB9CC\uB4E4\uB7EC\uAC00\uBCF4\uC790!\""
       postServeLines:
       - "\"\uC644\uBCBD\uD574! \uBC14\uD150\uB354\uC758 \uC7AC\uB2A5\uC774 \uBCF4\uC774\uB124!\""
+      - "\"\uB0B4\uC77C\uBD80\uD130 \uB098\uB294 \uC77C\uC774 \uC788\uC5B4\uC11C
+        \uC5F4\uC2EC\uD788 \uD574\uBD10!\""
       keywords:
       - {fileID: 11400000, guid: fb048cdeee54e4345b4a33bde2587a8f, type: 2}
       abvRange: {x: 0, y: 0}

@@ -40,6 +40,7 @@ namespace Alkuul.UI
 
         [Header("Inn Decision")]
         [SerializeField] private PendingInnDecisionSystem innDecision;
+        [SerializeField] private TutorialOverlay tutorialOverlay;
 
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
@@ -67,6 +68,7 @@ namespace Alkuul.UI
         private List<string> _dayIntroLines = new();
         private List<string> _postServeLines = new();
         private bool _innDecisionBound;
+        private bool _tutorialOverlayBound;
 
         // rename pending
         private BrewingPanelBridge _bridge;
@@ -101,7 +103,10 @@ namespace Alkuul.UI
         {
             if (innDecision != null)
                 innDecision.QueueChanged -= HandleInnDecisionQueueChanged;
+            if (tutorialOverlay != null)
+                tutorialOverlay.PlayingStateChanged -= HandleTutorialPlayingStateChanged;
             _innDecisionBound = false;
+            _tutorialOverlayBound = false;
         }
 
 
@@ -422,7 +427,9 @@ namespace Alkuul.UI
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+            if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
             BindInnDecision();
+            BindTutorialOverlay();
         }
 
         private void BindInnDecision()
@@ -433,6 +440,18 @@ namespace Alkuul.UI
         }
 
         private void HandleInnDecisionQueueChanged()
+        {
+            RefreshOrderUI();
+        }
+
+        private void BindTutorialOverlay()
+        {
+            if (_tutorialOverlayBound || tutorialOverlay == null) return;
+            tutorialOverlay.PlayingStateChanged += HandleTutorialPlayingStateChanged;
+            _tutorialOverlayBound = true;
+        }
+
+        private void HandleTutorialPlayingStateChanged(bool isPlaying)
         {
             RefreshOrderUI();
         }
@@ -577,6 +596,7 @@ namespace Alkuul.UI
             if (stage <= 1) return IntoxStage.Sober;
             if (stage == 2) return IntoxStage.Tipsy;
             if (stage == 3) return IntoxStage.Drunk;
+            if (stage == 4) return IntoxStage.Drunk;
             return IntoxStage.Wasted;
         }
 
@@ -737,6 +757,13 @@ namespace Alkuul.UI
 
             if (!_dayPrepared)
             {
+                if (IsTutorialBlockingOrderPanel())
+                {
+                    line = "";
+                    showMeta = false;
+                    return true;
+                }
+
                 line = promptBeforeStartDay;
                 return true;
             }
@@ -806,6 +833,17 @@ namespace Alkuul.UI
                 : slot.dialogueLine;
 
             return true;
+        }
+
+        private bool IsTutorialBlockingOrderPanel()
+        {
+            if (tutorialOverlay == null)
+            {
+                tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
+                BindTutorialOverlay();
+            }
+
+            return tutorialOverlay != null && tutorialOverlay.IsPlaying;
         }
 
         private string BuildAutoLine(List<SecondaryEmotionSO> keywords)

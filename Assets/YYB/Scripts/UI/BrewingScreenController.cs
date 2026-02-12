@@ -40,6 +40,17 @@ namespace Alkuul.UI
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
 
+        [Header("Tutorial")]
+        [SerializeField] private TutorialOverlay pageMixTutorial;
+        [SerializeField] private TutorialOverlay pageFinishTutorial;
+        [SerializeField] private bool tutorialPlayOnlyOnce = true;
+        [SerializeField] private string pageMixTutorialSeenKey = "tut.brewing.pageMix";
+        [SerializeField] private string pageFinishTutorialSeenKey = "tut.brewing.pageFinish";
+
+        private bool _pageMixTutorialPlayed;
+        private bool _pageFinishTutorialPlayed;
+
+
         [Serializable]
         public struct IngredientBind
         {
@@ -203,6 +214,7 @@ namespace Alkuul.UI
         {
             if (pageMix != null) pageMix.SetActive(true);
             if (pageFinish != null) pageFinish.SetActive(false);
+            TryPlayTutorial(PageType.Mix);
             if (verboseLog) Debug.Log("[UI] Page=Mix");
         }
 
@@ -210,7 +222,55 @@ namespace Alkuul.UI
         {
             if (pageMix != null) pageMix.SetActive(false);
             if (pageFinish != null) pageFinish.SetActive(true);
+            TryPlayTutorial(PageType.Finish);
             if (verboseLog) Debug.Log("[UI] Page=Finish");
+        }
+
+        private enum PageType
+        {
+            Mix,
+            Finish
+        }
+
+        private void TryPlayTutorial(PageType pageType)
+        {
+            var target = pageType == PageType.Mix ? pageMixTutorial : pageFinishTutorial;
+            if (target == null) return;
+
+            bool alreadyPlayedInSession = pageType == PageType.Mix ? _pageMixTutorialPlayed : _pageFinishTutorialPlayed;
+            if (alreadyPlayedInSession) return;
+
+            string seenKey = pageType == PageType.Mix ? pageMixTutorialSeenKey : pageFinishTutorialSeenKey;
+            bool hasSeen = tutorialPlayOnlyOnce && !string.IsNullOrWhiteSpace(seenKey) && PlayerPrefs.GetInt(seenKey, 0) == 1;
+            if (hasSeen)
+            {
+                MarkTutorialPlayed(pageType);
+                return;
+            }
+
+            target.ForcePlay();
+            
+            if (!target.IsPlaying)
+            {
+                Debug.LogWarning($"[BrewingScreenController] {pageType} tutorial did not start. Check TutorialOverlay configuration (e.g. lines/root/canvas state).");
+                return;
+            }
+
+            MarkTutorialPlayed(pageType);
+
+            if (tutorialPlayOnlyOnce && !string.IsNullOrWhiteSpace(seenKey))
+            {
+                PlayerPrefs.SetInt(seenKey, 1);
+                PlayerPrefs.Save();
+            }
+        }
+
+        private void MarkTutorialPlayed(PageType pageType)
+        {
+            if (pageType == PageType.Mix)
+                _pageMixTutorialPlayed = true;
+            else
+                _pageFinishTutorialPlayed = true;
         }
     }
 }

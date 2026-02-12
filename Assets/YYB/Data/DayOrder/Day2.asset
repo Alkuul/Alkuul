@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Day2
   m_EditorClassIdentifier: 
   dayNumber: 2
-  dayIntroLines:
-  - "\"...\uC800\uAE30, \uC220... \uC8FC\uBB38\uD560 \uC218 \uC788\uB098\uC694?\""
+  dayIntroLines: []
   customers:
   - profile:
       id: Mahara
