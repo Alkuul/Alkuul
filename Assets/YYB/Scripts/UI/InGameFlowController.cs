@@ -40,6 +40,7 @@ namespace Alkuul.UI
 
         [Header("Inn Decision")]
         [SerializeField] private PendingInnDecisionSystem innDecision;
+        [SerializeField] private TutorialOverlay tutorialOverlay;
 
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
@@ -422,6 +423,7 @@ namespace Alkuul.UI
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+            if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
             BindInnDecision();
         }
 
@@ -737,6 +739,13 @@ namespace Alkuul.UI
 
             if (!_dayPrepared)
             {
+                if (tutorialOverlay != null && tutorialOverlay.IsPlaying)
+                {
+                    line = "";
+                    showMeta = false;
+                    return true;
+                }
+
                 line = promptBeforeStartDay;
                 return true;
             }

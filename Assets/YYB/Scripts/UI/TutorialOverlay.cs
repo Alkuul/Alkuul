@@ -45,6 +45,8 @@ public class TutorialOverlay : MonoBehaviour
     private bool _playing;
     private bool _subscribedDayStart;
 
+    public bool IsPlaying => _playing;
+
     private void Awake()
     {
         if (root == null) root = gameObject;
