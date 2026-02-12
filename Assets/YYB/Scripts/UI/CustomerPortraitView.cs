@@ -77,6 +77,11 @@ public class CustomerPortraitView : MonoBehaviour
     {
         if (_set == null) return;
 
+        var stageSprite = _set.GetStageSprite(_stage);
+        if (portraitImage != null)
+            portraitImage.sprite = stageSprite;
+
+
         // 만취면(선택) 만취 루프 애니를 우선 사용
         if (animator != null && _stage == IntoxStage.Wasted && _set.wastedLoopController != null)
         {
@@ -93,8 +98,6 @@ public class CustomerPortraitView : MonoBehaviour
         }
 
         ResetPortraitTransform();
-        if (portraitImage != null)
-            portraitImage.sprite = _set.GetStageSprite(_stage);
     }
 
     private void SetVisible(bool visible)

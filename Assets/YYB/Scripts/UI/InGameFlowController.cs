@@ -596,6 +596,7 @@ namespace Alkuul.UI
             if (stage <= 1) return IntoxStage.Sober;
             if (stage == 2) return IntoxStage.Tipsy;
             if (stage == 3) return IntoxStage.Drunk;
+            if (stage == 4) return IntoxStage.Drunk;
             return IntoxStage.Wasted;
         }
 
