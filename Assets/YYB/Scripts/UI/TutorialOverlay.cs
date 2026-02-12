@@ -5,6 +5,7 @@ using Alkuul.Core;
 using Alkuul.Systems;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class TutorialOverlay : MonoBehaviour
 {
@@ -22,6 +23,10 @@ public class TutorialOverlay : MonoBehaviour
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private Image portraitImage;
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Canvas overlayCanvas;
+
+    [Header("Layer")]
+    [SerializeField] private int overlaySortingOrder = 10000;
 
     [Header("Auto Play Condition")]
     [SerializeField] private bool autoPlayOnStart = true;
@@ -49,6 +54,8 @@ public class TutorialOverlay : MonoBehaviour
         if (dayCycle == null)
             dayCycle = FindObjectOfType<DayCycleController>(true);
 
+        EnsureTopmostCanvas();
+
         // 처음엔 꺼두는 게 일반적
         SetVisible(false);
     }
@@ -62,16 +69,24 @@ public class TutorialOverlay : MonoBehaviour
     private void OnEnable()
     {
         TryBindDayStartEvent();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private void OnDisable()
     {
         UnbindDayStartEvent();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private void OnDestroy()
     {
         UnbindDayStartEvent();
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        EnsureTopmostCanvas();
     }
 
     private void Update()
@@ -141,6 +156,7 @@ public class TutorialOverlay : MonoBehaviour
         _playing = true;
         _index = 0;
 
+        EnsureTopmostCanvas();
         SetVisible(true);
         RenderCurrent();
     }
@@ -211,6 +227,22 @@ public class TutorialOverlay : MonoBehaviour
     {
         PlayerPrefs.SetInt(seenKey, 1);
         PlayerPrefs.Save();
+    }
+
+    private void EnsureTopmostCanvas()
+    {
+        if (root == null) return;
+
+        if (overlayCanvas == null)
+            overlayCanvas = root.GetComponent<Canvas>() ?? root.AddComponent<Canvas>();
+
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder = overlaySortingOrder;
+
+        if (root.GetComponent<GraphicRaycaster>() == null)
+            root.AddComponent<GraphicRaycaster>();
+
+        root.transform.SetAsLastSibling();
     }
 
     private bool IsDay1()
