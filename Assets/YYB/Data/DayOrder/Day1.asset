@@ -13,12 +13,7 @@ MonoBehaviour:
   m_Name: Day1
   m_EditorClassIdentifier: 
   dayNumber: 1
-  dayIntroLines:
-  - "\"\uC5B4\uC774, \uB108! \uAC10\uC815 \uC5C6\uB294 \uC5BC\uAD74\uC774\uB124.
-    \uB531 \uC88B\uC544!\""
-  - "\"\uC5EC\uAE30\uC11C \uC77C\uD574. \uBC14\uD150\uB354\uB85C. \uC77C\uD558\uBA74\uC11C
-    \uAC10\uC815 \uBC30\uC6B8 \uC218 \uC788\uC5B4.\""
-  - "\"\uC88B\uC544! \uBC14\uB85C \uC900\uBE44\uB97C \uD574\uBCFC\uAE4C!\""
+  dayIntroLines: []
   customers:
   - profile:
       id: Owner
