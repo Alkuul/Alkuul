@@ -155,6 +155,8 @@ public class TutorialOverlay : MonoBehaviour
             Debug.LogWarning("[TutorialOverlay] lines is empty.");
             return;
         }
+        if (root != null && !root.activeSelf)
+            root.SetActive(true);
 
         _playing = true;
         _index = 0;

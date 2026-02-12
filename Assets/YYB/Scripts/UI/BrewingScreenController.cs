@@ -249,6 +249,13 @@ namespace Alkuul.UI
             }
 
             target.ForcePlay();
+            
+            if (!target.IsPlaying)
+            {
+                Debug.LogWarning($"[BrewingScreenController] {pageType} tutorial did not start. Check TutorialOverlay configuration (e.g. lines/root/canvas state).");
+                return;
+            }
+
             MarkTutorialPlayed(pageType);
 
             if (tutorialPlayOnlyOnce && !string.IsNullOrWhiteSpace(seenKey))
