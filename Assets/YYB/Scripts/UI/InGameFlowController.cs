@@ -756,7 +756,7 @@ namespace Alkuul.UI
 
             if (!_dayPrepared)
             {
-                if (tutorialOverlay != null && tutorialOverlay.IsPlaying)
+                if (IsTutorialBlockingOrderPanel())
                 {
                     line = "";
                     showMeta = false;
@@ -832,6 +832,17 @@ namespace Alkuul.UI
                 : slot.dialogueLine;
 
             return true;
+        }
+
+        private bool IsTutorialBlockingOrderPanel()
+        {
+            if (tutorialOverlay == null)
+            {
+                tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
+                BindTutorialOverlay();
+            }
+
+            return tutorialOverlay != null && tutorialOverlay.IsPlaying;
         }
 
         private string BuildAutoLine(List<SecondaryEmotionSO> keywords)
