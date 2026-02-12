@@ -40,6 +40,7 @@ public class TutorialOverlay : MonoBehaviour
 
     [Header("Events")]
     public UnityEvent onCompleted; // 끝났을 때(버튼 활성화 등) 연결 가능
+    public event Action<bool> PlayingStateChanged;
 
     private int _index = -1;
     private bool _playing;
@@ -77,7 +78,7 @@ public class TutorialOverlay : MonoBehaviour
     private void OnDisable()
     {
         UnbindDayStartEvent();
-        SceneManager.sceneLoaded += HandleSceneLoaded;
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
     private void OnDestroy()
@@ -157,6 +158,7 @@ public class TutorialOverlay : MonoBehaviour
 
         _playing = true;
         _index = 0;
+        PlayingStateChanged?.Invoke(true);
 
         EnsureTopmostCanvas();
         SetVisible(true);
@@ -201,6 +203,7 @@ public class TutorialOverlay : MonoBehaviour
     {
         _playing = false;
         _index = -1;
+        PlayingStateChanged?.Invoke(false);
 
         MarkSeen();
         SetVisible(false);

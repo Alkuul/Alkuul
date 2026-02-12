@@ -68,6 +68,7 @@ namespace Alkuul.UI
         private List<string> _dayIntroLines = new();
         private List<string> _postServeLines = new();
         private bool _innDecisionBound;
+        private bool _tutorialOverlayBound;
 
         // rename pending
         private BrewingPanelBridge _bridge;
@@ -102,7 +103,10 @@ namespace Alkuul.UI
         {
             if (innDecision != null)
                 innDecision.QueueChanged -= HandleInnDecisionQueueChanged;
+            if (tutorialOverlay != null)
+                tutorialOverlay.PlayingStateChanged -= HandleTutorialPlayingStateChanged;
             _innDecisionBound = false;
+            _tutorialOverlayBound = false;
         }
 
 
@@ -425,6 +429,7 @@ namespace Alkuul.UI
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
             if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
             BindInnDecision();
+            BindTutorialOverlay();
         }
 
         private void BindInnDecision()
@@ -435,6 +440,18 @@ namespace Alkuul.UI
         }
 
         private void HandleInnDecisionQueueChanged()
+        {
+            RefreshOrderUI();
+        }
+
+        private void BindTutorialOverlay()
+        {
+            if (_tutorialOverlayBound || tutorialOverlay == null) return;
+            tutorialOverlay.PlayingStateChanged += HandleTutorialPlayingStateChanged;
+            _tutorialOverlayBound = true;
+        }
+
+        private void HandleTutorialPlayingStateChanged(bool isPlaying)
         {
             RefreshOrderUI();
         }
