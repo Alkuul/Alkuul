@@ -1,10 +1,11 @@
-using UnityEngine;
+using Alkuul.Domain;
+using Alkuul.Domain.Brewing;
+using Alkuul.Systems;
+using Alkuul.UI; // ResultUI
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Alkuul.Domain;
-using Alkuul.Systems;
-using Alkuul.UI; // ResultUI
+using UnityEngine;
 
 public class BrewingPanelBridge : MonoBehaviour
 {
@@ -31,6 +32,10 @@ public class BrewingPanelBridge : MonoBehaviour
     [SerializeField] private bool scaleSatisfaction135To100ForRep = true;
 
     [SerializeField] private bool verboseLog = true;
+
+    [SerializeField] private float minTechniqueQualityToAccept = 0.5f;
+
+    private TechniqueInteractionResult? lastTechniqueResult;
 
     public event Action<GlassSO> GlassChanged;
     public event Action<IReadOnlyList<GarnishSO>> GarnishesChanged;
@@ -304,5 +309,23 @@ public class BrewingPanelBridge : MonoBehaviour
 
         reason = null;
         return true;
+    }
+
+    public void ApplyTechniqueInteractionResult(TechniqueInteractionResult result)
+    {
+        lastTechniqueResult = result;
+
+        if (!result.Success)
+        {
+            Debug.Log($"Technique failed: {result.TechniqueType}");
+            // 실패 연출 / 재시도 허용 / 패널 안내 등
+            return;
+        }
+
+        Debug.Log($"Technique success: {result.TechniqueType}, quality={result.Quality01:F2}");
+
+        // 여기서 기존 기법 선택 반영 메서드 호출
+        // 예: SetTechnique(result.TechniqueType);
+        // 품질도 나중에 만족도 보너스로 반영 가능
     }
 }
