@@ -4,6 +4,13 @@ using UnityEngine.EventSystems;
 public class JiggerFillDropZone : MonoBehaviour, IDropHandler
 {
     [SerializeField] private UIJiggerController jigger;
+    [SerializeField] private BrewingTutorialController tutorial;
+
+    private void Awake()
+    {
+        if (tutorial == null)
+            tutorial = FindObjectOfType<BrewingTutorialController>(true);
+    }
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -18,5 +25,7 @@ public class JiggerFillDropZone : MonoBehaviour, IDropHandler
 
         jigger.SetIngredient(data.ingredient);
         Debug.Log($"[UI] Jigger filled: {data.ingredient.name}");
+
+        tutorial?.NotifyPouredToJigger();
     }
 }

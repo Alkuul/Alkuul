@@ -15,6 +15,9 @@ public class BrewingPanelBridge : MonoBehaviour
     [SerializeField] private DayCycleController dayCycle;
     [SerializeField] private ResultUI resultUI;
 
+    [Header("Tutorial")]
+    [SerializeField] private BrewingTutorialController tutorial;
+
     [Header("Selections")]
     [SerializeField] private TechniqueSO technique;
     [SerializeField] private GlassSO glass;
@@ -69,6 +72,7 @@ public class BrewingPanelBridge : MonoBehaviour
         if (serve == null) serve = FindObjectOfType<ServeSystem>(true);
         if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
         if (resultUI == null) resultUI = FindObjectOfType<ResultUI>(true);
+        if (tutorial == null) tutorial = FindObjectOfType<BrewingTutorialController>(true);
 
         // 가니쉬 슬롯은 여관 업그레이드 따라가게(있으면)
         var innUp = FindObjectOfType<InnUpgradeSystem>(true);
@@ -149,6 +153,7 @@ public class BrewingPanelBridge : MonoBehaviour
     {
         glass = g;
         GlassChanged?.Invoke(glass);
+        if (g != null) tutorial?.NotifyGlassSelected();
         Log($"[Bridge] Glass={(g ? g.name : "NULL")}");
     }
     public void SetGlass(GlassSO g) => SelectGlass(g);
@@ -177,6 +182,7 @@ public class BrewingPanelBridge : MonoBehaviour
         garnishes.Add(garnish);
         Log($"[Bridge] Garnish ON: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
         GarnishesChanged?.Invoke(garnishes);
+        tutorial?.NotifyGarnishAdded();
         return true;
     }
 
@@ -231,6 +237,7 @@ public class BrewingPanelBridge : MonoBehaviour
         _hasLastServed = true;
 
         resultUI?.ShowDrinkResult(r);
+        tutorial?.NotifyDrinkSubmitted();
 
         if (r.customerLeft) leftEarly = true;
 

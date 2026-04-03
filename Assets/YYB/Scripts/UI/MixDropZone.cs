@@ -11,6 +11,15 @@ public class MixDropZone : MonoBehaviour, IDropHandler
     [SerializeField] private bool requireJigger = true;
     [SerializeField] private bool clearJiggerAfterPour = true;
 
+    [Header("Tutorial")]
+    [SerializeField] private BrewingTutorialController tutorial;
+
+    private void Awake()
+    {
+        if (tutorial == null)
+            tutorial = FindObjectOfType<BrewingTutorialController>(true);
+    }
+
     public void OnDrop(PointerEventData eventData)
     {
         var go = eventData?.pointerDrag;
@@ -52,5 +61,7 @@ public class MixDropZone : MonoBehaviour, IDropHandler
 
         if (clearJiggerAfterPour && jigger != null)
             jigger.Clear();
+
+        tutorial?.NotifyPouredToMixingGlass();
     }
 }

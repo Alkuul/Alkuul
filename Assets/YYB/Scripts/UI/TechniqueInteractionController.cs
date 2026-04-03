@@ -9,11 +9,18 @@ public class TechniqueInteractionController : MonoBehaviour
     [SerializeField] private RectTransform interactionRoot;
     [SerializeField] private CanvasGroup blocker;
     [SerializeField] private BrewingPanelBridge bridge;
+    [SerializeField] private BrewingTutorialController tutorial;
 
     private TechniqueInteractionBase currentInteraction;
     private TechniqueSO pendingTechniqueData;
 
     public bool IsBusy => currentInteraction != null;
+
+    private void Awake()
+    {
+        if (tutorial == null)
+            tutorial = FindObjectOfType<BrewingTutorialController>(true);
+    }
 
     public void StartTechniqueInteraction(TechniqueSO techniqueData)
     {
@@ -60,6 +67,8 @@ public class TechniqueInteractionController : MonoBehaviour
             {
                 bridge.SetTechnique(pendingTechniqueData);
             }
+
+            tutorial?.NotifyTechniqueSucceeded();
         }
 
         if (bridge != null)
