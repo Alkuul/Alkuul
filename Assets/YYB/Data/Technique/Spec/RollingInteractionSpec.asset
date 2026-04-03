@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0522a74466822c04bad4c9cb23f0810f, type: 3}
+  m_Name: RollingInteractionSpec
+  m_EditorClassIdentifier: 
+  techniqueType: 4
+  displayName: "\uB864\uB9C1"
+  timeLimit: 10
+  successThreshold: 0.7
+  targetShakeCount: 8
+  minShakeDistance: 60
+  visualShakeAmount: 18
+  targetRotationAmount: 720
+  stirRadiusMin: 60
+  maxAcceptedAngleStep: 90
+  visualOrbitRadius: 90
+  visualFollowSpeed: 18
+  holdGaugeMode: 0
+  gaugeFillSpeed: 0.7
+  gaugeDrainSpeed: 0.35
+  targetZoneMin01: 0.45
+  targetZoneMax01: 0.65
+  targetHoldTime: 1.3
+  requiredRollPassCount: 4
+  pointDetectRadius: 45
+  rollingFollowSpeed: 20
+  targetHitCount: 3
+  markerSpeed01: 1.2
+  hitZoneMin01: 0.42
+  hitZoneMax01: 0.58

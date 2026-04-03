@@ -46,6 +46,7 @@ namespace Alkuul.UI
         [SerializeField] private bool tutorialPlayOnlyOnce = true;
         [SerializeField] private string pageMixTutorialSeenKey = "tut.brewing.pageMix";
         [SerializeField] private string pageFinishTutorialSeenKey = "tut.brewing.pageFinish";
+        [SerializeField] private BrewingTutorialController segmentedTutorial;
 
         private bool _pageMixTutorialPlayed;
         private bool _pageFinishTutorialPlayed;
@@ -84,6 +85,7 @@ namespace Alkuul.UI
         {
             if (bridge == null) bridge = FindObjectOfType<BrewingPanelBridge>();
             if (flow == null) flow = FindObjectOfType<InGameFlowController>();
+            if (segmentedTutorial == null) segmentedTutorial = FindObjectOfType<BrewingTutorialController>(true);
 
             if (bridge == null)
                 Debug.LogWarning("[BrewingScreenController] bridge is NULL (Inspector 연결 필요).");
@@ -155,6 +157,13 @@ namespace Alkuul.UI
             foreach (var b in techniques)
             {
                 if (b.button == null || b.technique == null) continue;
+
+                if (b.button.GetComponent<TechniqueButtonBinder>() != null)
+                {
+                    if (verboseLog) Debug.Log($"[BrewingScreenController] Skip direct technique bind: {b.button.name}");
+                    continue;
+                }
+
                 var t = b.technique;
 
                 b.button.onClick.AddListener(() =>
@@ -214,7 +223,8 @@ namespace Alkuul.UI
         {
             if (pageMix != null) pageMix.SetActive(true);
             if (pageFinish != null) pageFinish.SetActive(false);
-            TryPlayTutorial(PageType.Mix);
+            if (segmentedTutorial == null)
+                TryPlayTutorial(PageType.Mix);
             if (verboseLog) Debug.Log("[UI] Page=Mix");
         }
 
@@ -222,7 +232,14 @@ namespace Alkuul.UI
         {
             if (pageMix != null) pageMix.SetActive(false);
             if (pageFinish != null) pageFinish.SetActive(true);
-            TryPlayTutorial(PageType.Finish);
+            if (segmentedTutorial == null)
+            {
+                TryPlayTutorial(PageType.Finish);
+            }
+            else
+            {
+                segmentedTutorial.NotifyMovedToFinishPage();
+            }
             if (verboseLog) Debug.Log("[UI] Page=Finish");
         }
 
