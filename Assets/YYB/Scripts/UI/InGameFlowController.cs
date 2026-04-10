@@ -13,10 +13,16 @@ namespace Alkuul.UI
         [Header("Systems")]
         [SerializeField] private DayCycleController dayCycle;
         [SerializeField] private OrderSystem orderSystem;
+        [SerializeField] private DailyLedgerSystem ledger;
 
         [Header("Scene Names")]
         [SerializeField] private string orderSceneName = "OrderScene";
         [SerializeField] private string brewingSceneName = "BrewingScene";
+        [SerializeField] private string endingSceneName = "EndingScene";
+
+        [Header("Prototype Ending")]
+        [SerializeField] private bool usePrototypeEndingLoop = true;
+        [SerializeField] private int prototypeLastDay = 2;
 
         [Header("Customers (Authoring)")]
         [SerializeField] private List<CustomerOrdersAuthoring> customerPool = new();
@@ -417,6 +423,31 @@ namespace Alkuul.UI
             _postServeLines.Clear();
 
             ClearActiveCustomer();
+
+            bool shouldGoEnding =
+                usePrototypeEndingLoop &&
+                dayCycle != null &&
+                dayCycle.currentDay >= prototypeLastDay;
+
+            if (shouldGoEnding)
+            {
+                PrototypeEndingContext.FinalDay = dayCycle.currentDay;
+                PrototypeEndingContext.TotalCustomers = ledger != null ? ledger.TotalCustomersOverall : 0;
+                PrototypeEndingContext.AverageSatisfaction = ledger != null ? ledger.PrototypeAverageSatisfaction : 0f;
+
+                if (verboseLog)
+                {
+                    Debug.Log(
+                        $"[Flow] Prototype Ending -> day={PrototypeEndingContext.FinalDay}, " +
+                        $"customers={PrototypeEndingContext.TotalCustomers}, " +
+                        $"avgSat={PrototypeEndingContext.AverageSatisfaction:F1}"
+                    );
+                }
+
+                SceneManager.LoadScene(endingSceneName);
+                return;
+            }
+
             RefreshOrderUI();
         }
 
@@ -425,6 +456,7 @@ namespace Alkuul.UI
         {
             if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
+            if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
             if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
