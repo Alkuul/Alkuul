@@ -86,9 +86,7 @@ MonoBehaviour:
     - dialogueLine: "\"\uB098\uB97C \uBBFF\uACE0 \uB530\uB77C\uC8FC\uB358.. \uC774\uBBF8
         \uB5A0\uB098\uAC04 \uB3D9\uB8CC\uB4E4\uC774 \uC0DD\uAC01\uC774 \uB098. \uC4F8\uC4F8\uD568
         \uD55C \uC794 \uBD80\uD0C1\uD558\uC9C0\""
-      postServeLines:
-      - "\"\uC5B4\uB290 \uC815\uB3C4 \uBC18\uC131\uD558\uAC8C \uB418\uB294\uAD70\" "
-      - "\"\uACE0\uB9C8\uC6CC \uC870\uAE08\uC740 \uD640\uAC00\uBD84\uD574\uC84C\uC5B4\""
+      postServeLines: []
       keywords:
       - {fileID: 11400000, guid: 86ed7fe983308184d924842ac5ca2a1b, type: 2}
       abvRange: {x: 0, y: 0}

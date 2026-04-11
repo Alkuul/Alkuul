@@ -38,8 +38,17 @@ namespace Alkuul.UI
             RefreshContinueAvailability();
         }
 
+        private void DestroyPersistentCoreIfExists()
+        {
+            var gameRoot = FindObjectOfType<GameRoot>(true);
+            if (gameRoot != null)
+                Destroy(gameRoot.gameObject);
+        }
+
         public void OnClickNewGame()
         {
+            DestroyPersistentCoreIfExists();
+
             float keepMasterVolume = GameSettingsStore.GetMasterVolume();
             bool keepFullscreen = GameSettingsStore.GetFullscreen();
 
@@ -64,6 +73,8 @@ namespace Alkuul.UI
 
         public void OnClickContinue()
         {
+            DestroyPersistentCoreIfExists();
+
             if (!DayStartContinueSave.HasSave())
             {
                 if (continueComingSoonPanel != null)

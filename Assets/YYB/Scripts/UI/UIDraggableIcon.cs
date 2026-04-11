@@ -5,6 +5,7 @@ public class UIDraggableIcon : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 {
     [Header("If true, icon center sticks to pointer")]
     [SerializeField] private bool snapCenterToPointer = false;
+    [SerializeField] private bool hideSelfOnEndDrag = false;
 
     private Canvas rootCanvas;
     private RectTransform canvasRect;
@@ -73,7 +74,13 @@ public class UIDraggableIcon : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         transform.SetParent(originalParent, false);
         transform.SetSiblingIndex(originalSiblingIndex);
 
-        // 슬롯 중앙에 스냅(슬롯 방식이면 이게 가장 깔끔)
+        // 슬롯 중앙에 스냅
         rt.anchoredPosition = originalAnchoredPosition;
+
+        // 가니쉬 프록시에서 쓰는 자식 비주얼이면 드래그 종료 후 다시 숨김
+        if (hideSelfOnEndDrag)
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

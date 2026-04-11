@@ -79,6 +79,7 @@ public class TabletController : MonoBehaviour
     [SerializeField] private InnUpgradeSystem innUpgrade;
     [SerializeField] private DailyLedgerSystem ledger;
     [SerializeField] private PendingInnDecisionSystem innDecision;
+    [SerializeField] private CustomerActionCutinUI actionCutinUI;
 
     // internal
     private GameObject _lastShownPanel;
@@ -121,6 +122,7 @@ public class TabletController : MonoBehaviour
         if (innUpgrade == null) innUpgrade = FindObjectOfType<InnUpgradeSystem>(true);
         if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
         if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
+        if (actionCutinUI == null) actionCutinUI = FindObjectOfType<CustomerActionCutinUI>(true);
     }
 
     // -------------------------
@@ -593,15 +595,61 @@ public class TabletController : MonoBehaviour
     public void OnClick_Sleep()
     {
         ResolveRefs();
-        innDecision?.SleepOne();
-        SyncPanelToState(true);
+
+        if (innDecision == null || !innDecision.HasPending)
+        {
+            innDecision?.SleepOne();
+            SyncPanelToState(true);
+            return;
+        }
+
+        CustomerPortraitSet portraitSet = null;
+        if (flow != null)
+            flow.TryGetPendingInnDecisionPortraitSet(out portraitSet);
+
+        if (actionCutinUI != null)
+        {
+            actionCutinUI.PlaySleep(portraitSet, () =>
+            {
+                innDecision?.SleepOne();
+                SyncPanelToState(true);
+            });
+        }
+        else
+        {
+            innDecision?.SleepOne();
+            SyncPanelToState(true);
+        }
     }
 
     public void OnClick_Evict()
     {
         ResolveRefs();
-        innDecision?.EvictOne();
-        SyncPanelToState(true);
+
+        if (innDecision == null || !innDecision.HasPending)
+        {
+            innDecision?.EvictOne();
+            SyncPanelToState(true);
+            return;
+        }
+
+        CustomerPortraitSet portraitSet = null;
+        if (flow != null)
+            flow.TryGetPendingInnDecisionPortraitSet(out portraitSet);
+
+        if (actionCutinUI != null)
+        {
+            actionCutinUI.PlayEvict(portraitSet, () =>
+            {
+                innDecision?.EvictOne();
+                SyncPanelToState(true);
+            });
+        }
+        else
+        {
+            innDecision?.EvictOne();
+            SyncPanelToState(true);
+        }
     }
 
     // -------------------------

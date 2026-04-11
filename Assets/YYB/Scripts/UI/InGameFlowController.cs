@@ -50,6 +50,13 @@ namespace Alkuul.UI
         [Header("Inn Decision")]
         [SerializeField] private PendingInnDecisionSystem innDecision;
         [SerializeField] private TutorialOverlay tutorialOverlay;
+        [SerializeField] private CustomerActionCutinUI actionCutinUI;
+        [SerializeField] private GameObject tabletRootToHide;
+
+        [Header("Prototype Ending Cutin")]
+        [SerializeField] private Sprite prototypeEndingCutinSprite;
+        [SerializeField] private string prototypeEndingCutinText = "하루를 마무리하는 중...";
+        [SerializeField] private float prototypeEndingCutinDuration = 3f;
 
         [Header("Debug")]
         [SerializeField] private bool verboseLog = true;
@@ -460,7 +467,22 @@ namespace Alkuul.UI
                     );
                 }
 
-                SceneManager.LoadScene(endingSceneName);
+                PrepareForFrontEndTransition();
+
+                if (actionCutinUI != null)
+                {
+                    actionCutinUI.PlayCustom(
+                        prototypeEndingCutinSprite,
+                        prototypeEndingCutinText,
+                        () => DestroyPersistentCoreAndLoadScene(endingSceneName),
+                        prototypeEndingCutinDuration
+                    );
+                }
+                else
+                {
+                    DestroyPersistentCoreAndLoadScene(endingSceneName);
+                }
+
                 return;
             }
 
@@ -479,6 +501,7 @@ namespace Alkuul.UI
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
             if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
+            if (actionCutinUI == null) actionCutinUI = FindObjectOfType<CustomerActionCutinUI>(true);
             BindInnDecision();
             BindTutorialOverlay();
         }
@@ -723,6 +746,17 @@ namespace Alkuul.UI
             profile = FindCustomerProfileById(result.customerId);
             stage = GetPortraitStageFromIntoxStageValue(result.intoxStage);
             return true;
+        }
+
+        public bool TryGetPendingInnDecisionPortraitSet(out CustomerPortraitSet portraitSet)
+        {
+            portraitSet = null;
+
+            if (!TryGetPendingInnDecisionProfile(out var profile, out _))
+                return false;
+
+            portraitSet = profile.portraitSet;
+            return portraitSet != null;
         }
 
         private CustomerProfile FindCustomerProfileById(string id)
@@ -1034,6 +1068,21 @@ namespace Alkuul.UI
                 if (d != null) c++;
 
             return Mathf.Min(c, 3);
+        }
+
+        private void PrepareForFrontEndTransition()
+        {
+            if (tabletRootToHide != null)
+                tabletRootToHide.SetActive(false);
+        }
+
+        private void DestroyPersistentCoreAndLoadScene(string sceneName)
+        {
+            var gameRoot = FindObjectOfType<GameRoot>(true);
+            if (gameRoot != null)
+                Destroy(gameRoot.gameObject);
+
+            SceneManager.LoadScene(sceneName);
         }
     }
 }
