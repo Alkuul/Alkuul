@@ -63,8 +63,6 @@ MonoBehaviour:
     slots:
     - dialogueLine: "\"\uAC00\uC7A5 \uB3C5\uD55C \uAC78\uB85C \uD558\uB098.\""
       postServeLines:
-      - "\"\uC774\uAC74 \uC2AC\uD514\uC774\uC796\uC544! \uB098\uB294 \uBD84\uB178\uB97C
-        \uC6D0\uD588\uC5B4!\""
       - "\"...\uAC00\uACA0\uC5B4!\" "
       keywords:
       - {fileID: 11400000, guid: 6b1d9130a4e68924ab58d71dc049ac76, type: 2}

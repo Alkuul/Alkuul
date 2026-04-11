@@ -32,6 +32,12 @@ namespace Alkuul.Systems
             }
         }
 
+        public void ForceSetLevel(int value)
+        {
+            level = Mathf.Clamp(value, 1, 3);
+            Debug.Log($"[InnUpgrade] ForceSetLevel -> Lv{level}");
+        }
+
         public bool TryUpgrade(EconomySystem economy)
         {
             if (!CanUpgrade)

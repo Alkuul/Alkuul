@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
   m_Name: OrangeCitrus
   m_EditorClassIdentifier: 
-  id: Orange Citrus
+  id: slice_orange
   displayName: "\uC624\uB80C\uC9C0 \uAECD\uC9C8"
   tags:
   - Joy
