@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
   m_Name: Lavender
   m_EditorClassIdentifier: 
-  id: Lavender
+  id: lavender
   displayName: "\uB77C\uBCA4\uB354"
   tags:
   - Sadness

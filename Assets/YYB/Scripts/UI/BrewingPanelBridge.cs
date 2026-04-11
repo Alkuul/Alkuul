@@ -215,6 +215,25 @@ public class BrewingPanelBridge : MonoBehaviour
         Log("[Bridge] ResetMix");
     }
 
+    public void DiscardMixToSink()
+    {
+        if (brewing == null) brewing = FindObjectOfType<BrewingSystem>(true);
+
+        brewing?.ResetMix();
+
+        technique = null;
+        usesIce = false;
+        lastTechniqueResult = null;
+
+        glass = null;
+        garnishes.Clear();
+
+        GlassChanged?.Invoke(glass);
+        GarnishesChanged?.Invoke(garnishes);
+
+        Log("[Bridge] DiscardMixToSink -> mix/technique/ice/glass/garnish reset");
+    }
+
     // ---- Serve / Finish ----
     public DrinkResult ServeOnce()
     {

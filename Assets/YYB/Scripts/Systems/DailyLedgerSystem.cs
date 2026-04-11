@@ -94,5 +94,19 @@ namespace Alkuul.Systems
             TotalDrinksOverall = 0;
             TotalAverageSatisfactionSum = 0f;
         }
+
+        public void RestoreContinueState(int totalCustomers, int totalDrinks, float totalAverageSatSum, int snapshotMoney, float snapshotRep)
+        {
+            TotalCustomersOverall = Mathf.Max(0, totalCustomers);
+            TotalDrinksOverall = Mathf.Max(0, totalDrinks);
+            TotalAverageSatisfactionSum = Mathf.Max(0f, totalAverageSatSum);
+
+            dayStartMoney = snapshotMoney;
+            dayStartRep = snapshotRep;
+
+            ServedCustomers = 0;
+            ServedDrinks = 0;
+            SleptCustomers = 0;
+        }
     }
 }
