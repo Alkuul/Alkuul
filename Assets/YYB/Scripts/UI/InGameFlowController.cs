@@ -14,6 +14,9 @@ namespace Alkuul.UI
         [SerializeField] private DayCycleController dayCycle;
         [SerializeField] private OrderSystem orderSystem;
         [SerializeField] private DailyLedgerSystem ledger;
+        [SerializeField] private EconomySystem economy;
+        [SerializeField] private RepSystem rep;
+        [SerializeField] private InnUpgradeSystem innUpgrade;
 
         [Header("Scene Names")]
         [SerializeField] private string orderSceneName = "OrderScene";
@@ -126,6 +129,7 @@ namespace Alkuul.UI
         {
             orderUI = ui;
             EnsureRefs();
+            TryResumeContinueIfRequested();
             UpdatePortraitForActiveCustomer();
             RefreshOrderUI();
         }
@@ -201,6 +205,17 @@ namespace Alkuul.UI
                 Debug.Log($"[Flow] DayPrepared day={dayNum} plan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
 
             RefreshOrderUI();
+
+            DayStartContinueSave.Save(new DayStartContinueSave.SaveData
+            {
+                day = dayNum,
+                money = economy != null ? economy.money : 0,
+                reputation = rep != null ? rep.reputation : 2.5f,
+                innLevel = innUpgrade != null ? innUpgrade.Level : 1,
+                totalCustomersOverall = ledger != null ? ledger.TotalCustomersOverall : 0,
+                totalDrinksOverall = ledger != null ? ledger.TotalDrinksOverall : 0,
+                totalAverageSatisfactionSum = ledger != null ? ledger.TotalAverageSatisfactionSum : 0f
+            });
         }
 
         /// <summary>태블릿의 "손님받기" 버튼에서 호출</summary>
@@ -408,6 +423,7 @@ namespace Alkuul.UI
             }
 
             dayCycle?.EndDayPublic();
+            DayStartContinueSave.Clear();
 
             // 다음 날은 "StartDay"를 눌러야 시작
             _dayPrepared = false;
@@ -457,11 +473,75 @@ namespace Alkuul.UI
             if (dayCycle == null) dayCycle = FindObjectOfType<DayCycleController>(true);
             if (orderSystem == null) orderSystem = FindObjectOfType<OrderSystem>(true);
             if (ledger == null) ledger = FindObjectOfType<DailyLedgerSystem>(true);
+            if (economy == null) economy = FindObjectOfType<EconomySystem>(true);
+            if (rep == null) rep = FindObjectOfType<RepSystem>(true);
+            if (innUpgrade == null) innUpgrade = FindObjectOfType<InnUpgradeSystem>(true);
             if (portraitView == null) portraitView = FindObjectOfType<CustomerPortraitView>(true);
             if (innDecision == null) innDecision = FindObjectOfType<PendingInnDecisionSystem>(true);
             if (tutorialOverlay == null) tutorialOverlay = FindObjectOfType<TutorialOverlay>(true);
             BindInnDecision();
             BindTutorialOverlay();
+        }
+
+        private void TryResumeContinueIfRequested()
+        {
+            if (!DayStartContinueSave.ConsumeContinueRequest())
+                return;
+
+            if (!DayStartContinueSave.TryLoad(out var save))
+            {
+                Debug.LogWarning("[Flow] Continue requested, but no save exists.");
+                return;
+            }
+
+            EnsureRefs();
+
+            if (dayCycle != null)
+                dayCycle.currentDay = Mathf.Max(1, save.day);
+
+            if (economy != null)
+                economy.money = Mathf.Max(0, save.money);
+
+            if (rep != null)
+                rep.reputation = Mathf.Clamp(save.reputation, 0f, 5f);
+
+            if (innUpgrade != null)
+                innUpgrade.ForceSetLevel(save.innLevel);
+
+            if (ledger != null)
+            {
+                ledger.RestoreContinueState(
+                    save.totalCustomersOverall,
+                    save.totalDrinksOverall,
+                    save.totalAverageSatisfactionSum,
+                    save.money,
+                    save.reputation
+                );
+            }
+
+            _dayPrepared = true;
+            _awaitingSettlement = false;
+            _awaitingReceiveCustomer = true;
+            _awaitingReceiveOrder = false;
+            _awaitingRename = false;
+            _awaitingDayIntro = false;
+            _awaitingPostServeDialogue = false;
+
+            _dayIntroIndex = 0;
+            _postServeIndex = 0;
+            _dayIntroLines.Clear();
+            _postServeLines.Clear();
+
+            _servedCustomersToday = 0;
+            _todayCustomerIndex = 0;
+
+            _todayPlan = FindPlanForDay(dayCycle != null ? dayCycle.currentDay : save.day);
+            _customersTargetToday = (_todayPlan != null) ? CountValidCustomers(_todayPlan) : customersPerDay;
+
+            ClearActiveCustomer();
+            RefreshOrderUI();
+
+            Debug.Log($"[Flow] Continue loaded -> day={save.day}, money={save.money}, rep={save.reputation:0.00}, innLv={save.innLevel}");
         }
 
         private void BindInnDecision()

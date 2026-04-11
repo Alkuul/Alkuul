@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
   m_Name: FermentedCherry
   m_EditorClassIdentifier: 
-  id: Fermented Cherry
+  id: cherry
   displayName: "\uBC1C\uD6A8 \uCCB4\uB9AC"
   tags:
   - Disgust

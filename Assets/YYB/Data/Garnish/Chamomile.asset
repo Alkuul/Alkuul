@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b411dae46821144baa61bd609709ad, type: 3}
   m_Name: Chamomile
   m_EditorClassIdentifier: 
-  id: Chamomile
+  id: kama
   displayName: "\uCE74\uBAA8\uB9C8\uC77C"
   tags:
   - Sadness
