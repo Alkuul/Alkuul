@@ -47,11 +47,23 @@ MonoBehaviour:
     slots:
     - dialogueLine: "\"\uD654\uAC00 \uB098\uC694. \uB098 \uC790\uC2E0\uC5D0\uAC8C.\""
       postServeLines:
-      - "\"...\uADF8\uB798\uB3C4 \uB098\uC058\uC9C0 \uC54A\uB124\uC694. \uAC10\uC0AC\uD574\uC694.\""
+      - "\"\uC81C\uAC00 \uB290\uB080 \uBD84\uB178\uC5D0\uC694.. \uB2E4\uC2DC \uB3CC\uC544\uBCFC
+        \uC218 \uC788\uC5C8\uC5B4\uC694.\""
       - "\"\uC870\uAE08\uC740 \uB9C8\uC74C\uC774 \uB098\uC544\uC9C4 \uAC83 \uAC19\uC544\uC694.
-        \uC548\uB155\uD788.\""
+        \uAC10\uC0AC\uD574\uC694\""
       keywords:
       - {fileID: 11400000, guid: 94aad4c62ec0c444e9c4f156d19ce6f2, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+    - dialogueLine: "\"\uD55C \uC794 \uB354 \uAC00\uB2A5\uD560\uAE4C\uC694? \uC774\uBC88
+        \uC794\uC740\uC774\uC81C \uC800\uC758 \uC77C\uC5D0 \uC790\uBD80\uC2EC\uC744
+        \uB290\uB07C\uACE0 \uC2F6\uC5B4\uC694\""
+      postServeLines:
+      - "\"\uC800\uB97C \uBBFF\uACE0 \uB530\uB974\uB294 \uC0AC\uB78C\uB4E4\uC774
+        \uC758\uC2EC\uD558\uC9C0 \uC54A\uAC8C \uD558\uACA0\uC5B4\uC694\""
+      - "\"\uC800 \uC55E\uC73C\uB85C \uC798 \uD560 \uC218 \uC788\uACA0\uC8E0?\""
+      keywords:
+      - {fileID: 11400000, guid: b353a96da4df7d44397db17bff905acc, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0
   - profile:
@@ -61,10 +73,23 @@ MonoBehaviour:
       icePreference: 2
       portraitSet: {fileID: 11400000, guid: c56c58d3fdd9f424ab808426613d846b, type: 2}
     slots:
-    - dialogueLine: "\"\uAC00\uC7A5 \uB3C5\uD55C \uAC78\uB85C \uD558\uB098.\""
+    - dialogueLine: "\"\uB098\uC5D0\uAC8C \uB4F1\uC744 \uB9E1\uAE30\uB294 \uC804\uC6B0\uB4E4\uC5D0\uAC8C
+        \uBBF8\uC548\uD574.. \uC774\uB7F0 \uD55C\uC2EC\uD55C \uB098\uC5D0\uAC8C \uD654\uAC00\uB098.
+        \uBD84\uB178\uC640 \uD610\uC624\uAE4C\uC9C0 \uB290\uAEF4\uC838\""
       postServeLines:
-      - "\"...\uAC00\uACA0\uC5B4!\" "
+      - "\"....\uC5ED\uC2DC \uC774 \uAC10\uC815\uC740 \uC5ED\uACB9\uAD70\" "
+      - "\"\uB2E4\uC2DC\uB294 \uB290\uB07C\uACE0 \uC2F6\uC9C0 \uC54A\uC740 \uAC10\uC815\uC774\uC57C\" "
       keywords:
       - {fileID: 11400000, guid: 6b1d9130a4e68924ab58d71dc049ac76, type: 2}
+      abvRange: {x: 0, y: 0}
+      timeLimit: 0
+    - dialogueLine: "\"\uB098\uB97C \uBBFF\uACE0 \uB530\uB77C\uC8FC\uB358.. \uC774\uBBF8
+        \uB5A0\uB098\uAC04 \uB3D9\uB8CC\uB4E4\uC774 \uC0DD\uAC01\uC774 \uB098. \uC4F8\uC4F8\uD568
+        \uD55C \uC794 \uBD80\uD0C1\uD558\uC9C0\""
+      postServeLines:
+      - "\"\uC5B4\uB290 \uC815\uB3C4 \uBC18\uC131\uD558\uAC8C \uB418\uB294\uAD70\" "
+      - "\"\uACE0\uB9C8\uC6CC \uC870\uAE08\uC740 \uD640\uAC00\uBD84\uD574\uC84C\uC5B4\""
+      keywords:
+      - {fileID: 11400000, guid: 86ed7fe983308184d924842ac5ca2a1b, type: 2}
       abvRange: {x: 0, y: 0}
       timeLimit: 0
