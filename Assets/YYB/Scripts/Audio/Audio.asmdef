@@ -1,12 +1,9 @@
 {
-    "name": "UI",
-    "rootNamespace": "",
+    "name": "Alkuul.Audio",
+    "rootNamespace": "Alkuul.Audio",
     "references": [
-        "GUID:4eb0ad79937443c4a9652ab200069b32",
-        "GUID:989dcbc547390b04297b862bb7f6e371",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:4c8383347cf0d9143865ee1b9390855a",
-        "GUID:7cdf3a02389847c40b6c0ce982a0a6ec"
+        "Core",
+        "Domain"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

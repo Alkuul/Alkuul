@@ -281,6 +281,10 @@ namespace Alkuul.UI
 
             _awaitingReceiveCustomer = false;
             EnterAwaitingOrderState();
+
+            var audioBindings = FindObjectOfType<Alkuul.Audio.AudioBindings>(true);
+            if (audioBindings != null) audioBindings.OnCustomerEntered();
+
             RefreshOrderUI();
         }
 
