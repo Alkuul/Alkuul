@@ -139,6 +139,11 @@ public class BrewingPanelBridge : MonoBehaviour
     {
         usesIce = on;
         Log($"[Bridge] Ice={on}");
+
+        // ▼▼▼ 사운드: 얼음 추가 (켤 때만) ▼▼▼
+        if (on && Alkuul.Audio.AudioManager.Instance != null)
+            Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_Ice);
+        // ▲▲▲
     }
     public void SetUsesIce(bool on) => SetIce(on);
 
@@ -182,6 +187,12 @@ public class BrewingPanelBridge : MonoBehaviour
         garnishes.Add(garnish);
         Log($"[Bridge] Garnish ON: {garnish.name} (count={garnishes.Count}/{maxGarnishSlots})");
         GarnishesChanged?.Invoke(garnishes);
+
+        // ▼▼▼ 사운드: 가니쉬 추가 성공 ▼▼▼
+        if (Alkuul.Audio.AudioManager.Instance != null)
+            Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_Garnish);
+        // ▲▲▲
+
         tutorial?.NotifyGarnishAdded();
         return true;
     }

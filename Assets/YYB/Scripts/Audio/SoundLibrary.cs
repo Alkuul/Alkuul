@@ -7,8 +7,7 @@ namespace Alkuul.Audio
     /// <summary>
     /// SoundId → AudioClip + 볼륨 배율 매핑.
     /// ScriptableObject로 만들어 에디터에서 인스펙터로 편집한다.
-    /// Inspector에서 각 사운드의 볼륨을 0~1로 조정해서
-    /// 파일별 음량 차이를 보정할 수 있다.
+    /// 각 사운드의 볼륨/재생구간을 보정할 수 있다.
     /// </summary>
     [CreateAssetMenu(menuName = "Alkuul/Audio/Sound Library", fileName = "SoundLibrary")]
     public class SoundLibrary : ScriptableObject
@@ -26,7 +25,15 @@ namespace Alkuul.Audio
             [Range(0f, 1f)]
             public float volume = 1f;
 
-            [Tooltip("BGM이나 미니게임 루프 사운드처럼 반복 재생할지 여부")]
+            [Tooltip("재생 시작 시점(초). 0이면 처음부터. 예: 0.7이면 0.7초 지점부터 재생.")]
+            [Min(0f)]
+            public float playStartTime = 0f;
+
+            [Tooltip("재생 종료 시점(초). 0이면 클립 끝까지. 예: 0.9면 0.9초에서 자동 정지.")]
+            [Min(0f)]
+            public float playEndTime = 0f;
+
+            [Tooltip("BGM이나 미니게임 루프 사운드처럼 반복 재생할지 여부 (메모용)")]
             public bool loop;
 
             [Tooltip("같은 사운드가 동시에 여러 번 호출됐을 때 너무 가까운 시간차로는 다시 재생하지 않는 쿨다운(초). 0이면 비활성.")]

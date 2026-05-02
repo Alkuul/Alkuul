@@ -59,6 +59,11 @@ public class MixDropZone : MonoBehaviour, IDropHandler
         bridge.OnPortionAdded(data.ingredient, ml);
         Debug.Log($"[MixDropZone] Pour {(jigger != null ? "Jigger" : "Direct")} : {data.ingredient.name} {ml}ml");
 
+        // ▼▼▼ 사운드: 따르기 ▼▼▼
+        if (Alkuul.Audio.AudioManager.Instance != null)
+            Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_Pour);
+        // ▲▲▲
+
         if (clearJiggerAfterPour && jigger != null)
             jigger.Clear();
 

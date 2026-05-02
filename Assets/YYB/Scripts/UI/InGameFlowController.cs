@@ -143,6 +143,11 @@ namespace Alkuul.UI
 
         public void AdvanceDialogue()
         {
+            // ▼▼▼ 사운드: 텍스트 넘기기 ▼▼▼
+            if (Alkuul.Audio.AudioManager.Instance != null)
+                Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_TextClick);
+            // ▲▲▲
+                
             if (_awaitingDayIntro)
             {
                 _dayIntroIndex++;

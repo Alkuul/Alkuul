@@ -16,55 +16,77 @@ MonoBehaviour:
   - id: 100
     clip: {fileID: 8300000, guid: 268cc03c89c032047a24bc6bf417b3a5, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 1
     minIntervalSec: 0
   - id: 101
     clip: {fileID: 8300000, guid: b332eecb257e425449ad8656335fb8d1, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 1
     minIntervalSec: 0
   - id: 102
     clip: {fileID: 8300000, guid: 6bf05b9cac2fdde4895b510df3e75645, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 1
     minIntervalSec: 0
   - id: 103
     clip: {fileID: 8300000, guid: 4310e5e185c00574dbc17dabb5b02734, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 1
     minIntervalSec: 0
   - id: 200
     clip: {fileID: 8300000, guid: 54f4f883911e6544d9c8b0b1ff14b3ac, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05
   - id: 201
     clip: {fileID: 8300000, guid: 74ae9fd98e69ced479b8987c004d1065, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05
   - id: 202
     clip: {fileID: 8300000, guid: b1b474a131b48d64bae57dcfc4b8729e, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05
   - id: 300
     clip: {fileID: 8300000, guid: 33d2d1e9b288e9c4bb07d8ec3ae93e9a, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05
   - id: 301
     clip: {fileID: 8300000, guid: f3d7e1bb24f19394aa931df4cd4c0401, type: 3}
     volume: 1
+    playStartTime: 0.7
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05
   - id: 302
     clip: {fileID: 8300000, guid: 14ba4fec707c3f6468b2c7e0aa7785cb, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0.9
     loop: 0
     minIntervalSec: 0.05
   - id: 303
     clip: {fileID: 8300000, guid: ace8bfa6c7d0b6a49b973078be5570bf, type: 3}
     volume: 1
+    playStartTime: 0
+    playEndTime: 0
     loop: 0
     minIntervalSec: 0.05

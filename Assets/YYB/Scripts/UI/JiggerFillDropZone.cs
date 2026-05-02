@@ -26,6 +26,11 @@ public class JiggerFillDropZone : MonoBehaviour, IDropHandler
         jigger.SetIngredient(data.ingredient);
         Debug.Log($"[UI] Jigger filled: {data.ingredient.name}");
 
+        // ▼▼▼ 사운드: 지거에 담기 ▼▼▼
+        if (Alkuul.Audio.AudioManager.Instance != null)
+            Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_Jigger);
+        // ▲▲▲
+
         tutorial?.NotifyPouredToJigger();
     }
 }

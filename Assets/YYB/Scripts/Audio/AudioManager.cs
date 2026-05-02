@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -13,7 +14,7 @@ namespace Alkuul.Audio
     /// - SFX는 풀(pool)에서 빈 AudioSource를 빌려서 재생
     /// - BGM은 별도 AudioSource로 재생 (페이드 인/아웃 가능)
     /// - 미니게임 루프 사운드는 별도 AudioSource를 빌려서 PlayLoop / StopLoop
-    /// - AudioMixer는 선택적 (없어도 동작, 있으면 BGM/SFX 그룹 분리)
+    /// - SoundLibrary.Entry의 playStartTime / playEndTime 으로 재생 구간 설정 가능
     ///
     /// 사용 예:
     ///   AudioManager.Instance.Play(SoundId.SFX_GameClick);
@@ -63,6 +64,9 @@ namespace Alkuul.Audio
 
         // 같은 SFX 너무 빨리 연속 재생 방지
         private readonly Dictionary<SoundId, float> _lastPlayTime = new();
+
+        // 자동 정지 코루틴 추적 (재사용 시 이전 정지 코루틴을 취소하기 위해)
+        private readonly Dictionary<AudioSource, Coroutine> _autoStopRoutines = new();
 
         private void Awake()
         {
@@ -116,6 +120,7 @@ namespace Alkuul.Audio
 
         /// <summary>
         /// 일회성 효과음 재생. 같은 사운드를 너무 빨리 연속 호출하면 자동으로 무시함.
+        /// SoundLibrary의 playStartTime / playEndTime 이 자동 적용됨.
         /// </summary>
         public void Play(SoundId id)
         {
@@ -152,13 +157,56 @@ namespace Alkuul.Audio
             }
 
             var src = GetFreeSfxSource();
+
+            // 이전에 같은 소스에 자동 정지 코루틴이 걸려있으면 취소
+            CancelAutoStop(src);
+
             src.clip = entry.clip;
             src.loop = false;
             src.volume = Mathf.Clamp01(entry.volume * volumeScale * masterMultiplier);
             src.pitch = 1f;
+
+            // 재생 시작 시점 적용
+            float startTime = Mathf.Clamp(entry.playStartTime, 0f, Mathf.Max(0f, entry.clip.length - 0.001f));
+            src.time = startTime;
+
             src.Play();
 
-            if (verboseLog) Debug.Log($"[AudioManager] Play {id} (vol={src.volume:0.00})");
+            // 재생 종료 시점이 지정되었으면 자동 정지 코루틴 시작
+            if (entry.playEndTime > 0f && entry.playEndTime > startTime)
+            {
+                float playDuration = entry.playEndTime - startTime;
+                var routine = StartCoroutine(CoAutoStop(src, playDuration));
+                _autoStopRoutines[src] = routine;
+
+                if (verboseLog)
+                    Debug.Log($"[AudioManager] Play {id} (start={startTime:0.00}s, end={entry.playEndTime:0.00}s, duration={playDuration:0.00}s, vol={src.volume:0.00})");
+            }
+            else if (verboseLog)
+            {
+                Debug.Log($"[AudioManager] Play {id} (start={startTime:0.00}s, vol={src.volume:0.00})");
+            }
+        }
+
+        private IEnumerator CoAutoStop(AudioSource src, float waitSeconds)
+        {
+            yield return new WaitForSeconds(waitSeconds);
+
+            if (src != null && src.isPlaying)
+            {
+                src.Stop();
+            }
+
+            _autoStopRoutines.Remove(src);
+        }
+
+        private void CancelAutoStop(AudioSource src)
+        {
+            if (_autoStopRoutines.TryGetValue(src, out var routine))
+            {
+                if (routine != null) StopCoroutine(routine);
+                _autoStopRoutines.Remove(src);
+            }
         }
 
         // ===== Public API: BGM =====
@@ -204,7 +252,7 @@ namespace Alkuul.Audio
             _bgmFadeRoutine = StartCoroutine(CoFadeOutBGM());
         }
 
-        private System.Collections.IEnumerator CoFadeToBGM(SoundLibrary.Entry entry)
+        private IEnumerator CoFadeToBGM(SoundLibrary.Entry entry)
         {
             float targetVolume = Mathf.Clamp01(entry.volume * masterMultiplier);
 
@@ -225,6 +273,11 @@ namespace Alkuul.Audio
             _bgmSource.clip = entry.clip;
             _bgmSource.loop = true;
             _bgmSource.volume = bgmFadeDuration > 0f ? 0f : targetVolume;
+
+            // BGM도 시작 시점 적용 (보통 0이지만 일관성 위해)
+            float startTime = Mathf.Clamp(entry.playStartTime, 0f, Mathf.Max(0f, entry.clip.length - 0.001f));
+            _bgmSource.time = startTime;
+
             _bgmSource.Play();
 
             // 페이드인
@@ -243,7 +296,7 @@ namespace Alkuul.Audio
             _bgmFadeRoutine = null;
         }
 
-        private System.Collections.IEnumerator CoFadeOutBGM()
+        private IEnumerator CoFadeOutBGM()
         {
             if (bgmFadeDuration <= 0f)
             {
@@ -282,10 +335,16 @@ namespace Alkuul.Audio
             }
 
             var src = GetFreeSfxSource();
+            CancelAutoStop(src);
+
             src.clip = entry.clip;
             src.loop = true;
             src.volume = Mathf.Clamp01(entry.volume * masterMultiplier);
             src.pitch = 1f;
+
+            float startTime = Mathf.Clamp(entry.playStartTime, 0f, Mathf.Max(0f, entry.clip.length - 0.001f));
+            src.time = startTime;
+
             src.Play();
 
             int handle = _nextLoopHandle++;

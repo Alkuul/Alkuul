@@ -171,6 +171,11 @@ public class TutorialOverlay : MonoBehaviour
     {
         if (!_playing) return;
 
+        // ▼▼▼ 사운드: 텍스트 넘기기 ▼▼▼
+        if (Alkuul.Audio.AudioManager.Instance != null)
+            Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_TextClick);
+        // ▲▲▲
+
         _index++;
         if (_index >= lines.Length)
         {
