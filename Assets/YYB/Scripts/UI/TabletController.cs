@@ -81,6 +81,8 @@ public class TabletController : MonoBehaviour
     [SerializeField] private PendingInnDecisionSystem innDecision;
     [SerializeField] private CustomerActionCutinUI actionCutinUI;
 
+    [SerializeField] private GameObject inputBlocker;
+
     // internal
     private GameObject _lastShownPanel;
     private bool _settlementDoneView = false;
@@ -111,6 +113,8 @@ public class TabletController : MonoBehaviour
             SyncPanelToState();
             RefreshTabletDialogue();
         }
+
+        if (IsOpen) RefreshInputBlocker();
     }
 
     private void ResolveRefs()
@@ -454,19 +458,27 @@ public class TabletController : MonoBehaviour
         if (flow == null) return;
         if (tabletDialogueText == null && tabletCustomerNameText == null) return;
 
-        if (flow.TryGetCurrentOrderDialogue(out var profile, out var idx, out var cnt, out var line, out var showMeta))
-        {
-            if (tabletCustomerNameText != null)
-            {
-                if (cnt <= 0)
-                    tabletCustomerNameText.text = "";
-                else
-                    tabletCustomerNameText.text = string.IsNullOrWhiteSpace(profile.displayName) ? profile.id : profile.displayName;
-            }
+        bool hasMeta = flow.TryGetCurrentOrderDialogue(
+            out var profile,
+            out var idx,
+            out var cnt,
+            out var _,
+            out var showMeta
+        );
 
-            if (tabletDialogueText != null)
-                tabletDialogueText.text = line ?? "";
+        bool hasTabletLine = flow.TryGetTabletDialogue(out var tabletLine);
+
+        if (tabletCustomerNameText != null)
+        {
+            if (!hasMeta || cnt <= 0)
+                tabletCustomerNameText.text = "";
+            else
+                tabletCustomerNameText.text =
+                    string.IsNullOrWhiteSpace(profile.displayName) ? profile.id : profile.displayName;
         }
+
+        if (tabletDialogueText != null)
+            tabletDialogueText.text = hasTabletLine ? (tabletLine ?? "") : "";
     }
 
     // -------------------------
@@ -596,6 +608,12 @@ public class TabletController : MonoBehaviour
     {
         ResolveRefs();
 
+        if (flow != null && flow.AwaitingPostServeDialogue)
+        {
+            Debug.LogWarning("[Tablet] Sleep blocked: finish reaction dialogue first.");
+            return;
+        }
+
         if (innDecision == null || !innDecision.HasPending)
         {
             innDecision?.SleepOne();
@@ -626,6 +644,12 @@ public class TabletController : MonoBehaviour
     {
         ResolveRefs();
 
+        if (flow != null && flow.AwaitingPostServeDialogue)
+        {
+            Debug.LogWarning("[Tablet] Evict blocked: finish reaction dialogue first.");
+            return;
+        }
+
         if (innDecision == null || !innDecision.HasPending)
         {
             innDecision?.EvictOne();
@@ -650,6 +674,17 @@ public class TabletController : MonoBehaviour
             innDecision?.EvictOne();
             SyncPanelToState(true);
         }
+    }
+
+    private void RefreshInputBlocker()
+    {
+        if (inputBlocker == null || flow == null)
+            return;
+
+        // 반응 대사 진행 중일 때만 태블릿 입력 막기
+        bool block = flow.AwaitingPostServeDialogue;
+
+        inputBlocker.SetActive(block);
     }
 
     // -------------------------

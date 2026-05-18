@@ -6,21 +6,50 @@ using Alkuul.Systems;
 namespace Alkuul.UI
 {
     [System.Serializable]
+    public class ReactionDialogueSet
+    {
+        [Header("Low Satisfaction (0~39)")]
+        public List<string> low = new();
+
+        [Header("Mid Satisfaction (40~74)")]
+        public List<string> mid = new();
+
+        [Header("High Satisfaction (75~100+)")]
+        public List<string> high = new();
+    }
+
+    [System.Serializable]
     public class OrderSlotAuthoring
     {
-        [TextArea] public string dialogueLine;                 // 비어있으면 키워드 이름으로 자동 생성
+        [Header("Order Dialogue (legacy single line)")]
+        [TextArea] public string dialogueLine;
+
+        [Header("Order Dialogue Pages (recommended)")]
+        public List<string> dialogueLines = new();
+
+        [Header("Reaction Dialogue (legacy fallback)")]
         public List<string> postServeLines = new();
-        public List<SecondaryEmotionSO> keywords = new();       // 이 슬롯의 2차 감정들
-        public Vector2 abvRange = new Vector2(0, 100);          // 옵션(현재 점수엔 미반영)
-        public float timeLimit = 60f;                           // 옵션(현재 점수엔 미반영)
+
+        [Header("Reaction Dialogue by Satisfaction")]
+        public ReactionDialogueSet reactionLines = new();
+
+        public List<SecondaryEmotionSO> keywords = new();
+        public Vector2 abvRange = new Vector2(0, 100);
+        public float timeLimit = 60f;
     }
 
     public struct OrderSlotRuntime
     {
-        public Order order;                                     // 계산된 목표 벡터
-        public List<SecondaryEmotionSO> keywords;               // 대사용(표시용)
-        public string dialogueLine;
-        public List<string> postServeLines;
+        public Order order;
+        public List<SecondaryEmotionSO> keywords;
+
+        public string dialogueLine;                 // legacy
+        public List<string> dialogueLines;         // multi-page order dialogue
+
+        public List<string> postServeLines;        // legacy fallback
+        public List<string> reactionLinesLow;
+        public List<string> reactionLinesMid;
+        public List<string> reactionLinesHigh;
     }
 
     public class CustomerOrdersAuthoring : MonoBehaviour
@@ -29,7 +58,7 @@ namespace Alkuul.UI
         public CustomerProfile profile;
 
         [Header("Order Slots (1~3)")]
-        public List<OrderSlotAuthoring> slots = new(); // size 1~3 권장
+        public List<OrderSlotAuthoring> slots = new();
 
         public List<OrderSlotRuntime> BuildRuntime(OrderSystem orderSystem)
         {
@@ -42,12 +71,31 @@ namespace Alkuul.UI
 
                 var order = orderSystem.CreateOrder(s.keywords, s.abvRange, s.timeLimit);
 
+                var builtDialogueLines = new List<string>();
+                if (s.dialogueLines != null)
+                {
+                    foreach (var line in s.dialogueLines)
+                    {
+                        if (!string.IsNullOrWhiteSpace(line))
+                            builtDialogueLines.Add(line.Trim());
+                    }
+                }
+
+                if (builtDialogueLines.Count == 0 && !string.IsNullOrWhiteSpace(s.dialogueLine))
+                    builtDialogueLines.Add(s.dialogueLine.Trim());
+
                 list.Add(new OrderSlotRuntime
                 {
                     order = order,
-                    keywords = new List<SecondaryEmotionSO>(s.keywords),
+                    keywords = s.keywords != null ? new List<SecondaryEmotionSO>(s.keywords) : new List<SecondaryEmotionSO>(),
+
                     dialogueLine = s.dialogueLine,
-                    postServeLines = (s.postServeLines != null) ? new List<string>(s.postServeLines) : new List<string>()
+                    dialogueLines = builtDialogueLines,
+
+                    postServeLines = s.postServeLines != null ? new List<string>(s.postServeLines) : new List<string>(),
+                    reactionLinesLow = s.reactionLines != null && s.reactionLines.low != null ? new List<string>(s.reactionLines.low) : new List<string>(),
+                    reactionLinesMid = s.reactionLines != null && s.reactionLines.mid != null ? new List<string>(s.reactionLines.mid) : new List<string>(),
+                    reactionLinesHigh = s.reactionLines != null && s.reactionLines.high != null ? new List<string>(s.reactionLines.high) : new List<string>()
                 });
             }
 

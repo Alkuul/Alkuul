@@ -15,6 +15,10 @@ public class CustomerPortraitView : MonoBehaviour
     private Vector2 _baseAnchoredPosition;
     private Quaternion _baseLocalRotation;
 
+    public bool HasPortraitSet => _set != null;
+    public CustomerPortraitSet CurrentPortraitSet => _set;
+    public bool IsPortraitVisible => portraitImage != null && portraitImage.enabled;
+
     // 드래그 상태(내쫓기/재우기 중)일 때 표시를 잠깐 덮어씌움
     private bool _overrideVisual;
     private RuntimeAnimatorController _baseController;

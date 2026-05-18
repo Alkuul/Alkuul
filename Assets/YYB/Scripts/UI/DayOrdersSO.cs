@@ -36,12 +36,31 @@ namespace Alkuul.UI
 
                     var order = orderSystem.CreateOrder(s.keywords, s.abvRange, s.timeLimit);
 
+                    var builtDialogueLines = new List<string>();
+                    if (s.dialogueLines != null)
+                    {
+                        foreach (var line in s.dialogueLines)
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                                builtDialogueLines.Add(line.Trim());
+                        }
+                    }
+
+                    if (builtDialogueLines.Count == 0 && !string.IsNullOrWhiteSpace(s.dialogueLine))
+                        builtDialogueLines.Add(s.dialogueLine.Trim());
+
                     list.Add(new OrderSlotRuntime
                     {
                         order = order,
-                        keywords = (s.keywords != null) ? new List<SecondaryEmotionSO>(s.keywords) : new List<SecondaryEmotionSO>(),
+                        keywords = s.keywords != null ? new List<SecondaryEmotionSO>(s.keywords) : new List<SecondaryEmotionSO>(),
+
                         dialogueLine = s.dialogueLine,
-                        postServeLines = (s.postServeLines != null) ? new List<string>(s.postServeLines) : new List<string>()
+                        dialogueLines = builtDialogueLines,
+
+                        postServeLines = s.postServeLines != null ? new List<string>(s.postServeLines) : new List<string>(),
+                        reactionLinesLow = s.reactionLines != null && s.reactionLines.low != null ? new List<string>(s.reactionLines.low) : new List<string>(),
+                        reactionLinesMid = s.reactionLines != null && s.reactionLines.mid != null ? new List<string>(s.reactionLines.mid) : new List<string>(),
+                        reactionLinesHigh = s.reactionLines != null && s.reactionLines.high != null ? new List<string>(s.reactionLines.high) : new List<string>()
                     });
                 }
 
@@ -50,4 +69,3 @@ namespace Alkuul.UI
         }
     }
 }
-

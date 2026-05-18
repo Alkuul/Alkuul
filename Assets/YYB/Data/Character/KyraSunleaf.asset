@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e6ab2f39033d7146a6531f0dadaa7c6, type: 3}
   m_Name: KyraSunleaf
   m_EditorClassIdentifier: 
-  sober: {fileID: 21300000, guid: 9f204edcb10b9b142aa749f8f96a1ac8, type: 3}
-  tipsy: {fileID: 21300000, guid: 866023ee7c7cdcd41ba2603e25a95bb4, type: 3}
-  drunk: {fileID: 21300000, guid: 866023ee7c7cdcd41ba2603e25a95bb4, type: 3}
-  wasted: {fileID: 21300000, guid: 110598ef8f4085f4b803492aafb58722, type: 3}
+  sober: {fileID: 21300000, guid: d3d6411c7ffa0504eb17acd7a2c85d6a, type: 3}
+  tipsy: {fileID: 21300000, guid: 1dfb8fbb588bbee488677c8855a2c04a, type: 3}
+  drunk: {fileID: 21300000, guid: 1dfb8fbb588bbee488677c8855a2c04a, type: 3}
+  wasted: {fileID: 21300000, guid: d6e2ff678c4705f4f9ef43e71fcdf692, type: 3}
   wastedLoopController: {fileID: 9100000, guid: cfc0fa21b89125b4f8529834f1f62f5f, type: 2}
   dragEvictController: {fileID: 0}
   dragSleepController: {fileID: 0}

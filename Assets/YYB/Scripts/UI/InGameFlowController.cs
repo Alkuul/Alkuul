@@ -86,6 +86,10 @@ namespace Alkuul.UI
         private bool _innDecisionBound;
         private bool _tutorialOverlayBound;
 
+        private bool _awaitingOrderDialogue;
+        private int _orderDialogueIndex;
+        private List<string> _orderDialogueLines = new();
+
         // rename pending
         private BrewingPanelBridge _bridge;
         private Drink _pendingDrink;
@@ -95,6 +99,11 @@ namespace Alkuul.UI
         private readonly List<Drink> _currentCustomerDrinks = new();
         private readonly List<DrinkResult> _currentCustomerResults = new();
         private bool _currentCustomerLeftEarly;
+
+        private string _lastPortraitCustomerId;
+        private CustomerPortraitSet _lastPortraitSet;
+        private IntoxStage _lastPortraitStage;
+        private bool _portraitBoundOnce;
 
         private enum PendingAdvance
         {
@@ -109,6 +118,9 @@ namespace Alkuul.UI
         public bool AwaitingReceiveOrder => _awaitingReceiveOrder;
         public bool AwaitingSettlement => _awaitingSettlement;
         public bool AwaitingRename => _awaitingRename;
+
+        public bool AwaitingPostServeDialogue => _awaitingPostServeDialogue;
+        public bool AwaitingOrderDialogue => _awaitingOrderDialogue;
 
         private void OnEnable()
         {
@@ -143,11 +155,9 @@ namespace Alkuul.UI
 
         public void AdvanceDialogue()
         {
-            // ▼▼▼ 사운드: 텍스트 넘기기 ▼▼▼
             if (Alkuul.Audio.AudioManager.Instance != null)
                 Alkuul.Audio.AudioManager.Instance.Play(Alkuul.Audio.SoundId.SFX_TextClick);
-            // ▲▲▲
-                
+
             if (_awaitingDayIntro)
             {
                 _dayIntroIndex++;
@@ -156,6 +166,19 @@ namespace Alkuul.UI
                     _awaitingDayIntro = false;
                     _dayIntroIndex = 0;
                     _awaitingReceiveCustomer = true;
+                }
+
+                RefreshOrderUI();
+                return;
+            }
+
+            if (_awaitingOrderDialogue)
+            {
+                _orderDialogueIndex++;
+                if (_orderDialogueIndex >= _orderDialogueLines.Count)
+                {
+                    _awaitingOrderDialogue = false;
+                    _orderDialogueIndex = 0;
                 }
 
                 RefreshOrderUI();
@@ -173,6 +196,7 @@ namespace Alkuul.UI
                 }
 
                 RefreshOrderUI();
+                return;
             }
         }
 
@@ -212,6 +236,10 @@ namespace Alkuul.UI
             _awaitingPostServeDialogue = false;
             _postServeIndex = 0;
             _postServeLines.Clear();
+
+            _orderDialogueIndex = 0;
+            _awaitingOrderDialogue = false;
+            _orderDialogueLines.Clear();
 
             if (verboseLog)
                 Debug.Log($"[Flow] DayPrepared day={dayNum} plan={(_todayPlan ? _todayPlan.name : "None")} targetCustomers={_customersTargetToday}");
@@ -297,12 +325,16 @@ namespace Alkuul.UI
         public void OnClickReceiveOrder()
         {
             if (_awaitingRename || _awaitingSettlement) return;
+            if (_awaitingPostServeDialogue) { RefreshOrderUI(); return; }
+            if (innDecision != null && innDecision.HasPending) { RefreshOrderUI(); return; }
+
             if (!_dayPrepared) { RefreshOrderUI(); return; }
             if (_awaitingReceiveCustomer) { RefreshOrderUI(); return; }
 
             if (requireReceiveOrderButton && _awaitingReceiveOrder)
             {
                 _awaitingReceiveOrder = false;
+                PrepareOrderDialogue();
                 RefreshOrderUI();
             }
         }
@@ -340,6 +372,34 @@ namespace Alkuul.UI
             if (requireReceiveOrderButton && _awaitingReceiveOrder)
             {
                 Debug.LogWarning("[Flow] StartBrewing blocked: press ReceiveOrder first.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (HasBlockingOrderDialogueRemaining())
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: finish order dialogue first.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (_awaitingPostServeDialogue)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: finish reaction dialogue first.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (innDecision != null && innDecision.HasPending)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: resolve inn decision first.");
+                RefreshOrderUI();
+                return;
+            }
+
+            if (_awaitingSettlement)
+            {
+                Debug.LogWarning("[Flow] StartBrewing blocked: settlement is pending.");
                 RefreshOrderUI();
                 return;
             }
@@ -564,6 +624,10 @@ namespace Alkuul.UI
             _dayIntroLines.Clear();
             _postServeLines.Clear();
 
+            _orderDialogueIndex = 0;
+            _awaitingOrderDialogue = false;
+            _orderDialogueLines.Clear();
+
             _servedCustomersToday = 0;
             _todayCustomerIndex = 0;
 
@@ -699,6 +763,16 @@ namespace Alkuul.UI
             _slotIndex = 0;
             _activeProfile = default;
             ResetCustomerSession();
+
+            _awaitingOrderDialogue = false;
+            _orderDialogueIndex = 0;
+            _orderDialogueLines.Clear();
+
+            _lastPortraitCustomerId = null;
+            _lastPortraitSet = null;
+            _lastPortraitStage = IntoxStage.Sober;
+            _portraitBoundOnce = false;
+
             if (portraitView != null) portraitView.Clear();
         }
 
@@ -716,18 +790,63 @@ namespace Alkuul.UI
             if (string.IsNullOrEmpty(_activeProfile.id))
             {
                 portraitView.Clear();
+
+                _lastPortraitCustomerId = null;
+                _lastPortraitSet = null;
+                _lastPortraitStage = IntoxStage.Sober;
+                _portraitBoundOnce = false;
                 return;
             }
 
             if (_activeProfile.portraitSet == null)
             {
                 portraitView.Clear();
+
+                _lastPortraitCustomerId = null;
+                _lastPortraitSet = null;
+                _lastPortraitStage = IntoxStage.Sober;
+                _portraitBoundOnce = false;
+
                 if (verboseLog) Debug.LogWarning("[Flow] Active customer has no portrait set.");
                 return;
             }
 
             var stage = GetPortraitStageForCurrentCustomer();
-            portraitView.Bind(_activeProfile.portraitSet, stage);
+
+            bool portraitWasClearedOrHidden =
+                !portraitView.HasPortraitSet ||
+                portraitView.CurrentPortraitSet != _activeProfile.portraitSet ||
+                !portraitView.IsPortraitVisible;
+
+            bool needRebind =
+                portraitWasClearedOrHidden ||
+                !_portraitBoundOnce ||
+                _lastPortraitSet != _activeProfile.portraitSet ||
+                _lastPortraitCustomerId != _activeProfile.id;
+
+            if (needRebind)
+            {
+                portraitView.Bind(_activeProfile.portraitSet, stage);
+
+                _lastPortraitCustomerId = _activeProfile.id;
+                _lastPortraitSet = _activeProfile.portraitSet;
+                _lastPortraitStage = stage;
+                _portraitBoundOnce = true;
+
+                if (verboseLog)
+                    Debug.Log($"[Flow] Portrait Bind: customer={_activeProfile.id}, stage={stage}");
+
+                return;
+            }
+
+            if (_lastPortraitStage != stage)
+            {
+                portraitView.SetStage(stage);
+                _lastPortraitStage = stage;
+
+                if (verboseLog)
+                    Debug.Log($"[Flow] Portrait Stage Update: customer={_activeProfile.id}, stage={stage}");
+            }
         }
 
         private IntoxStage GetPortraitStageForCurrentCustomer()
@@ -807,11 +926,18 @@ namespace Alkuul.UI
         private void EnterAwaitingOrderState()
         {
             _awaitingReceiveOrder = requireReceiveOrderButton;
+
+            _awaitingOrderDialogue = false;
+            _orderDialogueIndex = 0;
+            _orderDialogueLines.Clear();
+
+            if (!requireReceiveOrderButton)
+                PrepareOrderDialogue();
         }
 
         private void PreparePostServeDialogue()
         {
-            _postServeLines = FilterDialogueLines(GetPostServeLinesForCurrentSlot());
+            _postServeLines = FilterDialogueLines(GetReactionLinesForCurrentSlot(_pendingDrinkResult.satisfaction));
             _postServeIndex = 0;
             _awaitingPostServeDialogue = _postServeLines.Count > 0;
         }
@@ -849,6 +975,72 @@ namespace Alkuul.UI
         {
             if (_slots == null || _slotIndex < 0 || _slotIndex >= _slots.Count) return null;
             return _slots[_slotIndex].postServeLines;
+        }
+
+        private void PrepareOrderDialogue()
+        {
+            _orderDialogueLines = FilterDialogueLines(GetOrderDialogueLinesForCurrentSlot());
+            _orderDialogueIndex = 0;
+            _awaitingOrderDialogue = _orderDialogueLines.Count > 0;
+        }
+
+        private List<string> GetOrderDialogueLinesForCurrentSlot()
+        {
+            if (_slots == null || _slotIndex < 0 || _slotIndex >= _slots.Count) return null;
+
+            var slot = _slots[_slotIndex];
+
+            if (slot.dialogueLines != null && slot.dialogueLines.Count > 0)
+                return slot.dialogueLines;
+
+            if (!string.IsNullOrWhiteSpace(slot.dialogueLine))
+                return new List<string> { slot.dialogueLine };
+
+            return null;
+        }
+
+        private List<string> GetReactionLinesForCurrentSlot(float satisfaction)
+        {
+            if (_slots == null || _slotIndex < 0 || _slotIndex >= _slots.Count)
+                return null;
+
+            var slot = _slots[_slotIndex];
+
+            List<string> selected =
+                satisfaction < 40f ? slot.reactionLinesLow :
+                satisfaction < 75f ? slot.reactionLinesMid :
+                slot.reactionLinesHigh;
+
+            var filtered = FilterDialogueLines(selected);
+            if (filtered.Count > 0)
+                return filtered;
+
+            return slot.postServeLines;
+        }
+
+        private string GetOrderDialogueLine()
+        {
+            if (_orderDialogueLines == null || _orderDialogueLines.Count == 0) return "";
+            if (_orderDialogueIndex < 0 || _orderDialogueIndex >= _orderDialogueLines.Count) return "";
+            return _orderDialogueLines[_orderDialogueIndex];
+        }
+
+        private string GetAccumulatedOrderDialogueText()
+        {
+            if (_orderDialogueLines == null || _orderDialogueLines.Count == 0)
+                return "";
+
+            int count = Mathf.Clamp(_orderDialogueIndex + 1, 1, _orderDialogueLines.Count);
+            return string.Join("\n", _orderDialogueLines.GetRange(0, count));
+        }
+
+        private bool HasBlockingOrderDialogueRemaining()
+        {
+            if (!_awaitingOrderDialogue) return false;
+            if (_orderDialogueLines == null || _orderDialogueLines.Count == 0) return false;
+
+            // 마지막 줄이 이미 화면에 떠 있으면 더 이상 막지 않음
+            return _orderDialogueIndex < _orderDialogueLines.Count - 1;
         }
 
         private void TryOpenRenameUI()
@@ -923,18 +1115,6 @@ namespace Alkuul.UI
                 return true;
             }
 
-            if (_awaitingSettlement)
-            {
-                line = promptBeforeSettlement;
-                return true;
-            }
-
-            if (innDecision != null && innDecision.HasPending)
-            {
-                line = promptDuringInnDecision;
-                return true;
-            }
-
             if (_awaitingDayIntro)
             {
                 line = GetDayIntroLine();
@@ -952,6 +1132,13 @@ namespace Alkuul.UI
                 return true;
             }
 
+            if (innDecision != null && innDecision.HasPending)
+            {
+                line = promptDuringInnDecision;
+                showMeta = false;
+                return true;
+            }
+
             if (_awaitingReceiveCustomer)
             {
                 line = promptBeforeReceiveCustomer;
@@ -963,6 +1150,12 @@ namespace Alkuul.UI
                 profile = _activeProfile;
                 line = promptDuringRename;
                 showMeta = false;
+                return true;
+            }
+
+            if (_awaitingSettlement)
+            {
+                line = promptBeforeSettlement;
                 return true;
             }
 
@@ -982,7 +1175,103 @@ namespace Alkuul.UI
                 return true;
             }
 
+            if (_awaitingOrderDialogue)
+            {
+                var slotForDialogue = _slots[_slotIndex];
+                line = GetOrderDialogueLine();
+                if (string.IsNullOrWhiteSpace(line))
+                    line = BuildAutoLine(slotForDialogue.keywords);
+
+                showMeta = false;
+                return true;
+            }
+
             var slot = _slots[_slotIndex];
+
+            if (_orderDialogueLines != null && _orderDialogueLines.Count > 0)
+            {
+                line = _orderDialogueLines[_orderDialogueLines.Count - 1];
+                showMeta = false;
+                return true;
+            }
+
+            line = string.IsNullOrWhiteSpace(slot.dialogueLine)
+                ? BuildAutoLine(slot.keywords)
+                : slot.dialogueLine;
+
+            return true;
+        }
+
+        public bool TryGetTabletDialogue(out string line)
+        {
+            line = "";
+
+            if (_awaitingDayIntro)
+            {
+                line = GetDayIntroLine();
+                return true;
+            }
+
+            if (_awaitingPostServeDialogue)
+            {
+                line = GetPostServeLine();
+                return true;
+            }
+
+            if (innDecision != null && innDecision.HasPending)
+            {
+                line = promptDuringInnDecision;
+                return true;
+            }
+
+            if (_awaitingSettlement)
+            {
+                line = promptBeforeSettlement;
+                return true;
+            }
+
+            if (!_dayPrepared)
+            {
+                line = promptBeforeStartDay;
+                return true;
+            }
+
+            if (_awaitingReceiveCustomer)
+            {
+                line = promptBeforeReceiveCustomer;
+                return true;
+            }
+
+            if (_slots == null || _slotIndex < 0 || _slotIndex >= _slots.Count)
+            {
+                line = "";
+                return false;
+            }
+
+            if (requireReceiveOrderButton && _awaitingReceiveOrder)
+            {
+                line = promptBeforeReceiveOrder;
+                return true;
+            }
+
+            if (_awaitingOrderDialogue)
+            {
+                var slotForDialogue = _slots[_slotIndex];
+                line = GetAccumulatedOrderDialogueText();
+                if (string.IsNullOrWhiteSpace(line))
+                    line = BuildAutoLine(slotForDialogue.keywords);
+
+                return true;
+            }
+
+            var slot = _slots[_slotIndex];
+
+            if (_orderDialogueLines != null && _orderDialogueLines.Count > 0)
+            {
+                line = string.Join("\n", _orderDialogueLines);
+                return true;
+            }
+
             line = string.IsNullOrWhiteSpace(slot.dialogueLine)
                 ? BuildAutoLine(slot.keywords)
                 : slot.dialogueLine;
